@@ -1,0 +1,155 @@
+/* ==========================================================
+   ✅ 1. 详情页 (Detail Page) - 老师说这个完美了，阿洛娜用生命守护它！
+   ========================================================== */
+#article-container {
+    color: #eee !important;
+}
+
+#article-container p,
+#article-container li,
+#article-container ul,
+#article-container ol,
+#article-container span,
+#article-container strong,
+#article-container em {
+    color: #ddd !important;
+}
+
+#article-container h1,
+#article-container h2,
+#article-container h3,
+#article-container h4,
+#article-container h5,
+#article-container h6 {
+    color: #fff !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+#post-info .post-title {
+    color: #fff !important;
+}
+
+#post .post-copyright {
+    background: rgba(0, 0, 0, 0.4) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+#post .post-copyright * {
+    color: #eee !important;
+}
+
+.post-meta__tag-list,
+.post-reward,
+.post-pagination {
+    color: #fff !important;
+}
+
+/* ==========================================================
+   🔥 2. 首页卡片 (Home Card) - 标题单独狙击 🔥
+   ========================================================== */
+/* 2.1 先把卡片里的一般文字变白 (这个老师说已经生效了) */
+#recent-posts .recent-post-item,
+.layout .recent-posts .recent-post-item {
+    color: #eee !important;
+}
+
+#recent-posts .recent-post-item .content,
+#recent-posts .recent-post-item p {
+    color: #ddd !important;
+}
+
+#recent-posts .recent-post-item .post-meta-wrap,
+#recent-posts .recent-post-item time,
+#recent-posts .recent-post-item i {
+    color: #ccc !important;
+}
+
+/* ⬇️⬇️⬇️ 核心修复：去掉子选择器 > 以匹配实际 DOM 结构 ⬇️⬇️⬇️ */
+/* 2.2 强制【文章标题】变白！ */
+/* 无论它是 a 标签，还是 .article-title 类，或者是被点击过的(:visited)，统统变白！ */
+#recent-posts .recent-post-item .article-title,
+#recent-posts .recent-post-item .article-title a,
+#recent-posts .recent-post-item .recent-post-info .article-title,
+#recent-posts .recent-post-item .recent-post-info .article-title a,
+.recent-post-item .article-title a:visited {
+    color: #ffffff !important;
+    /* 纯白！ */
+    font-weight: bold !important;
+    /* 多层阴影创建强烈的描边效果，确保任何背景下都清晰可见 */
+    text-shadow:
+        0 0 8px rgba(0, 0, 0, 0.9),
+        0 0 12px rgba(0, 0, 0, 0.8),
+        0 2px 6px rgba(0, 0, 0, 0.7),
+        1px 1px 2px rgba(0, 0, 0, 1),
+        -1px -1px 2px rgba(0, 0, 0, 1),
+        1px -1px 2px rgba(0, 0, 0, 1),
+        -1px 1px 2px rgba(0, 0, 0, 1) !important;
+}
+
+/* 2.3 鼠标悬浮时变蓝 */
+#recent-posts .recent-post-item .article-title:hover,
+#recent-posts .recent-post-item .article-title a:hover {
+    color: #3b70fc !important;
+    transition: color 0.3s;
+}
+
+/* ==========================================================
+   3. 顶栏 (Nav) - 保持原样
+   ========================================================== */
+#nav {
+    background: transparent !important;
+    box-shadow: none !important;
+    transition: background 0.3s ease-in-out;
+}
+
+#nav.fixed {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3) !important;
+}
+
+#nav * {
+    color: #fff !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================
+   4. 卡片背景与侧边栏 (通用)
+   ========================================================== */
+#recent-posts>.recent-post-item,
+.layout>.recent-posts .recent-post-item,
+.layout>#post,
+.layout>#page,
+.card-widget {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+.card-widget,
+.card-widget * {
+    color: #eee !important;
+}
+
+.card-widget a,
+.item-headline {
+    color: #fff !important;
+}
+
+.card-widget .card-info-data .headline {
+    color: #ccc !important;
+}
+
+.card-widget .card-info-data .length-num {
+    color: #fff !important;
+    font-weight: bold;
+}
+
+#card-info-btn {
+    background-color: #3b70fc !important;
+    color: #fff !important;
+}
