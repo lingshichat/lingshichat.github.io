@@ -153,3 +153,282 @@
     background-color: #3b70fc !important;
     color: #fff !important;
 }
+
+/* ====================================
+   关键修复（解决白线和重叠问题）
+   ==================================== */
+
+/* 修复1：去掉 H2 标题下的白线（边框） */
+#article-container h2 {
+    border-bottom: none !important;
+    margin-bottom: 15px !important;
+}
+
+/* 修复2：修复歌单播放器进度条与列表重叠 */
+/* 将固定高度改为自动高度，让内容自然撑开 */
+.aplayer.aplayer-withlist .aplayer-body {
+    height: auto !important;
+}
+
+.aplayer.aplayer-withlist .aplayer-info {
+    height: auto !important;
+    padding-bottom: 25px !important;
+    /* 为控制栏留出空间 */
+}
+
+/* ====================================
+   APlayer 音乐播放器 - 高斯模糊拟物风格
+   ==================================== */
+
+/* 播放器容器整体样式 - 与卡片效果完全一致 */
+body .aplayer,
+#article-container .aplayer,
+.aplayer {
+    /* 高斯模糊背景 - 完全透明测试 */
+    background: rgba(0, 0, 0, 0) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+
+    /* 边框和圆角 */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+
+    /* 阴影效果 */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
+
+    /* 过渡动画 */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* 播放器悬停效果 */
+body .aplayer:hover,
+#article-container .aplayer:hover,
+.aplayer:hover {
+    background: rgba(0, 0, 0, 0) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4) !important;
+    transform: translateY(-2px) !important;
+}
+
+/* 播放器信息区域 */
+.aplayer .aplayer-info {
+    padding: 14px 14px 10px 14px !important;
+    background: transparent !important;
+}
+
+/* 歌曲名称 */
+.aplayer .aplayer-music {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
+    font-size: 15px !important;
+}
+
+/* 歌手名称 */
+.aplayer .aplayer-author {
+    color: rgba(255, 255, 255, 0.85) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
+    font-size: 13px !important;
+}
+
+/* 播放器封面图片 */
+.aplayer .aplayer-pic {
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+/* 播放按钮 */
+.aplayer .aplayer-play {
+    background: rgba(255, 255, 255, 0.2) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 50% !important;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    transition: all 0.3s ease !important;
+}
+
+.aplayer .aplayer-play:hover {
+    background: rgba(255, 255, 255, 0.3) !important;
+    transform: scale(1.1) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 播放按钮图标 */
+.aplayer .aplayer-icon-play,
+.aplayer .aplayer-icon-pause {
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
+}
+
+/* 进度条容器 */
+.aplayer .aplayer-bar-wrap {
+    margin: 0 !important;
+    padding: 4px 0 !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-radius: 8px !important;
+    backdrop-filter: blur(5px) !important;
+}
+
+/* 进度条已加载部分 */
+.aplayer .aplayer-loaded {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 8px !important;
+}
+
+/* 进度条已播放部分 */
+.aplayer .aplayer-played {
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4) !important;
+}
+
+/* 进度条滑块 */
+.aplayer .aplayer-played .aplayer-thumb {
+    background: #ffffff !important;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.3),
+        0 0 0 4px rgba(102, 126, 234, 0.3) !important;
+    border: 2px solid rgba(102, 126, 234, 0.8) !important;
+    transform: scale(1.2) !important;
+}
+
+/* 时间显示 */
+.aplayer .aplayer-time {
+    color: rgba(255, 255, 255, 0.9) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+}
+
+/* 音量控制 */
+.aplayer .aplayer-volume-wrap {
+    background: rgba(255, 255, 255, 0.15) !important;
+    backdrop-filter: blur(10px) !important;
+    border-radius: 8px !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.aplayer .aplayer-volume-bar-wrap {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-radius: 4px !important;
+}
+
+.aplayer .aplayer-volume-bar {
+    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%) !important;
+    border-radius: 4px !important;
+}
+
+/* 控制按钮（音量、菜单等） */
+.aplayer .aplayer-icon {
+    color: #ffffff !important;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3)) !important;
+    transition: all 0.2s ease !important;
+}
+
+.aplayer .aplayer-icon:hover {
+    color: #667eea !important;
+    transform: scale(1.15) !important;
+}
+
+/* 歌词显示 - 简洁自然 */
+.aplayer .aplayer-lrc {
+    background: transparent !important;
+    border: none !important;
+    margin-top: 12px !important;
+    padding: 10px 0 !important;
+}
+
+/* 🔧 关键修复：隐藏歌词的白色伪元素遮罩 */
+.aplayer .aplayer-lrc::before,
+.aplayer .aplayer-lrc::after {
+    display: none !important;
+    content: none !important;
+    background: none !important;
+    background-image: none !important;
+}
+
+.aplayer .aplayer-lrc p {
+    color: rgba(255, 255, 255, 0.6) !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+    transition: all 0.3s ease !important;
+    line-height: 1.8 !important;
+}
+
+.aplayer .aplayer-lrc p.aplayer-lrc-current {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 1.05em !important;
+    text-shadow:
+        0 0 10px rgba(102, 126, 234, 0.6),
+        0 2px 4px rgba(0, 0, 0, 0.6) !important;
+    transform: scale(1.02) !important;
+}
+
+/* 播放列表 */
+.aplayer .aplayer-list {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px) !important;
+    border-radius: 0 0 12px 12px !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.aplayer .aplayer-list-light {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.aplayer .aplayer-list-light:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.aplayer .aplayer-list li {
+    color: rgba(255, 255, 255, 0.85) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.aplayer .aplayer-list li:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+.aplayer .aplayer-list li.aplayer-list-light {
+    background: rgba(102, 126, 234, 0.2) !important;
+    color: #ffffff !important;
+}
+
+/* 播放列表标题 */
+.aplayer .aplayer-list-title {
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* 播放列表作者 */
+.aplayer .aplayer-list-author {
+    color: rgba(255, 255, 255, 0.7) !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 768px) {
+    .aplayer {
+        border-radius: 10px !important;
+    }
+
+    .aplayer .aplayer-music {
+        font-size: 14px !important;
+    }
+
+    .aplayer .aplayer-author {
+        font-size: 12px !important;
+    }
+}
+
+/* 深色模式增强 */
+[data-theme="dark"] .aplayer {
+    background: rgba(30, 30, 46, 0.6) !important;
+    border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .aplayer:hover {
+    background: rgba(30, 30, 46, 0.75) !important;
+}

@@ -1,0 +1,255 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>音乐播放测试 | 泠诗的小窝</title><meta name="author" content="泠晓诗"><meta name="copyright" content="泠晓诗"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="APlayer 音乐播放器测试本文演示如何在 Hexo 博客中使用 APlayer 播放器播放网易云音乐。 单曲播放示例下面是一首网易云音乐的单曲示例：        歌单播放示例下面是一个网易云音乐歌单示例（带自定义参数）： 我的歌单       参数说明可用参数：  autoplay:false - 不自动播放（推荐） mutex:true - 互斥播放（同时只能播放一个） theme:#C2">
+<meta property="og:type" content="article">
+<meta property="og:title" content="音乐播放测试">
+<meta property="og:url" content="https://lingshichat.github.io/2026/01/02/music-test/index.html">
+<meta property="og:site_name" content="泠诗的小窝">
+<meta property="og:description" content="APlayer 音乐播放器测试本文演示如何在 Hexo 博客中使用 APlayer 播放器播放网易云音乐。 单曲播放示例下面是一首网易云音乐的单曲示例：        歌单播放示例下面是一个网易云音乐歌单示例（带自定义参数）： 我的歌单       参数说明可用参数：  autoplay:false - 不自动播放（推荐） mutex:true - 互斥播放（同时只能播放一个） theme:#C2">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://lingshichat.github.io/img/cover2.png">
+<meta property="article:published_time" content="2026-01-02T20:45:00.000Z">
+<meta property="article:modified_time" content="2026-01-02T14:37:07.222Z">
+<meta property="article:author" content="泠晓诗">
+<meta property="article:tag" content="APlayer">
+<meta property="article:tag" content="音乐">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://lingshichat.github.io/img/cover2.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "音乐播放测试",
+  "url": "https://lingshichat.github.io/2026/01/02/music-test/",
+  "image": "https://lingshichat.github.io/img/cover2.png",
+  "datePublished": "2026-01-02T20:45:00.000Z",
+  "dateModified": "2026-01-02T14:37:07.222Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "泠晓诗",
+      "url": "https://lingshichat.github.io"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://lingshichat.github.io/2026/01/02/music-test/index.html"><link rel="preconnect" href="//unpkg.com"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=5.5.3"><link rel="stylesheet" href="https://unpkg.com/@fortawesome/fontawesome-free@7.1.0/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!true && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":false},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://unpkg.com/@egjs/infinitegrid@4.12.0/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '音乐播放测试',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><style> #site-subtitle { margin-top: 25px !important; } </style><style> #footer { background: transparent !important; } </style><style> .framework-info { display: none !important; } </style><link rel="stylesheet" href="/css/custom.css"><meta name="generator" content="Hexo 8.1.1"><link rel="stylesheet" href="/assets/css/APlayer.min.css" class="aplayer-style-marker">
+<script src="/assets/js/APlayer.min.js" class="aplayer-script-marker"></script>
+<script src="/assets/js/Meting.min.js" class="meting-script-marker"></script>
+</head><body><div class="bg-animation" id="web_bg" style="background-image: url(/img/bg.jpg);"></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/cover2.png);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">泠诗的小窝</span></a><a class="nav-page-title" href="/"><span class="site-name">音乐播放测试</span><span class="site-name"><i class="fa-solid fa-circle-arrow-left"></i><span>  返回首页</span></span></a></span><div id="menus"></div></nav><div id="post-info"><h1 class="post-title">音乐播放测试</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2026-01-02T20:45:00.000Z" title="发表于 2026-01-02 20:45:00">2026-01-02</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2026-01-02T14:37:07.222Z" title="更新于 2026-01-02 14:37:07">2026-01-02</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E6%B5%8B%E8%AF%95/">测试</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">224</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>1分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h1 id="APlayer-音乐播放器测试"><a href="#APlayer-音乐播放器测试" class="headerlink" title="APlayer 音乐播放器测试"></a>APlayer 音乐播放器测试</h1><p>本文演示如何在 Hexo 博客中使用 APlayer 播放器播放网易云音乐。</p>
+<h2 id="单曲播放示例"><a href="#单曲播放示例" class="headerlink" title="单曲播放示例"></a>单曲播放示例</h2><p>下面是一首网易云音乐的单曲示例：</p>
+
+    <div id="aplayer-kBvaoaCK" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="28391863" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+
+<h2 id="歌单播放示例"><a href="#歌单播放示例" class="headerlink" title="歌单播放示例"></a>歌单播放示例</h2><p>下面是一个网易云音乐歌单示例（带自定义参数）：</p>
+<h2 id="我的歌单"><a href="#我的歌单" class="headerlink" title="我的歌单"></a>我的歌单</h2>
+    <div id="aplayer-pREnviax" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="17400710741" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#667eea" data-order="list" data-loop="all"
+    ></div>
+
+<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><p>可用参数：</p>
+<ul>
+<li><code>autoplay:false</code> - 不自动播放（推荐）</li>
+<li><code>mutex:true</code> - 互斥播放（同时只能播放一个）</li>
+<li><code>theme:#C20C0C</code> - 主题颜色（网易云红色）</li>
+<li><code>loop:all</code> - 循环模式（all&#x2F;one&#x2F;none）</li>
+<li><code>order:list</code> - 播放顺序（list&#x2F;random）</li>
+</ul>
+<h2 id="如何获取音乐-ID"><a href="#如何获取音乐-ID" class="headerlink" title="如何获取音乐 ID"></a>如何获取音乐 ID</h2><ol>
+<li>打开网易云音乐网页版：<a target="_blank" rel="noopener" href="https://music.163.com/">https://music.163.com</a></li>
+<li>搜索并打开歌曲或歌单</li>
+<li>查看地址栏：<code>https://music.163.com/#/song?id=123456</code></li>
+<li><code>id=</code> 后面的数字就是音乐 ID</li>
+</ol>
+<hr>
+<p><strong>支持的平台</strong>：</p>
+<ul>
+<li>网易云音乐（netease）</li>
+<li>QQ 音乐（tencent）</li>
+<li>酷狗音乐（kugou）</li>
+<li>虾米音乐（xiami）</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://lingshichat.github.io">泠晓诗</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://lingshichat.github.io/2026/01/02/music-test/">https://lingshichat.github.io/2026/01/02/music-test/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://lingshichat.github.io" target="_blank">泠诗的小窝</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E9%9F%B3%E4%B9%90/">音乐</a><a class="post-meta__tags" href="/tags/APlayer/">APlayer</a></div><div class="post-share"><div class="social-share" data-image="/img/cover2.png" data-sites="facebook,x,wechat,weibo,qq"></div><link rel="stylesheet" href="https://unpkg.com/butterfly-extsrc@1.1.6/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://unpkg.com/butterfly-extsrc@1.1.6/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2026/01/02/%E7%AC%9B%E6%9C%88/" title="笛月"><img class="cover" src="/img/%E7%AC%9B%E6%9C%88.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post" loading='lazy'><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">笛月</div></div><div class="info-2"><div class="info-item-1">       日头落 沉轻舟 河水缓缓流家门口 倒碗酒 三两颗蚕豆老先生 别着手 讲古今兴愁而小童 低着头 贪在梦中游 看炊烟袅袅起 晚霞渐稀 不见 谈笑者身影 仿佛竟有些孤寂却听闻深山里 偶有悲鸣 不知 鬼怪或神明 若能前去探究竟 月光停在树上 树下少年郎少年手中拿着笛 偏偏无处可藏着粉色的衣裳 一位小姑娘眼波清澈透亮 宛若那月光🎵啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦啦~🎵 ✨ ────────念白ing───────── ✨  【少女】我教你吹笛子吧（凑近） 【少年】我…我会吹的（低头小声） 【少女】哈！还是我教你吧~（叉腰）  看不远处白衣 朦胧依稀 好似 一个人伫立 走近才瞧得分清却欲语又无言 羞赧垂眸 不知 如何去回应 晚风吹一片寂静 月光停在树上 树上少年郎少年嘴边青笛响 悠悠乐声飘荡倚着肩的姑娘 小脚晃呀晃采得一朵花香 衬得红脸庞 x2月光停在书上 树上少年郎（低头把你望）少年嘴边清笛响 悠悠乐声飘荡倚着肩的姑娘 小脚晃呀晃采得一朵花香 衬得红脸庞 ✨ ────────念白ing───────── ✨【少女】明明…已经学会了呀（略显高兴又有点…遗憾？）【少年】是…是啊...</div></div></div></a><a class="pagination-related" href="/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/" title="今日焕新"><img class="cover" src="/img/cover3.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post" loading='lazy'><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">今日焕新</div></div><div class="info-2"><div class="info-item-1"> 换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？就酱紫~   </div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/avatar.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/ loading='lazy'></div><div class="author-info-name">泠晓诗</div><div class="author-info-description"></div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">4</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/lingshichat"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/lingshichat" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:lingshichat@outlook.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a><a class="social-icon" href="https://space.bilibili.com/101228718" target="_blank" title="Bilibili"><i class="fab fa-bilibili"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">欢迎来到泠诗的小窝~</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#APlayer-%E9%9F%B3%E4%B9%90%E6%92%AD%E6%94%BE%E5%99%A8%E6%B5%8B%E8%AF%95"><span class="toc-number">1.</span> <span class="toc-text">APlayer 音乐播放器测试</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8D%95%E6%9B%B2%E6%92%AD%E6%94%BE%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.1.</span> <span class="toc-text">单曲播放示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%AD%8C%E5%8D%95%E6%92%AD%E6%94%BE%E7%A4%BA%E4%BE%8B"><span class="toc-number">1.2.</span> <span class="toc-text">歌单播放示例</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%88%91%E7%9A%84%E6%AD%8C%E5%8D%95"><span class="toc-number">1.3.</span> <span class="toc-text">我的歌单</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="toc-number">1.4.</span> <span class="toc-text">参数说明</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A6%82%E4%BD%95%E8%8E%B7%E5%8F%96%E9%9F%B3%E4%B9%90-ID"><span class="toc-number">1.5.</span> <span class="toc-text">如何获取音乐 ID</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/%E7%AC%9B%E6%9C%88/" title="笛月"><img src="/img/%E7%AC%9B%E6%9C%88.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="笛月"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/02/%E7%AC%9B%E6%9C%88/" title="笛月">笛月</a><time datetime="2026-01-02T21:29:00.000Z" title="发表于 2026-01-02 21:29:00">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/music-test/" title="音乐播放测试"><img src="/img/cover2.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="音乐播放测试"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/02/music-test/" title="音乐播放测试">音乐播放测试</a><time datetime="2026-01-02T20:45:00.000Z" title="发表于 2026-01-02 20:45:00">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/" title="今日焕新"><img src="/img/cover3.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="今日焕新"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/" title="今日焕新">今日焕新</a><time datetime="2026-01-02T15:58:00.000Z" title="发表于 2026-01-02 15:58:00">2026-01-02</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/" title="初次见面"><img src="/img/cover1.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="初次见面"/ loading='lazy'></a><div class="content"><a class="title" href="/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/" title="初次见面">初次见面</a><time datetime="2026-01-01T22:22:39.000Z" title="发表于 2026-01-01 22:22:39">2026-01-01</time></div></div></div></div></div></div></main><footer id="footer"><div class="footer-other"><div class="footer-copyright"><span class="copyright">&copy;&nbsp;2026 By 泠晓诗</span><span class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 8.1.1</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.5.3</a></span></div><div class="footer_custom_text">我仍然在~无人问津的阴雨霉湿之地~ <br> <span id="runtime_span"></span></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=5.5.3"></script><script src="/js/main.js?v=5.5.3"></script><div class="js-pjax"></div><script>var now=new Date();function createtime(){var t=new Date("01/01/2026 00:00:00");now.setTime(now.getTime()+250);var e=(now-t)/1e3/60/60/24,a=Math.floor(e),n=(e-a)*24,r=Math.floor(n),o=(n-r)*60,i=Math.floor(o),c=(o-i)*60,s=Math.round(c);String(r).length==1&&(r="0"+r),String(i).length==1&&(i="0"+i),String(s).length==1&&(s="0"+s);var g="本站已安全运行 "+a+" 天 "+r+" 小时 "+i+" 分 "+s+" 秒";document.getElementById("runtime_span")&&(document.getElementById("runtime_span").innerHTML=g)}setInterval(createtime,250);</script><script> document.addEventListener("pjax:complete", function() { if (document.querySelectorAll("meting-js").length > 0) { var meting = document.createElement("script"); meting.src = "https://unpkg.com/meting@2/dist/Meting.min.js"; document.body.appendChild(meting); } }); </script><script src="https://unpkg.com/pjax@0.2.8/pjax.min.js" defer="defer"></script><script>document.addEventListener('DOMContentLoaded', () => {
+  const pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+  window.pjax = new Pjax({
+    elements: 'a:not([target="_blank"])',
+    selectors: pjaxSelectors,
+    cacheBust: false,
+    analytics: false,
+    scrollRestoration: false
+  })
+
+  const triggerPjaxFn = (val) => {
+    if (!val) return
+    Object.values(val).forEach(fn => {
+      try {
+        fn()
+      } catch (err) {
+        console.debug('Pjax callback failed:', err)
+      }
+    })
+  }
+
+  document.addEventListener('pjax:send', () => {
+    // removeEventListener
+    btf.removeGlobalFnEvent('pjaxSendOnce')
+    btf.removeGlobalFnEvent('themeChange')
+
+    // reset readmode
+    const $bodyClassList = document.body.classList
+    if ($bodyClassList.contains('read-mode')) $bodyClassList.remove('read-mode')
+
+    triggerPjaxFn(window.globalFn.pjaxSend)
+  })
+
+  document.addEventListener('pjax:complete', () => {
+    btf.removeGlobalFnEvent('pjaxCompleteOnce')
+    document.querySelectorAll('script[data-pjax]').forEach(item => {
+      const newScript = document.createElement('script')
+      const content = item.text || item.textContent || item.innerHTML || ""
+      Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+      newScript.appendChild(document.createTextNode(content))
+      item.parentNode.replaceChild(newScript, item)
+    })
+
+    triggerPjaxFn(window.globalFn.pjaxComplete)
+  })
+
+  document.addEventListener('pjax:error', e => {
+    if (e.request.status === 404) {
+      false
+        ? pjax.loadUrl('/404.html')
+        : window.location.href = e.request.responseURL
+    }
+  })
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
