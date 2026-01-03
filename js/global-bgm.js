@@ -150,6 +150,31 @@
                 clearInterval(checkInterval);
                 bgmAp = meting.aplayer;
                 setupPlayerEvents();
+
+                // 尝试自动播放
+                const playPromise = bgmAp.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn('[BGM] 自动播放被拦截，等待用户交互...');
+                    });
+                }
+
+                // 智能唤醒：监听任意交互来启动播放
+                const activeBgm = () => {
+                    if (bgmAp && bgmAp.audio.paused) {
+                        bgmAp.play();
+                        console.log('[BGM] 用户交互已触发，尝试启动播放');
+                    }
+                    // 解绑事件
+                    ['click', 'scroll', 'keydown', 'touchstart'].forEach(event => {
+                        document.removeEventListener(event, activeBgm);
+                    });
+                };
+
+                ['click', 'scroll', 'keydown', 'touchstart'].forEach(event => {
+                    document.addEventListener(event, activeBgm, { once: true });
+                });
+
                 console.log('[BGM] 播放器实例获取成功');
             }
 

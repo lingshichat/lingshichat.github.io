@@ -62,13 +62,15 @@
     flex-wrap: nowrap !important;
 }
 
-/* 强制使用 Flexbox 布局容器 */
-#nav .menus_items {
-    display: flex !important;
-    align-items: center !important;
-    height: 100% !important;
-    margin: 0 !important;
-    /* 清除可能的外边距 */
+/* 强制使用 Flexbox 布局容器 - 仅在桌面端生效 */
+@media (min-width: 769px) {
+    #nav .menus_items {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        margin: 0 !important;
+        /* 清除可能的外边距 */
+    }
 }
 
 /* 搜索按钮容器调整 */
@@ -81,7 +83,7 @@
     padding: 0 !important;
 }
 
-/* 统一每个菜单项的容器 */
+/* 统一每个菜单项的容器 - 仅在桌面端生效 */
 #nav .menus_items .menus_item {
     display: flex !important;
     align-items: center !important;
@@ -797,6 +799,14 @@
     /* 与其他图标保持间距 */
 }
 
+/* 移动端调整 BGM 按钮间距 */
+@media (max-width: 768px) {
+    #nav-music {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}
+
 #nav-music-btn {
     display: flex;
     align-items: center;
@@ -845,4 +855,28 @@
 /* 10. 临时补丁 - 隐藏目录百分比 */
 .toc-percentage {
     display: none !important;
+}
+
+/* ==========================================================
+   11. 头像悬浮特效 (拟物发光)
+   ========================================================== */
+/* 1. 禁用原主题的图片旋转 */
+.avatar-img img:hover {
+    transform: none !important;
+}
+
+/* 2. 为外层容器添加过渡和辉光 */
+.card-info .avatar-img {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 50%;
+    /* 确保辉光是圆形的 */
+}
+
+.card-info .avatar-img:hover {
+    /* 轻微放大整个容器 */
+    transform: scale(1.1) !important;
+    /* 应用呼吸发光动画 */
+    animation: breathingGlow 2s ease-in-out infinite alternate;
+    /* 增加一个高亮边框以增强拟物感 */
+    box-shadow: 0 0 15px var(--primary-color) !important;
 }
