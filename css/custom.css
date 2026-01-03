@@ -51,6 +51,7 @@
 }
 
 /* 2.1 顶栏菜单悬停 - 氖光线条效果 */
+
 #nav .menus_items .menus_item a {
     position: relative;
     transition: all 0.3s ease;
@@ -63,12 +64,34 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, #3b70fc, #667eea);
-    box-shadow: 0 0 8px #3b70fc, 0 0 16px rgba(59, 112, 252, 0.5);
+    background: linear-gradient(90deg, #3b70fc, #667eea) !important;
+    box-shadow: 0 0 8px #3b70fc, 0 0 16px rgba(59, 112, 252, 0.5) !important;
     transition: transform 0.3s ease;
     transform: scaleX(0);
     transform-origin: center;
     border-radius: 2px;
+}
+
+/* 专项修复：解决搜索图标与文字菜单的蓝条对齐一致性 */
+/* 使用 ID 选择器提升权重，确保覆盖主题样式 */
+#nav #menus .menus_items .menus_item a.search::after {
+    bottom: -7px !important;
+    /* 强制补偿图标高度差 */
+    height: 2px !important;
+    /* 确保高度一致 */
+}
+
+/* 确保图标不拉高容器高度 */
+#nav #menus .menus_items .menus_item a.search i {
+    vertical-align: middle !important;
+    /* 部分主题可能会给 search 图标单独设置 margin */
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 修正搜索按钮本身的行高，防止父级容器被撑开 */
+#nav #menus .menus_items .menus_item a.search {
+    line-height: inherit !important;
 }
 
 #nav .menus_items .menus_item a:hover::after {
@@ -102,39 +125,8 @@
    3. 搜索框样式
    ========================================================== */
 
-/* 3.1 搜索图标悬停效果 - 修复对齐问题 (使用 scaleX 确保绝对居中) */
-#nav .search {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0 6px;
-    /* 增加内边距 */
-    /* height: 100%; Removed to fix baseline alignment */
-    vertical-align: middle;
-    align-self: center;
-    /* Prevent flex stretch */
-}
-
-#nav .search::after {
-    content: '';
-    position: absolute;
-    bottom: -5px;
-    /* 修正：与菜单项保持一致 (-5px) */
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background: linear-gradient(90deg, #3b70fc, #667eea);
-    box-shadow: 0 0 8px #3b70fc, 0 0 16px rgba(59, 112, 252, 0.5);
-    transition: transform 0.3s ease;
-    transform: scaleX(0);
-    transform-origin: center;
-    border-radius: 2px;
-}
-
-#nav .search:hover::after {
-    transform: scaleX(0.8);
-}
+/* 3.1 搜索图标悬停效果 - 已通过 nav.pug 结构重构继承 .menus_item 样式 */
+/* 旧样式已移除 */
 
 /* 3.2 搜索遮罩层 */
 #search-mask {
@@ -458,10 +450,11 @@
     left: auto;
     width: 32px;
     height: 32px;
-    background: transparent !important;
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    border: none !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
     border-radius: 50%;
     cursor: pointer;
     z-index: 9999;
@@ -469,7 +462,6 @@
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
-    box-shadow: none !important;
 }
 
 #global-bgm-btn .music-icon {
@@ -642,4 +634,94 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+/* ==========================================================
+   9. APlayer 播放器样式 (玻璃态修复)
+   ========================================================== */
+
+.aplayer {
+    background: rgba(0, 0, 0, 0.25) !important;
+    /* 减浅背景色，从 0.4 -> 0.25 */
+    /* backdrop-filter: blur(20px) !important; 移除模糊效果以便观察 */
+    /* -webkit-backdrop-filter: blur(20px) !important; */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    color: #fff !important;
+    margin: 20px 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 信息区域透明 */
+.aplayer .aplayer-info {
+    background: transparent !important;
+    padding: 14px 7px 14px 10px !important;
+}
+
+/* 歌曲标题和作者颜色 */
+.aplayer .aplayer-info .aplayer-music .aplayer-title,
+.aplayer .aplayer-info .aplayer-music .aplayer-author {
+    color: #fff !important;
+}
+
+/* 进度条背景 */
+.aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 时间颜色 */
+.aplayer .aplayer-info .aplayer-controller .aplayer-time {
+    color: #eee !important;
+}
+
+/* 图标颜色 */
+.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon path {
+    fill: #eee !important;
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon:hover path {
+    fill: #fff !important;
+}
+
+/* 播放列表背景 */
+.aplayer .aplayer-list {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.aplayer .aplayer-list ol li {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s ease !important;
+}
+
+.aplayer .aplayer-list ol li:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.aplayer .aplayer-list ol li.aplayer-list-light {
+    background: rgba(59, 112, 252, 0.2) !important;
+}
+
+.aplayer .aplayer-list ol li .aplayer-list-title {
+    color: #fff !important;
+}
+
+.aplayer .aplayer-list ol li .aplayer-list-author {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* 歌词部分 */
+.aplayer .aplayer-lrc:before,
+.aplayer .aplayer-lrc:after {
+    display: none !important;
+}
+
+.aplayer .aplayer-lrc p {
+    color: #eee !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.aplayer .aplayer-lrc p.aplayer-lrc-current {
+    color: #3b70fc !important;
+    font-weight: bold !important;
 }
