@@ -1,434 +1,645 @@
 /* ==========================================================
-   ✅ 1. 详情页 (Detail Page) - 老师说这个完美了，阿洛娜用生命守护它！
+   泠诗的小窝 - 自定义样式表
+   整合版本 v1.0 (2026-01-03)
+   
+   目录：
+   1. 基础变量与重置
+   2. 导航栏样式
+   3. 搜索框样式
+   4. 侧边栏卡片
+   5. 滚动条
+   6. BGM 控制按钮
+   7. 分类/标签/归档页面
+   8. 动画定义
    ========================================================== */
-#article-container {
-    color: #eee !important;
-}
 
-#article-container p,
-#article-container li,
-#article-container ul,
-#article-container ol,
-#article-container span,
-#article-container strong,
-#article-container em {
-    color: #ddd !important;
-}
+/* ==========================================================
+   1. 基础变量与重置
+   ========================================================== */
 
-#article-container h1,
-#article-container h2,
-#article-container h3,
-#article-container h4,
-#article-container h5,
-#article-container h6 {
-    color: #fff !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-#post-info .post-title {
-    color: #fff !important;
-}
-
-#post .post-copyright {
-    background: rgba(0, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-#post .post-copyright * {
-    color: #eee !important;
-}
-
-.post-meta__tag-list,
-.post-reward,
-.post-pagination {
-    color: #fff !important;
+:root {
+    --primary-color: #3b70fc;
+    --primary-glow: rgba(59, 112, 252, 0.5);
+    --glass-bg: rgba(0, 0, 0, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #fff;
+    --text-secondary: #eee;
+    --text-muted: rgba(255, 255, 255, 0.6);
 }
 
 /* ==========================================================
-   🔥 2. 首页卡片 (Home Card) - 标题单独狙击 🔥
+   2. 导航栏样式
    ========================================================== */
-/* 2.1 先把卡片里的一般文字变白 (这个老师说已经生效了) */
-#recent-posts .recent-post-item,
-.layout .recent-posts .recent-post-item {
-    color: #eee !important;
-}
 
-#recent-posts .recent-post-item .content,
-#recent-posts .recent-post-item p {
-    color: #ddd !important;
-}
-
-#recent-posts .recent-post-item .post-meta-wrap,
-#recent-posts .recent-post-item time,
-#recent-posts .recent-post-item i {
-    color: #ccc !important;
-}
-
-/* ⬇️⬇️⬇️ 核心修复：去掉子选择器 > 以匹配实际 DOM 结构 ⬇️⬇️⬇️ */
-/* 2.2 强制【文章标题】变白！ */
-/* 无论它是 a 标签，还是 .article-title 类，或者是被点击过的(:visited)，统统变白！ */
-#recent-posts .recent-post-item .article-title,
-#recent-posts .recent-post-item .article-title a,
-#recent-posts .recent-post-item .recent-post-info .article-title,
-#recent-posts .recent-post-item .recent-post-info .article-title a,
-.recent-post-item .article-title a:visited {
-    color: #ffffff !important;
-    /* 纯白！ */
-    font-weight: bold !important;
-    /* 多层阴影创建强烈的描边效果，确保任何背景下都清晰可见 */
-    text-shadow:
-        0 0 8px rgba(0, 0, 0, 0.9),
-        0 0 12px rgba(0, 0, 0, 0.8),
-        0 2px 6px rgba(0, 0, 0, 0.7),
-        1px 1px 2px rgba(0, 0, 0, 1),
-        -1px -1px 2px rgba(0, 0, 0, 1),
-        1px -1px 2px rgba(0, 0, 0, 1),
-        -1px 1px 2px rgba(0, 0, 0, 1) !important;
-}
-
-/* 2.3 鼠标悬浮时变蓝 */
-#recent-posts .recent-post-item .article-title:hover,
-#recent-posts .recent-post-item .article-title a:hover {
-    color: #3b70fc !important;
-    transition: color 0.3s;
-}
-
-/* ==========================================================
-   3. 顶栏 (Nav) - 保持原样
-   ========================================================== */
+/* 2.0 导航栏玻璃态 */
 #nav {
     background: transparent !important;
     box-shadow: none !important;
-    transition: background 0.3s ease-in-out;
+    transition: background 0.3s;
 }
 
 #nav.fixed {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2) !important;
 }
 
 #nav * {
     color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 2.1 顶栏菜单悬停 - 氖光线条效果 */
+#nav .menus_items .menus_item a {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+#nav .menus_items .menus_item a::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #3b70fc, #667eea);
+    box-shadow: 0 0 8px #3b70fc, 0 0 16px rgba(59, 112, 252, 0.5);
+    transition: transform 0.3s ease;
+    transform: scaleX(0);
+    transform-origin: center;
+    border-radius: 2px;
+}
+
+#nav .menus_items .menus_item a:hover::after {
+    transform: scaleX(0.8);
+}
+
+#nav .menus_items .menus_item a:hover {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* 2.2 下拉菜单玻璃化 */
+#nav .menus_items .menus_item_child {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+#nav .menus_items .menus_item_child li a {
+    color: #eee !important;
+}
+
+#nav .menus_items .menus_item_child li a:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
 }
 
 /* ==========================================================
-   4. 卡片背景与侧边栏 (通用)
+   3. 搜索框样式
    ========================================================== */
+
+/* 3.1 搜索图标悬停效果 - 修复对齐问题 (使用 scaleX 确保绝对居中) */
+#nav .search {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    /* 增加内边距 */
+    /* height: 100%; Removed to fix baseline alignment */
+    vertical-align: middle;
+    align-self: center;
+    /* Prevent flex stretch */
+}
+
+#nav .search::after {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    /* 修正：与菜单项保持一致 (-5px) */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #3b70fc, #667eea);
+    box-shadow: 0 0 8px #3b70fc, 0 0 16px rgba(59, 112, 252, 0.5);
+    transition: transform 0.3s ease;
+    transform: scaleX(0);
+    transform-origin: center;
+    border-radius: 2px;
+}
+
+#nav .search:hover::after {
+    transform: scaleX(0.8);
+}
+
+/* 3.2 搜索遮罩层 */
+#search-mask {
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* 3.3 搜索对话框主体 - 玻璃态 */
+#local-search .search-dialog,
+.search-dialog {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37) !important;
+}
+
+/* 3.4 搜索框头部 */
+.search-dialog .search-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: transparent !important;
+}
+
+/* 隐藏剪刀图标和虚线 */
+.search-dialog hr,
+.search-dialog .search-header::before,
+.search-dialog .search-header::after {
+    display: none !important;
+}
+
+/* 3.5 搜索输入框 */
+#local-search-input,
+.search-dialog input {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 25px !important;
+    color: #fff !important;
+    padding: 12px 20px !important;
+    transition: all 0.3s ease;
+}
+
+#local-search-input::placeholder,
+.search-dialog input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+#local-search-input:focus {
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 12px rgba(59, 112, 252, 0.5), 0 0 24px rgba(59, 112, 252, 0.25) !important;
+}
+
+/* 3.6 搜索文字与结果 */
+.search-dialog .search-title,
+.search-dialog label,
+.search-dialog .search-nav span {
+    color: #fff !important;
+}
+
+#local-search .local-search-result,
+.search-dialog .search-result,
+.search-dialog .search-result * {
+    color: #eee !important;
+}
+
+.search-dialog .search-result a {
+    color: #fff !important;
+}
+
+.search-dialog .search-result a:hover {
+    color: #3b70fc !important;
+}
+
+/* 搜索结果标题 */
+#local-search .search-result-title,
+.search-dialog .search-result-title,
+#local-search .search-result .search-result-title a,
+.search-result-list .search-result-title,
+.search-result-list a {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* 搜索结果内容 */
+#local-search .search-result-content,
+.search-dialog .search-result-content,
+.search-result .search-keyword {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 高亮关键词 */
+.search-keyword {
+    color: #3b70fc !important;
+    background: rgba(59, 112, 252, 0.2) !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+}
+
+/* 关闭按钮 */
+.search-dialog .search-close-button {
+    color: #fff !important;
+}
+
+/* ==========================================================
+   4. 卡片玻璃态效果
+   ========================================================== */
+
+/* 4.1 文章卡片玻璃态 */
 #recent-posts>.recent-post-item,
 .layout>.recent-posts .recent-post-item,
 .layout>#post,
-.layout>#page,
+.layout>#page {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+/* 4.1.1 文章内容文字颜色 */
+#post #article-container,
+#post #article-container p,
+#post #article-container li,
+#post #article-container span,
+#page #article-container,
+#page #article-container p {
+    color: #eee !important;
+}
+
+/* 4.1.2 文章标题颜色 */
+#post #article-container h1,
+#post #article-container h2,
+#post #article-container h3,
+#post #article-container h4,
+#post #article-container h5,
+#post #article-container h6,
+#page #article-container h1,
+#page #article-container h2,
+#page #article-container h3 {
+    color: #fff !important;
+}
+
+/* 4.1.3 文章链接颜色 */
+#post #article-container a,
+#page #article-container a {
+    color: #6a9cff !important;
+}
+
+#post #article-container a:hover,
+#page #article-container a:hover {
+    color: #3b70fc !important;
+    text-decoration: underline;
+}
+
+/* 4.1.4 文章元信息（日期、分类等） */
+#post .post-meta,
+#post .post-meta a,
+#post .post-title {
+    color: #fff !important;
+}
+
+/* 4.1.5 文章卡片标题 */
+.recent-post-item .recent-post-info .article-title {
+    color: #fff !important;
+}
+
+.recent-post-item .recent-post-info .article-meta-wrap {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 4.2 侧边栏卡片玻璃态 */
 .card-widget {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+/* 4.3 卡片内文字颜色 */
+.card-widget,
+.recent-post-item,
+.layout>#post,
+.layout>#page {
+    color: #eee !important;
+}
+
+.card-widget a,
+.recent-post-item a,
+.item-headline {
+    color: #fff !important;
+}
+
+/* 4.4 作者卡片样式 - 文章/标签/分类 文字 */
+.card-widget .card-info-data-item .headline,
+.card-widget .card-info-data .headline,
+.card-info-data-item .headline,
+#card-info-head .headline,
+.card-info .headline {
+    color: #fff !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 4.4.1 数字部分 */
+.card-widget .card-info-data-item .length-num,
+.card-info-data-item .length-num,
+.card-info .length-num {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+}
+
+/* 4.5 社交图标 */
+.card-info-social-icons .social-icon {
+    color: #fff !important;
+}
+
+/* 4.5.1 公告卡片 */
+#card-announcement .item-headline i,
+#card-announcement .headline i,
+.card-announcement .item-headline i,
+.card-widget.card-announcement i {
+    color: #fff !important;
+}
+
+#card-announcement .item-content,
+#card-announcement .announcement-content,
+.card-announcement .item-content {
+    color: #eee !important;
+}
+
+/* 4.6 Follow Me 按钮 */
+#card-info-btn {
+    background-color: #3b70fc !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: breathingGlow 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+#card-info-btn:hover {
+    background-color: #6a9cff !important;
+    animation: none;
+    box-shadow: 0 0 20px rgba(59, 112, 252, 0.8), 0 0 40px rgba(59, 112, 252, 0.4) !important;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+/* 4.7 目录样式 (TOC) */
+/* 目录标题 */
+.card-widget .item-headline span {
+    color: #fff !important;
+}
+
+/* 目录文字 */
+#aside-content .toc-content .toc-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+#aside-content .toc-content .toc-link:hover {
+    color: #fff !important;
+}
+
+/* 选中项 - 替换原来的绿色 */
+#aside-content .toc-content .toc-link.active {
+    background: #3b70fc !important;
+    color: #fff !important;
+    border-radius: 6px;
+    padding-left: 10px;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+}
+
+/* ==========================================================
+   5. 滚动条
+   ========================================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(59, 112, 252, 0.5);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 6px rgba(59, 112, 252, 0.3);
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 112, 252, 0.7);
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: rgba(59, 112, 252, 0.9);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ==========================================================
+   6. BGM 控制按钮
+   ========================================================== */
+
+#global-bgm-btn {
+    position: fixed;
+    top: 20px;
+    right: 60px;
+    bottom: auto;
+    left: auto;
+    width: 32px;
+    height: 32px;
+    background: transparent !important;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    border: none !important;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: none !important;
+}
+
+#global-bgm-btn .music-icon {
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.8);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+}
+
+#global-bgm-btn:hover .music-icon {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px rgba(59, 112, 252, 0.6));
+}
+
+/* 播放时旋转动画 */
+#global-bgm-btn.playing .music-icon {
+    animation: musicSpin 3s linear infinite;
+}
+
+/* 暂停状态 */
+#global-bgm-btn.paused .music-icon {
+    animation: none;
+    opacity: 0.6;
+}
+
+#global-bgm-btn.paused::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 30px;
+    background: #ff4757;
+    transform: rotate(45deg);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(255, 71, 87, 0.6);
+}
+
+/* ==========================================================
+   7. 分类/标签/归档页面
+   ========================================================== */
+
+/* 7.1 分类页面 - 透明背景 */
+#category,
+#categories,
+.category-lists,
+.category-list,
+.layout>#category,
+.layout>#categories {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.category-list a,
+.category-lists a,
+#categories a,
+#category a {
+    color: #fff !important;
+}
+
+.category-list a:hover,
+.category-lists a:hover {
+    color: #3b70fc !important;
+    text-shadow: 0 0 8px rgba(59, 112, 252, 0.5);
+}
+
+/* 7.2 标签页面 - 透明背景 */
+#tag,
+#tags,
+.tag-cloud-list,
+.layout>#tag,
+.layout>#tags {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.tag-cloud-list a {
+    color: #eee !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 15px !important;
+}
+
+.tag-cloud-list a:hover {
+    color: #fff !important;
+    background: rgba(59, 112, 252, 0.3) !important;
+    border-color: rgba(59, 112, 252, 0.5) !important;
+}
+
+/* 7.3 归档页面 */
+#archive .card-archive,
+.archives .card-archive,
+#archives .card-archive,
+.archive-list .card-archive,
+#page .archive-group,
+.archives-group,
+#archive,
+#archives,
+.layout>#archive,
+.layout>#archives {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(25px) !important;
     -webkit-backdrop-filter: blur(25px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
-.card-widget,
-.card-widget * {
+.archive-item,
+.archives-item {
+    border-left-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.archive-item a,
+.archives-item a,
+#archive a,
+#archives a {
     color: #eee !important;
 }
 
-.card-widget a,
-.item-headline {
+.archive-item a:hover,
+.archives-item a:hover {
+    color: #3b70fc !important;
+}
+
+.archive-item .article-title,
+.archives-item .article-title {
     color: #fff !important;
 }
 
-.card-widget .card-info-data .headline {
-    color: #ccc !important;
-}
-
-.card-widget .card-info-data .length-num {
-    color: #fff !important;
-    font-weight: bold;
-}
-
-#card-info-btn {
-    background-color: #3b70fc !important;
-    color: #fff !important;
-}
-
-/* ====================================
-   关键修复（解决白线和重叠问题）
-   ==================================== */
-
-/* 修复1：去掉 H2 标题下的白线（边框） */
-#article-container h2 {
-    border-bottom: none !important;
-    margin-bottom: 15px !important;
-}
-
-/* 修复2：修复歌单播放器进度条与列表重叠 */
-/* 将固定高度改为自动高度，让内容自然撑开 */
-.aplayer.aplayer-withlist .aplayer-body {
-    height: auto !important;
-}
-
-.aplayer.aplayer-withlist .aplayer-info {
-    height: auto !important;
-    padding-bottom: 25px !important;
-    /* 为控制栏留出空间 */
-}
-
-/* ====================================
-   APlayer 音乐播放器 - 高斯模糊拟物风格
-   ==================================== */
-
-/* 播放器容器整体样式 - 与卡片效果完全一致 */
-body .aplayer,
-#article-container .aplayer,
-.aplayer {
-    /* 高斯模糊背景 - 完全透明测试 */
-    background: rgba(0, 0, 0, 0) !important;
-    backdrop-filter: blur(25px) !important;
-    -webkit-backdrop-filter: blur(25px) !important;
-
-    /* 边框和圆角 */
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    border-radius: 12px !important;
-
-    /* 阴影效果 */
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
-
-    /* 过渡动画 */
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-}
-
-/* 播放器悬停效果 */
-body .aplayer:hover,
-#article-container .aplayer:hover,
-.aplayer:hover {
-    background: rgba(0, 0, 0, 0) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4) !important;
-    transform: translateY(-2px) !important;
-}
-
-/* 播放器信息区域 */
-.aplayer .aplayer-info {
-    padding: 14px 14px 10px 14px !important;
-    background: transparent !important;
-}
-
-/* 歌曲名称 */
-.aplayer .aplayer-music {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5) !important;
-    font-size: 15px !important;
-}
-
-/* 歌手名称 */
-.aplayer .aplayer-author {
-    color: rgba(255, 255, 255, 0.85) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4) !important;
-    font-size: 13px !important;
-}
-
-/* 播放器封面图片 */
-.aplayer .aplayer-pic {
-    border-radius: 8px !important;
-    overflow: hidden !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    border: 2px solid rgba(255, 255, 255, 0.15) !important;
-}
-
-/* 播放按钮 */
-.aplayer .aplayer-play {
-    background: rgba(255, 255, 255, 0.2) !important;
-    backdrop-filter: blur(10px) !important;
-    border-radius: 50% !important;
-    border: 1px solid rgba(255, 255, 255, 0.3) !important;
-    transition: all 0.3s ease !important;
-}
-
-.aplayer .aplayer-play:hover {
-    background: rgba(255, 255, 255, 0.3) !important;
-    transform: scale(1.1) !important;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* 播放按钮图标 */
-.aplayer .aplayer-icon-play,
-.aplayer .aplayer-icon-pause {
-    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3)) !important;
-}
-
-/* 进度条容器 */
-.aplayer .aplayer-bar-wrap {
-    margin: 0 !important;
-    padding: 4px 0 !important;
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 8px !important;
-    backdrop-filter: blur(5px) !important;
-}
-
-/* 进度条已加载部分 */
-.aplayer .aplayer-loaded {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 8px !important;
-}
-
-/* 进度条已播放部分 */
-.aplayer .aplayer-played {
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%) !important;
-    border-radius: 8px !important;
-    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4) !important;
-}
-
-/* 进度条滑块 */
-.aplayer .aplayer-played .aplayer-thumb {
-    background: #ffffff !important;
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.3),
-        0 0 0 4px rgba(102, 126, 234, 0.3) !important;
-    border: 2px solid rgba(102, 126, 234, 0.8) !important;
-    transform: scale(1.2) !important;
-}
-
-/* 时间显示 */
-.aplayer .aplayer-time {
-    color: rgba(255, 255, 255, 0.9) !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3) !important;
-    font-size: 12px !important;
-    font-weight: 500 !important;
-}
-
-/* 音量控制 */
-.aplayer .aplayer-volume-wrap {
-    background: rgba(255, 255, 255, 0.15) !important;
-    backdrop-filter: blur(10px) !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-.aplayer .aplayer-volume-bar-wrap {
-    background: rgba(255, 255, 255, 0.2) !important;
-    border-radius: 4px !important;
-}
-
-.aplayer .aplayer-volume-bar {
-    background: linear-gradient(180deg, #667eea 0%, #764ba2 100%) !important;
-    border-radius: 4px !important;
-}
-
-/* 控制按钮（音量、菜单等） */
-.aplayer .aplayer-icon {
-    color: #ffffff !important;
-    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3)) !important;
-    transition: all 0.2s ease !important;
-}
-
-.aplayer .aplayer-icon:hover {
-    color: #667eea !important;
-    transform: scale(1.15) !important;
-}
-
-/* 歌词显示 - 简洁自然 */
-.aplayer .aplayer-lrc {
-    background: transparent !important;
-    border: none !important;
-    margin-top: 12px !important;
-    padding: 10px 0 !important;
-}
-
-/* 🔧 关键修复：隐藏歌词的白色伪元素遮罩 */
-.aplayer .aplayer-lrc::before,
-.aplayer .aplayer-lrc::after {
-    display: none !important;
-    content: none !important;
-    background: none !important;
-    background-image: none !important;
-}
-
-.aplayer .aplayer-lrc p {
+.archive-item time,
+.archives-item time {
     color: rgba(255, 255, 255, 0.6) !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5) !important;
-    transition: all 0.3s ease !important;
-    line-height: 1.8 !important;
 }
 
-.aplayer .aplayer-lrc p.aplayer-lrc-current {
-    color: #ffffff !important;
-    font-weight: 700 !important;
-    font-size: 1.05em !important;
-    text-shadow:
-        0 0 10px rgba(102, 126, 234, 0.6),
-        0 2px 4px rgba(0, 0, 0, 0.6) !important;
-    transform: scale(1.02) !important;
+.archive-item .year,
+.archives-item .year,
+#archive .year,
+.archive-group-year {
+    color: #fff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
-/* 播放列表 */
-.aplayer .aplayer-list {
-    background: rgba(0, 0, 0, 0.3) !important;
-    backdrop-filter: blur(20px) !important;
-    border-radius: 0 0 12px 12px !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-}
+/* ==========================================================
+   8. 动画定义
+   ========================================================== */
 
-.aplayer .aplayer-list-light {
-    background: rgba(255, 255, 255, 0.1) !important;
-}
+/* 8.1 呼吸光动画 */
+@keyframes breathingGlow {
 
-.aplayer .aplayer-list-light:hover {
-    background: rgba(255, 255, 255, 0.15) !important;
-}
-
-.aplayer .aplayer-list li {
-    color: rgba(255, 255, 255, 0.85) !important;
-    border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-}
-
-.aplayer .aplayer-list li:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    color: #ffffff !important;
-}
-
-.aplayer .aplayer-list li.aplayer-list-light {
-    background: rgba(102, 126, 234, 0.2) !important;
-    color: #ffffff !important;
-}
-
-/* 播放列表标题 */
-.aplayer .aplayer-list-title {
-    color: #ffffff !important;
-    font-weight: 600 !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3) !important;
-}
-
-/* 播放列表作者 */
-.aplayer .aplayer-list-author {
-    color: rgba(255, 255, 255, 0.7) !important;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-}
-
-/* 响应式适配 */
-@media screen and (max-width: 768px) {
-    .aplayer {
-        border-radius: 10px !important;
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(59, 112, 252, 0.4), 0 0 16px rgba(59, 112, 252, 0.2);
     }
 
-    .aplayer .aplayer-music {
-        font-size: 14px !important;
-    }
-
-    .aplayer .aplayer-author {
-        font-size: 12px !important;
+    50% {
+        box-shadow: 0 0 16px rgba(59, 112, 252, 0.6), 0 0 32px rgba(59, 112, 252, 0.3);
     }
 }
 
-/* 深色模式增强 */
-[data-theme="dark"] .aplayer {
-    background: rgba(30, 30, 46, 0.6) !important;
-    border-color: rgba(255, 255, 255, 0.15) !important;
-}
+/* 8.2 音乐旋转动画 */
+@keyframes musicSpin {
+    from {
+        transform: rotate(0deg);
+    }
 
-[data-theme="dark"] .aplayer:hover {
-    background: rgba(30, 30, 46, 0.75) !important;
+    to {
+        transform: rotate(360deg);
+    }
 }

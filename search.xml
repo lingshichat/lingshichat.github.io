@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>音乐播放测试</title>
+    <url>/2026/01/02/music-test/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="APlayer-音乐播放器测试"><a href="#APlayer-音乐播放器测试" class="headerlink" title="APlayer 音乐播放器测试"></a>APlayer 音乐播放器测试</h1><p>本文演示如何在 Hexo 博客中使用 APlayer 播放器播放网易云音乐。</p>
+<h2 id="单曲播放示例"><a href="#单曲播放示例" class="headerlink" title="单曲播放示例"></a>单曲播放示例</h2><p>下面是一首网易云音乐的单曲示例：</p>
+
+    <div id="aplayer-nEfbldqn" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="28391863" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+
+<h2 id="歌单播放示例"><a href="#歌单播放示例" class="headerlink" title="歌单播放示例"></a>歌单播放示例</h2><p>下面是一个网易云音乐歌单示例（带自定义参数）：</p>
+<h2 id="我的歌单"><a href="#我的歌单" class="headerlink" title="我的歌单"></a>我的歌单</h2>
+    <div id="aplayer-LEOYUgQx" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="17400710741" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#667eea" data-order="list" data-loop="all"
+    ></div>
+
+<h2 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h2><p>可用参数：</p>
+<ul>
+<li><code>autoplay:false</code> - 不自动播放（推荐）</li>
+<li><code>mutex:true</code> - 互斥播放（同时只能播放一个）</li>
+<li><code>theme:#C20C0C</code> - 主题颜色（网易云红色）</li>
+<li><code>loop:all</code> - 循环模式（all&#x2F;one&#x2F;none）</li>
+<li><code>order:list</code> - 播放顺序（list&#x2F;random）</li>
+</ul>
+<h2 id="如何获取音乐-ID"><a href="#如何获取音乐-ID" class="headerlink" title="如何获取音乐 ID"></a>如何获取音乐 ID</h2><ol>
+<li>打开网易云音乐网页版：<a href="https://music.163.com/">https://music.163.com</a></li>
+<li>搜索并打开歌曲或歌单</li>
+<li>查看地址栏：<code>https://music.163.com/#/song?id=123456</code></li>
+<li><code>id=</code> 后面的数字就是音乐 ID</li>
+</ol>
+<hr>
+<p><strong>支持的平台</strong>：</p>
+<ul>
+<li>网易云音乐（netease）</li>
+<li>QQ 音乐（tencent）</li>
+<li>酷狗音乐（kugou）</li>
+<li>虾米音乐（xiami）</li>
+</ul>
+]]></content>
+      <categories>
+        <category>测试</category>
+      </categories>
+      <tags>
+        <tag>音乐</tag>
+        <tag>APlayer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>今日焕新</title>
+    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
+<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
+]]></content>
+      <categories>
+        <category>测试</category>
+      </categories>
+  </entry>
+  <entry>
+    <title>初次见面</title>
+    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
+]]></content>
+  </entry>
+  <entry>
+    <title>笛月</title>
+    <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
+
+    <div id="aplayer-pXmxJOiF" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+
+<p>日头落 沉轻舟 河水缓缓流<br>家门口 倒碗酒 三两颗蚕豆<br>老先生 别着手 讲古今兴愁<br>而小童 低着头 贪在梦中游</p>
+<p>看炊烟袅袅起 晚霞渐稀 不见 谈笑者身影 仿佛竟有些孤寂<br>却听闻深山里 偶有悲鸣 不知 鬼怪或神明 若能前去探究竟</p>
+<p>月光停在树上 树下少年郎<br>少年手中拿着笛 偏偏无处可藏<br>着粉色的衣裳 一位小姑娘<br>眼波清澈透亮 宛若那月光<br>🎵啦啦啦啦啦<del>啦啦啦啦啦</del>啦啦啦啦啦啦~🎵</p>
+<p>✨ ────────念白ing───────── ✨</p>
+<ul>
+<li>【少女】我教你吹笛子吧（凑近）</li>
+<li>【少年】我…我会吹的（低头小声）</li>
+<li>【少女】哈！还是我教你吧~（叉腰）</li>
+</ul>
+<p>看不远处白衣 朦胧依稀 好似 一个人伫立 走近才瞧得分清<br>却欲语又无言 羞赧垂眸 不知 如何去回应 晚风吹一片寂静</p>
+<p>月光停在树上 树上少年郎<br>少年嘴边青笛响 悠悠乐声飘荡<br>倚着肩的姑娘 小脚晃呀晃<br>采得一朵花香 衬得红脸庞</p>
+<p>x2<br>月光停在书上 树上少年郎（低头把你望）<br>少年嘴边清笛响 悠悠乐声飘荡<br>倚着肩的姑娘 小脚晃呀晃<br>采得一朵花香 衬得红脸庞</p>
+<p>✨ ────────念白ing───────── ✨<br>【少女】明明…已经学会了呀（略显高兴又有点…遗憾？）<br>【少年】是…是啊，已经学会了，可我不想让你离开（拉住）</p>
+<hr>
+<blockquote>
+<p>「因笛相识，恋于月下」，故名笛月。</p>
+<p>♪ 今天就来讲讲笛月的故事趴!</p>
+</blockquote>
+<p>桃花镇上住着一个乐于助人的小姑娘</p>
+<p>襁褓里的小姑娘被扔在了后山里</p>
+<p>遇到了那天去采药的桃花镇镇长</p>
+<p>将她从深山里捡了回来</p>
+<p>才获得了新生</p>
+<p>镇里家家户户对她都十分关爱</p>
+<p>大家时常能看到这个小姑娘在镇里帮忙的身影</p>
+<p>随着时间一天天过去，镇长也已年迈</p>
+<p>小姑娘接下了镇长上山采药的重任</p>
+<p>每天都会去深山里采药</p>
+<p>一天，小姑娘听到大家都在讨论深夜里</p>
+<p>后山每夜都会传来的怪声，闹的大家人心惶惶　　</p>
+<p>有些人说是山里住进了怪物，有些人说山里危险的动物很多一定是曾经在后山里丧命的亡魂在作祟</p>
+<p>小姑娘听到了这些事情，皱了皱眉头</p>
+<p>决定晚上去后山看看到底是什么情况</p>
+<p>让大家不再如此担惊受怕  
+　　</p>
+<p>第二天，小姑娘如常般上山采药</p>
+<p>开始上山的时候，小姑娘毕竟还是小姑娘  </p>
+<p>听完大家的说辞心底还是有一丝丝害怕　　</p>
+<p>可是之后走着走着，渐渐就被美丽的大自然所吸引</p>
+<p>吹着口哨，蹦蹦跳跳的采起了草药　　</p>
+<p>忘记了那些怪事<br>　　<br>直到夜幕降临，小姑娘看着越来越暗的树林</p>
+<p>决定找一棵高大的树，在树上照着月光睡一晚</p>
+<p>顺便观察那所谓怪声的来源</p>
+<p>就当小姑娘还没找到可以休息的大树时</p>
+<p>便听到似是笛声般的声音从不远处飘来</p>
+<p>小姑娘跟随着声音的方向，漫步走向一棵巨大的桃花树下</p>
+<p>只见一个身穿白色长袍的少年背对着自己，坐在粗壮的树枝上洁白修长的手握着翠绿色的笛子</p>
+<p>画面是那般美好</p>
+<p>直到少年用力的一吹</p>
+<p>奇怪的笛声再次响起</p>
+<p>小姑娘见此，没有忍住笑出了声</p>
+<p>白衣少年听此吃惊的转过头</p>
+<p>只见树下站着一个粉袍的小姑娘</p>
+<p>因为尝试憋笑的缘故，脸蛋红红的</p>
+<p>在月光下竟是让人感到舒服和放松</p>
+<p>白衣少年不知不觉的红了耳根</p>
+<p>急急忙忙的将笛子塞进了衣袖</p>
+<p>没有想到这个时间居然还会有凡人在山里晃荡</p>
+<p>小姑娘看着眼前的白衣少年转头后的容颜</p>
+<p>不禁也有些失神</p>
+<p>真是漂亮的人啊</p>
+<p>当她看到白衣少年袖子里藏起的笛子</p>
+<p>不禁再次失笑</p>
+<p>想必那所谓的怪声就是这个少年所做出的吧</p>
+<p>和他完美的形象合在一起确是十分可爱的</p>
+<p>“我可以教你如何吹笛子呀”</p>
+<p>小姑娘站在树下，笑盈盈的看着少年</p>
+<p>白衣少年不解的看向这个凡人小姑娘</p>
+<p>随即低头看了看手中的笛子，有些尴尬道</p>
+<p>“我会吹的。”</p>
+<p>于是又掏出笛子，想要证明自己可以</p>
+<p>吹出的音符却依然是那不成形的声音</p>
+<p>白衣少年垂下眼眸，缓缓放下手中的笛子，</p>
+<p>有些无可奈何地想要离去时，</p>
+<p>只见树下的小姑娘已经动作轻快地爬上了树</p>
+<p>坐在了他的身边</p>
+<p>就在他还没做出反应</p>
+<p>只见她掏出了一片叶子</p>
+<p>轻轻的放在嘴边</p>
+<p>美妙的旋律环绕在他们身边</p>
+<p>看着小姑娘像月牙般的笑颜</p>
+<p>回过神后白衣少年才发现自己的反常</p>
+<p>居然痴痴的盯着一个凡人小姑娘</p>
+<p>“怎么样，我来教你吧”</p>
+<p>一曲结束</p>
+<p>小姑娘看着白衣少年红彤彤的脸</p>
+<p>有些好笑</p>
+<p>白衣少年不受控制的递出了手中的笛子</p>
+<p>白嫩的小手和洁白修长的手交替形成了强烈的对比，于是小姑娘便一点一点开始教白衣少年吹笛子　　</p>
+<p>之后镇里的大家都说</p>
+<p>深夜里的怪声终于不见了</p>
+<p>可是白天却时不时还会出现怪声</p>
+<p>只是日复一日，奇怪的声音也逐渐消失了</p>
+<p>这一切都因为，每一天上山采药</p>
+<p>小姑娘都会在那棵树上</p>
+<p>看见白衣少年坐在那里等待着自己</p>
+<p>经过这番经历</p>
+<p>两个人也变得熟悉</p>
+<p>后来，白衣少年渐渐感受到自己对小姑娘产生的感情</p>
+<p>可自己现在唯一能做的，</p>
+<p>就是让她停留在自己身边</p>
+<p>更久，更久。</p>
+<p>于是白衣少年便总会在她教自己吹笛时，出现一些差错</p>
+<p>看到她对自己“笨笨的”错误，无奈地摇头，却依然耐心的微笑着每天都会来到这棵树下不厌其烦地教着自己</p>
+<p>白衣少年知道，此缘已结</p>
+<p>自己已经喜欢上这个温柔的凡人小姑娘</p>
+<p>直到某天傍晚来临前</p>
+<p>看清自己感情的白衣少年坐在树上</p>
+<p>回忆着和小姑娘经历过的点点滴滴</p>
+<p>吹奏起今日她一直“教不会”自己的曲</p>
+<p>幸福的闭上了双眸</p>
+<p>思考着该如何向小姑娘表达自己的心意</p>
+<p>突然身后传来声响</p>
+<p>白衣少年如初次见面那般，转头看向身后之人</p>
+<p>“明明已经学会了啊”</p>
+<p>小姑娘泛着泪光，笑着望着自己</p>
+<p>白衣少年胸口一痛，无法再忍受</p>
+<p>飞落树下，抬起衣袖拂去她眼角的眼泪</p>
+<p>“是啊，已经学会了，可我不想让你离开。”</p>
+<p>说完将她揽进怀里，</p>
+<p>并告诉了小姑娘</p>
+<p>自己其实不是凡人</p>
+<p>而是一直居住在深山里的妖</p>
+<p>得知这个消息的小姑娘本是十分惊讶可也无所畏惧</p>
+<p>其实在初见的那天</p>
+<p>自己就已经喜欢上了</p>
+<p>这个看似完美却平易近人的少年</p>
+]]></content>
+      <categories>
+        <category>生活情趣</category>
+      </categories>
+      <tags>
+        <tag>歌词</tag>
+        <tag>摘抄</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>音乐使用说明</title>
+    <url>/2026/01/03/%E9%9F%B3%E4%B9%90%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="🎵-音乐播放器使用说明"><a href="#🎵-音乐播放器使用说明" class="headerlink" title="🎵 音乐播放器使用说明"></a>🎵 音乐播放器使用说明</h1><h2 id="快速插入"><a href="#快速插入" class="headerlink" title="快速插入"></a>快速插入</h2><p>在 Obsidian 中：</p>
+<ol>
+<li>按 <code>Ctrl+P</code> 打开命令面板</li>
+<li>搜索 “模板” （Templates: Insert template）</li>
+<li>选择对应的音乐模板</li>
+<li>替换其中的 ID 即可</li>
+</ol>
+<h2 id="模板列表"><a href="#模板列表" class="headerlink" title="模板列表"></a>模板列表</h2><h3 id="📀-单曲播放器"><a href="#📀-单曲播放器" class="headerlink" title="📀 单曲播放器"></a>📀 单曲播放器</h3><ul>
+<li><strong>模板</strong>：<code>音乐-单曲</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌曲ID" "netease" "song" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌曲ID</code> 为实际的歌曲ID</li>
+</ul>
+<h3 id="📁-歌单播放器（红色主题）"><a href="#📁-歌单播放器（红色主题）" class="headerlink" title="📁 歌单播放器（红色主题）"></a>📁 歌单播放器（红色主题）</h3><ul>
+<li><strong>模板</strong>：<code>音乐-歌单</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#C20C0C" "mutex:true" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
+</ul>
+<h3 id="📁-歌单播放器（紫色主题）"><a href="#📁-歌单播放器（紫色主题）" class="headerlink" title="📁 歌单播放器（紫色主题）"></a>📁 歌单播放器（紫色主题）</h3><ul>
+<li><strong>模板</strong>：<code>音乐-歌单-紫色</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
+</ul>
+<h2 id="如何获取音乐ID？"><a href="#如何获取音乐ID？" class="headerlink" title="如何获取音乐ID？"></a>如何获取音乐ID？</h2><h3 id="网易云音乐"><a href="#网易云音乐" class="headerlink" title="网易云音乐"></a>网易云音乐</h3><ol>
+<li>打开网易云音乐网页版：<a href="https://music.163.com/">https://music.163.com</a></li>
+<li>搜索并打开你想要的歌曲或歌单</li>
+<li>查看浏览器地址栏：<ul>
+<li><strong>歌曲</strong>：<code>https://music.163.com/#/song?id=123456</code> → ID是 <code>123456</code></li>
+<li><strong>歌单</strong>：<code>https://music.163.com/#/playlist?id=789012</code> → ID是 <code>789012</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><strong>单曲示例</strong>：</p>
+<ul>
+<li>歌曲：袁娅维 - 说散就散</li>
+<li>链接：<code>https://music.163.com/#/song?id=500224267</code></li>
+<li>ID：<code>500224267</code></li>
+<li>代码：<code>&#123;% meting "500224267" "netease" "song" %&#125;</code></li>
+</ul>
+<p><strong>歌单示例</strong>：</p>
+<ul>
+<li>歌单：我喜欢的音乐</li>
+<li>链接：<code>https://music.163.com/#/playlist?id=17400710741</code></li>
+<li>ID：<code>17400710741</code></li>
+<li>代码：<code>&#123;% meting "17400710741" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
+</ul>
+<h2 id="快捷键设置（可选）"><a href="#快捷键设置（可选）" class="headerlink" title="快捷键设置（可选）"></a>快捷键设置（可选）</h2><p>你可以在 Obsidian 设置中为常用模板设置快捷键：</p>
+<ol>
+<li>打开设置 → 快捷键</li>
+<li>搜索 “Templates”</li>
+<li>为 “Insert template” 设置快捷键（比如 <code>Ctrl+Shift+T</code>）</li>
+</ol>
+<p>这样就可以：</p>
+<ol>
+<li>按快捷键</li>
+<li>选择音乐模板</li>
+<li>填入ID</li>
+<li>完成！</li>
+</ol>
+<hr>
+<p>💡 <strong>提示</strong>：如果你经常使用某个歌单，可以直接复制完整的代码保存在你的笔记中作为参考。</p>
+]]></content>
+      <categories>
+        <category>测试</category>
+      </categories>
+      <tags>
+        <tag>音乐</tag>
+        <tag>APlayer</tag>
+      </tags>
+  </entry>
+</search>
