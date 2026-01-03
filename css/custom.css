@@ -50,17 +50,86 @@
     text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-/* 2.1 顶栏菜单悬停 - 氖光线条效果 */
+/* 2.1 顶栏菜单悬停 - 氖光线条效果 (Flexbox 重构版) */
 
-#nav .menus_items .menus_item a {
-    position: relative;
-    transition: all 0.3s ease;
+/* === 核心修复：提升 Flexbox 作用域至父容器 === */
+#nav #menus {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    /* 使菜单整体居中 or flex-end */
+    height: 100% !important;
+    flex-wrap: nowrap !important;
 }
 
-#nav .menus_items .menus_item a::after {
+/* 强制使用 Flexbox 布局容器 */
+#nav .menus_items {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin: 0 !important;
+    /* 清除可能的外边距 */
+}
+
+/* 搜索按钮容器调整 */
+#nav #search-button {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin-left: 14px !important;
+    /* 保持与菜单项的间距 */
+    padding: 0 !important;
+}
+
+/* 统一每个菜单项的容器 */
+#nav .menus_items .menus_item {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin: 0 0 0 14px !important;
+    padding: 0 !important;
+}
+
+/* 统一所有链接（文字和图标）的盒模型 */
+/* 注意：搜索按钮是 span (class .search)，这里分别指定 */
+#nav .menus_items .menus_item a,
+#nav #search-button .search {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 40px !important;
+    /* 设定统一高度 */
+    line-height: 40px !important;
+    padding: 0 4px !important;
+    transition: all 0.3s ease !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    color: #fff !important;
+    cursor: pointer !important;
+    /* SPAN 需要手型 */
+}
+
+/* 确保图标垂直居中且不撑开布局 */
+#nav .menus_items .menus_item a i,
+#nav #search-button .search i {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin-right: 4px !important;
+    vertical-align: middle !important;
+}
+
+/* 搜索按钮特殊处理：去除多余 margin */
+#nav #search-button .search i {
+    margin: 0 !important;
+}
+
+/* 统一后的蓝条样式 */
+#nav .menus_items .menus_item a::after,
+#nav #search-button .search::after {
     content: '';
     position: absolute;
-    bottom: -5px;
+    bottom: 2px !important;
+    /* 统一距离底部的位置 */
     left: 0;
     width: 100%;
     height: 2px;
@@ -72,33 +141,13 @@
     border-radius: 2px;
 }
 
-/* 专项修复：解决搜索图标与文字菜单的蓝条对齐一致性 */
-/* 使用 ID 选择器提升权重，确保覆盖主题样式 */
-#nav #menus .menus_items .menus_item a.search::after {
-    bottom: -7px !important;
-    /* 强制补偿图标高度差 */
-    height: 2px !important;
-    /* 确保高度一致 */
-}
-
-/* 确保图标不拉高容器高度 */
-#nav #menus .menus_items .menus_item a.search i {
-    vertical-align: middle !important;
-    /* 部分主题可能会给 search 图标单独设置 margin */
-    margin: 0 !important;
-    padding: 0 !important;
-}
-
-/* 修正搜索按钮本身的行高，防止父级容器被撑开 */
-#nav #menus .menus_items .menus_item a.search {
-    line-height: inherit !important;
-}
-
-#nav .menus_items .menus_item a:hover::after {
+#nav .menus_items .menus_item a:hover::after,
+#nav #search-button .search:hover::after {
     transform: scaleX(0.8);
 }
 
-#nav .menus_items .menus_item a:hover {
+#nav .menus_items .menus_item a:hover,
+#nav #search-button .search:hover {
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
 }
 
@@ -724,4 +773,15 @@
 .aplayer .aplayer-lrc p.aplayer-lrc-current {
     color: #3b70fc !important;
     font-weight: bold !important;
+}
+
+
+/* 移除最新文章等侧边栏列表项的分割线 */
+.aside-list-item {
+    border-bottom: none !important;
+}
+
+/* 归档页面“全部文章”标题颜色修改 */
+.article-sort-title {
+    color: #fff !important;
 }
