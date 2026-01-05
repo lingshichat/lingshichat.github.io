@@ -29,7 +29,7 @@
   </url>
   
   <url>
-    <loc>https://lingshichat.top/templates/%E9%9F%B3%E4%B9%90-%E6%AD%8C%E5%8D%95-%E7%B4%AB%E8%89%B2.html</loc>
+    <loc>https://lingshichat.top/templates/%E9%9F%B3%E4%B9%90-%E6%AD%8C%E5%8D%95.html</loc>
     
     <lastmod>2026-01-05</lastmod>
     
@@ -38,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://lingshichat.top/templates/%E9%9F%B3%E4%B9%90-%E6%AD%8C%E5%8D%95.html</loc>
+    <loc>https://lingshichat.top/templates/%E9%9F%B3%E4%B9%90-%E6%AD%8C%E5%8D%95-%E7%B4%AB%E8%89%B2.html</loc>
     
     <lastmod>2026-01-05</lastmod>
     
@@ -92,7 +92,7 @@
   </url>
   
   <url>
-    <loc>https://lingshichat.top/404.html</loc>
+    <loc>https://lingshichat.top/categories/index.html</loc>
     
     <lastmod>2026-01-05</lastmod>
     
@@ -101,7 +101,16 @@
   </url>
   
   <url>
-    <loc>https://lingshichat.top/categories/index.html</loc>
+    <loc>https://lingshichat.top/2026/01/05/1/</loc>
+    
+    <lastmod>2026-01-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://lingshichat.top/404.html</loc>
     
     <lastmod>2026-01-05</lastmod>
     
@@ -170,14 +179,14 @@
   </url>
   
   <url>
-    <loc>https://lingshichat.top/categories/%E5%8D%9A%E5%AE%A2%E6%9B%B4%E6%96%B0/%E6%8A%80%E6%9C%AF/</loc>
+    <loc>https://lingshichat.top/categories/%E7%94%9F%E6%B4%BB%E6%83%85%E8%B6%A3/</loc>
     <lastmod>2026-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://lingshichat.top/categories/%E7%94%9F%E6%B4%BB%E6%83%85%E8%B6%A3/</loc>
+    <loc>https://lingshichat.top/categories/%E5%8D%9A%E5%AE%A2%E6%9B%B4%E6%96%B0/%E6%8A%80%E6%9C%AF/</loc>
     <lastmod>2026-01-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
