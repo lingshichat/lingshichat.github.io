@@ -12,9 +12,17 @@
     <script type="module" src="https://cdn.skypack.dev/@octokit/rest"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
+
+    <!-- APlayer & MetingJS (Audio Support) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flatpickr (Glass Datepicker Support) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <!-- Custom Style -->
     <link rel="stylesheet" href="style.css">
@@ -22,29 +30,35 @@
 
 <body>
     <div id="app" v-cloak>
-        <!-- 🔐 登录界面 -->
+        <!-- 🔐 登录界面 (重构版) -->
         <div v-if="!isLoggedIn" class="login-container">
-            <div class="glass-card login-card">
-                <div class="login-header">
-                    <i class="fa-solid fa-cloud"></i>
-                    <h2>云端通行证</h2>
+            <div class="login-card">
+                <!-- 漂流瓶/羽毛笔图标 -->
+                <div class="login-icon-wrapper">
+                    <i class="fa-solid fa-feather-pointed login-icon"></i>
+                    <div class="icon-glow"></div>
                 </div>
-                <div class="login-body">
-                    <div class="input-group">
-                        <i class="fa-solid fa-key"></i>
-                        <input type="password" v-model="password" @keyup.enter="login" placeholder="请输入访问密码..."
-                            autofocus>
-                    </div>
-                    <div class="checkbox-group">
-                        <input type="checkbox" id="remember" v-model="rememberMe">
-                        <label for="remember">记住我 (自动登录)</label>
-                    </div>
-                    <button @click="login" :disabled="loading" class="btn-glow">
-                        <span v-if="loading"><i class="fa-solid fa-spinner fa-spin"></i> 验证中...</span>
-                        <span v-else>解锁进入</span>
+
+                <h2 class="login-title">灵感 · 归档</h2>
+
+                <div class="login-input-area">
+                    <input type="password" v-model="password" @keyup.enter="login" placeholder="输入密钥，开启时空..." autofocus>
+                    <button class="login-btn" @click="login" :disabled="loading">
+                        <i class="fa-solid fa-arrow-right"></i>
                     </button>
-                    <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
                 </div>
+
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" v-model="rememberMe">
+                    <label for="remember">记住密码</label>
+                </div>
+
+                <!-- 温柔的错误提示 -->
+                <transition name="fade">
+                    <div v-if="errorMsg" class="error-toast">
+                        <i class="fa-regular fa-face-frown-open"></i> {{ errorMsg }}
+                    </div>
+                </transition>
             </div>
         </div>
 
@@ -53,62 +67,190 @@
             <!-- 顶部导航 -->
             <nav class="glass-nav">
                 <div class="nav-left">
-                    <button class="nav-btn" @click="toggleSidebar">
-                        <i class="fa-solid fa-bars"></i>
+                    <button class="nav-btn toggle-sidebar" @click="toggleSidebar">
+                        <i class="fa-solid fa-bars-staggered"></i>
                     </button>
-                    <span class="logo-text">灵感空间</span>
+                    <span class="logo-text">EDITOR</span>
                 </div>
                 <div class="nav-right">
-                    <button class="nav-btn action-btn" @click="newPost">
-                        <i class="fa-solid fa-plus"></i> <span class="desktop-only">新建</span>
-                    </button>
-                    <button class="nav-btn action-btn primary" @click="savePost" :disabled="saving">
-                        <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
-                        <span class="desktop-only">{{ saving ? '发布中...' : '发布' }}</span>
-                    </button>
-                    <button class="nav-btn logout-btn" @click="logout" title="退出">
-                        <i class="fa-solid fa-right-from-bracket"></i>
+                    <!-- 保存状态指示 -->
+                    <span class="save-status" v-if="saving || saveStatus">
+                        <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-check'"></i>
+                        {{ saving ? '同步中...' : saveStatus }}
+                    </span>
+
+                    <!-- 登出按钮 (更隐蔽) -->
+                    <button class="nav-btn logout-btn" @click="logout" title="断开连接">
+                        <i class="fa-solid fa-power-off"></i>
                     </button>
                 </div>
             </nav>
 
             <div class="main-content">
                 <!-- 左侧文章列表 -->
-                <aside class="sidebar glass-panel" :class="{ 'open': sidebarOpen }">
+                <aside class="sidebar" :class="{ 'open': sidebarOpen }">
                     <div class="sidebar-header">
-                        <h3>文章列表</h3>
-                        <button @click="fetchPosts" title="刷新"><i class="fa-solid fa-rotate-right"></i></button>
-                    </div>
-                    <ul class="post-list">
-                        <li v-for="post in posts" :key="post.sha" @click="loadPost(post)"
-                            :class="{ active: currentPost && currentPost.sha === post.sha }">
-                            <span class="post-title">{{ post.name.replace('.md', '') }}</span>
-                            <span class="post-date text-xs">{{ formatDate(post.date) }}</span> <!-- 需要后续实现获取日期 -->
-                        </li>
-                        <li v-if="posts.length === 0" class="empty-state">暂无文章或加载中...</li>
-                    </ul>
-                </aside>
-
-                <!-- 核心编辑区 -->
-                <main class="editor-area glass-panel">
-                    <div class="metadata-form">
-                        <input type="text" v-model="postTitle" placeholder="在此输入文章标题..." class="title-input">
-                        <div class="meta-tags">
-                            <input type="text" v-model="postDate" placeholder="YYYY-MM-DD HH:mm:ss" class="meta-input">
-                            <input type="text" v-model="postTags" placeholder="标签 (逗号分隔)" class="meta-input">
-                            <input type="text" v-model="postCategories" placeholder="分类" class="meta-input">
-                            <!-- 移动端视图切换 -->
-                            <div class="view-toggle mobile-only">
-                                <button :class="{active: !previewMode}" @click="previewMode = false">编辑</button>
-                                <button :class="{active: previewMode}" @click="previewMode = true">预览</button>
-                            </div>
+                        <h3>{{ viewMode === 'trash' ? 'RECYCLE BIN' : 'ALL POSTS' }}</h3>
+                        <div class="header-actions">
+                            <button class="refresh-btn" @click="viewMode === 'trash' ? fetchTrashPosts() : fetchPosts()"
+                                title="刷新"><i class="fa-solid fa-rotate-right"></i></button>
                         </div>
                     </div>
 
-                    <div class="editor-wrapper" :class="{ 'preview-active': previewMode }">
-                        <textarea id="markdown-editor"></textarea>
+                    <!-- 新建按钮移到列表上方 -->
+                    <!-- 新建按钮移到列表上方 -->
+                    <div class="sidebar-actions">
+                        <button v-if="viewMode === 'posts'" class="new-post-btn" @click="newPost">
+                            <i class="fa-solid fa-plus"></i> 新建篇章
+                        </button>
+                        <button v-else class="new-post-btn" @click="toggleViewMode('posts')">
+                            <i class="fa-solid fa-arrow-left"></i> 返回列表
+                        </button>
+
+                        <button v-if="viewMode === 'posts'" class="trash-toggle-btn" @click="toggleViewMode('trash')"
+                            title="回收站">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+
+                    <ul class="post-list">
+                        <li v-for="post in (viewMode === 'trash' ? trashPosts : posts)" :key="post.sha"
+                            @click="loadPost(post)" :class="{ active: currentPost && currentPost.sha === post.sha }">
+                            <span class="post-title">{{ post.name.replace('.md', '') }}</span>
+                            <!-- <span class="post-date">{{ formatDate(post.date) }}</span> -->
+                        </li>
+                        <li v-if="(viewMode === 'trash' ? trashPosts : posts).length === 0" class="empty-state">
+                            {{ viewMode === 'trash' ? '回收站空空如也' : '暂无篇章...' }}
+                        </li>
+                    </ul>
+                </aside>
+
+                <!-- 遮罩层 (Mobile) -->
+                <div class="sidebar-overlay" @click="sidebarOpen = false"></div>
+
+                <!-- 核心工作区 -->
+                <main class="editor-area">
+                    <!-- 0. 空状态 (Welcome) -->
+                    <div v-show="!editMode && !currentPost" class="welcome-mode">
+                        <div class="welcome-content">
+                            <div class="welcome-logo">
+                                <i class="fa-solid fa-feather-pointed"></i>
+                            </div>
+                            <h2>准备好记录当下的灵感了吗？</h2>
+                            <p>选择左侧篇章进行回顾，或者开启一段新的旅程。</p>
+                            <button class="primary-btn" @click="newPost">
+                                <i class="fa-solid fa-plus"></i> 开始创作
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 1. 预览模式下的阅读器 -->
+                    <div v-show="!editMode && currentPost" class="reader-mode">
+                        <div class="reader-header">
+                            <h1>{{ postTitle || '未命名篇章' }}</h1>
+                            <div class="reader-actions">
+                                <template v-if="viewMode === 'posts'">
+                                    <button class="edit-btn" @click="enableEditMode">
+                                        <i class="fa-solid fa-pen-nib"></i> 修改
+                                    </button>
+                                    <button class="delete-btn" @click="moveToTrash">
+                                        <i class="fa-solid fa-trash-can"></i> 删除
+                                    </button>
+                                </template>
+                                <template v-else>
+                                    <button class="restore-btn" @click="restorePost">
+                                        <i class="fa-solid fa-trash-arrow-up"></i> 还原
+                                    </button>
+                                    <button class="destroy-btn" @click="permanentDelete">
+                                        <i class="fa-solid fa-ban"></i> 彻底删除
+                                    </button>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="reader-meta">
+                            <span><i class="fa-regular fa-clock"></i> {{ postDate || '刚刚' }}</span>
+                            <span v-if="postCategories"><i class="fa-regular fa-folder"></i> {{ postCategories }}</span>
+                        </div>
+                        <div class="reader-content markdown-body" id="preview-content">
+                            <!-- 渲染后的 HTML 将注入这里 -->
+                        </div>
+                    </div>
+
+                    <!-- 2. 编辑模式 -->
+                    <div v-show="editMode" class="writer-mode">
+                        <div class="metadata-form">
+                            <div class="meta-header">
+                                <input type="text" v-model="postTitle" placeholder="在此输入标题..." class="title-input">
+                                <div class="meta-actions">
+                                    <button class="cancel-btn" @click="cancelEdit" title="取消修改">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                    <button class="publish-btn" @click="savePost" :disabled="saving">
+                                        <i class="fa-solid fa-paper-plane"></i> 发布
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="meta-tags-container">
+                                <!-- 日期选择 (Flatpickr Glass) -->
+                                <div class="meta-group" style="flex: 0 0 220px;">
+                                    <div class="input-icon"><i class="fa-regular fa-clock"></i></div>
+                                    <input type="text" id="date-picker" v-model="postDate" class="glass-date-input"
+                                        placeholder="选择发布时间...">
+                                </div>
+
+                                <!-- 标签 (胶囊) -->
+                                <div class="meta-group flex-group">
+                                    <div class="input-icon"><i class="fa-solid fa-tags"></i></div>
+                                    <div class="capsule-container">
+                                        <div v-for="(tag, index) in postTags" :key="'t'+index" class="capsule-tag">
+                                            {{ tag }}
+                                            <i class="fa-solid fa-xmark" @click="removeTag(index)"></i>
+                                        </div>
+                                        <input type="text" v-model="tagInput" @keydown.enter="addTag"
+                                            @keydown.delete="!tagInput && removeTag(postTags.length - 1)"
+                                            placeholder="输入标签..." class="capsule-input">
+                                    </div>
+                                </div>
+
+                                <!-- 分类 (胶囊) -->
+                                <div class="meta-group flex-group">
+                                    <div class="input-icon"><i class="fa-regular fa-folder"></i></div>
+                                    <div class="capsule-container">
+                                        <div v-for="(cat, index) in postCategories" :key="'c'+index"
+                                            class="capsule-tag category-tag">
+                                            {{ cat }}
+                                            <i class="fa-solid fa-xmark" @click="removeCategory(index)"></i>
+                                        </div>
+                                        <input type="text" v-model="catInput" @keydown.enter="addCategory"
+                                            @keydown.delete="!catInput && removeCategory(postCategories.length - 1)"
+                                            placeholder="输入分类..." class="capsule-input">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="editor-wrapper">
+                            <textarea id="markdown-editor"></textarea>
+                        </div>
                     </div>
                 </main>
+            </div>
+        </div>
+        <!-- 拟物化全局 Modal -->
+        <div id="modal-container" :class="{ visible: modal.show }">
+            <div class="glass-modal">
+                <div class="modal-header">
+                    <h3><i class="fa-solid fa-triangle-exclamation" v-if="modal.type === 'confirm'"
+                            style="color: #ffd700;"></i> {{ modal.title }}</h3>
+                </div>
+                <div class="modal-body">
+                    <p>{{ modal.message }}</p>
+                </div>
+                <div class="modal-actions">
+                    <button v-if="modal.type === 'confirm'" class="modal-cancel-btn modal-btn"
+                        @click="closeModal(false)">取消</button>
+                    <button class="modal-confirm-btn modal-btn" @click="closeModal(true)">确定</button>
+                </div>
             </div>
         </div>
     </div>

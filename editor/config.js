@@ -17,5 +17,8 @@ export const CONFIG = {
     POSTS_PATH: "source/_posts",
 
     // 如果您的默认分支不是 main，请修改此处
-    BRANCH: "main"
+    BRANCH: "main",
+
+    // 回收站路径
+    TRASH_PATH: "source/_trash"
 };

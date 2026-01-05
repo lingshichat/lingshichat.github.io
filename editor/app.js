@@ -18,14 +18,30 @@ new Vue({
         currentPost: null, // { sha, name, path, content }
         postTitle: '',
         postDate: '',
-        postTags: '',
-        postCategories: '',
+        postTags: [], // Changed to Array
+        postCategories: [], // Changed to Array
+        tagInput: '', // Temp input for tags
+        catInput: '', // Temp input for categories
         easyMDE: null,
-        sidebarOpen: true, // Desktop default
-        previewMode: false // Mobile default
+        sidebarOpen: window.innerWidth > 768,
+        editMode: false,
+        saveStatus: '',
+
+        // Recycle Bin State
+        trashPosts: [],
+
+        viewMode: 'posts', // 'posts' | 'trash'
+
+        // Modal State
+        modal: {
+            show: false,
+            type: 'info', // 'info' | 'confirm'
+            title: '',
+            message: '',
+            resolve: null
+        }
     },
     async mounted() {
-        // Init Mobile State
         if (window.innerWidth < 768) {
             this.sidebarOpen = false;
         }
@@ -34,11 +50,42 @@ new Vue({
         const cachedToken = localStorage.getItem('blog_editor_token');
         if (cachedToken) {
             this.token = cachedToken;
-            this.initData(); // 直接初始化，暂不验证以加快速度
-            this.isLoggedIn = true;
+            this.isLoggedIn = true; // Prioritize rendering the editor DOM first
+            this.initData();
         }
     },
     methods: {
+        // --- Modal System ---
+        showConfirm(title, message) {
+            return new Promise((resolve) => {
+                this.modal = {
+                    show: true,
+                    type: 'confirm',
+                    title: title,
+                    message: message,
+                    resolve: resolve
+                };
+            });
+        },
+
+        showAlert(message) {
+            this.modal = {
+                show: true,
+                type: 'info',
+                title: '提示',
+                message: message,
+                resolve: null
+            };
+        },
+
+        closeModal(result) {
+            this.modal.show = false;
+            if (this.modal.resolve) {
+                this.modal.resolve(result);
+                this.modal.resolve = null;
+            }
+        },
+
         async login() {
             if (!this.password && !CONFIG.ENCRYPTED_TOKEN) {
                 this.errorMsg = '尚未配置加密 Token，请查看教程';
@@ -48,7 +95,6 @@ new Vue({
             this.loading = true;
             this.errorMsg = '';
 
-            // 1. Decrypt
             const decryptedToken = Auth.decryptToken(this.password);
 
             if (!decryptedToken) {
@@ -57,22 +103,28 @@ new Vue({
                 return;
             }
 
-            // 2. Verify
             try {
-                // Warning: We are instantiating Octokit globally or per request
-                // For verification we just make a simple call
                 const octokit = new Octokit({ auth: decryptedToken });
                 await octokit.rest.users.getAuthenticated();
 
-                // Success
                 this.token = decryptedToken;
-                this.isLoggedIn = true;
 
                 if (this.rememberMe) {
                     localStorage.setItem('blog_editor_token', this.token);
                 }
 
-                this.initData();
+                // 添加淡出动画
+                const loginContainer = document.querySelector('.login-container');
+                if (loginContainer) {
+                    loginContainer.classList.add('fade-out');
+                }
+
+                // 延迟切换到编辑器界面，等待淡出动画完成
+                setTimeout(() => {
+                    this.isLoggedIn = true;
+                    this.initData();
+                }, 600); // 与 CSS 动画时长匹配
+
             } catch (e) {
                 this.errorMsg = '验证失败: ' + e.message;
             } finally {
@@ -91,13 +143,38 @@ new Vue({
         initData() {
             this.$nextTick(() => {
                 this.initEasyMDE();
+                this.initFlatpickr();
                 this.fetchPosts();
+                this.fetchTrashPosts(); // Load trash on init
+            });
+        },
+
+        initFlatpickr() {
+            // Destroy existing instance if any
+            const existing = document.querySelector("#date-picker")?._flatpickr;
+            if (existing) existing.destroy();
+
+            flatpickr("#date-picker", {
+                enableTime: true,
+                dateFormat: "Y-m-d H:i",
+                time_24hr: true,
+                disableMobile: true,
+                // static: true removed to avoid clipping
+                onChange: (selectedDates, dateStr) => {
+                    this.postDate = dateStr;
+                }
             });
         },
 
         initEasyMDE() {
+            const editorElem = document.getElementById('markdown-editor');
+            if (!editorElem) {
+                console.error("Markdown Editor element not found via ID. Init aborted.");
+                return;
+            }
+
             this.easyMDE = new EasyMDE({
-                element: document.getElementById('markdown-editor'),
+                element: editorElem,
                 spellChecker: false,
                 autosave: {
                     enabled: true,
@@ -105,23 +182,107 @@ new Vue({
                     delay: 1000,
                 },
                 toolbar: [
-                    "bold", "italic", "heading", "|",
-                    "quote", "unordered-list", "ordered-list", "|",
-                    "link", "image", "|",
+                    "bold", "italic", "heading", "quote", "unordered-list", "ordered-list",
+                    "link", "image", "table",
                     "preview", "side-by-side", "fullscreen"
                 ],
-                status: ["lines", "words"] // Optional status bar
+                status: ["lines", "words"],
+                previewRender: (plainText) => {
+                    return this.renderHexoContent(plainText);
+                }
             });
-
-            // Sync content change to simple variable if needed, 
-            // but usually we get value when saving.
         },
 
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
         },
 
-        // --- GitHub API Operations ---
+        enableEditMode() {
+            this.editMode = true;
+            this.$nextTick(() => {
+                this.easyMDE.codemirror.refresh();
+            });
+        },
+
+        async cancelEdit() {
+            if (await this.showConfirm("确认放弃", "确定放弃未保存的修改吗？")) {
+                this.editMode = false;
+                if (this.currentPost) {
+                    this.loadPost(this.currentPost);
+                }
+            }
+        },
+
+        // --- Tag / Category Logic ---
+        addTag() {
+            const val = this.tagInput.trim();
+            if (val && !this.postTags.includes(val)) {
+                this.postTags.push(val);
+            }
+            this.tagInput = '';
+        },
+        removeTag(index) {
+            this.postTags.splice(index, 1);
+        },
+        addCategory() {
+            const val = this.catInput.trim();
+            if (val && !this.postCategories.includes(val)) {
+                this.postCategories.push(val);
+            }
+            this.catInput = '';
+        },
+        removeCategory(index) {
+            this.postCategories.splice(index, 1);
+        },
+
+        // --- Rendering ---
+        renderHexoContent(content) {
+            // 1. Strip Front Matter
+            const fmRegex = /^---\n[\s\S]*?\n---\n/;
+            const bodyContent = content.replace(fmRegex, '');
+
+            // 2. Basic Markdown Render
+            let html = this.easyMDE.markdown(bodyContent);
+
+            // 3. Hexo Tag Support
+            // Regex to capture content inside {% meting ... %}
+            html = html.replace(/{% meting\s+([\s\S]+?)\s*%}/g, (match, argsContent) => {
+                // Split by spaces
+                // We use a regex to match quoted strings OR non-whitespace sequences
+                // helping to keep "key:value" together if they don't have spaces
+                // But simple split by space is usually enough for Hexo args
+                const rawParts = argsContent.trim().split(/\s+/);
+
+                // Clean quotes from start/end of each part
+                const args = rawParts.map(arg => arg.replace(/^['"]|['"]$/g, ''));
+
+                let id = args[0] || '';
+                let server = args[1] || 'netease';
+                let type = args[2] || 'playlist';
+
+                let extraAttrs = '';
+
+                // Process remaining args (index 3+) for options like "mutex:true"
+                for (let i = 3; i < args.length; i++) {
+                    let arg = args[i];
+                    if (arg.indexOf(':') > -1) {
+                        let [key, val] = arg.split(':');
+                        extraAttrs += ` ${key}="${val}"`;
+                    }
+                }
+
+                // Set default theme only if not provided
+                if (extraAttrs.indexOf('theme=') === -1) {
+                    extraAttrs += ' theme="var(--primary-color)"';
+                }
+
+                return `<meting-js server="${server}" type="${type}" id="${id}"${extraAttrs}></meting-js>`;
+            });
+
+            html = html.replace(/{% btn (.+?) %}/g, '<button class="hexo-btn">$1</button>');
+
+            return html;
+        },
 
         getOctokit() {
             return new Octokit({ auth: this.token });
@@ -136,17 +297,41 @@ new Vue({
                     path: CONFIG.POSTS_PATH,
                 });
 
-                // Filter only .md files
                 this.posts = data.filter(file => file.name.endsWith('.md'))
-                    .sort((a, b) => b.name.localeCompare(a.name)); // Simple sort by name (date usually)
+                    .sort((a, b) => b.name.localeCompare(a.name));
 
             } catch (e) {
-                alert('获取文章列表失败: ' + e.message);
+                console.error("Fetch posts failed", e);
+                // If 404, maybe path doesn't exist yet, ignore
             }
         },
 
+        async fetchTrashPosts() {
+            const octokit = this.getOctokit();
+            try {
+                const { data } = await octokit.rest.repos.getContent({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: CONFIG.TRASH_PATH,
+                });
+
+                this.trashPosts = data.filter(file => file.name.endsWith('.md'))
+                    .sort((a, b) => b.name.localeCompare(a.name));
+            } catch (e) {
+                console.warn("Fetch trash failed (folder might not exist yet)", e);
+                this.trashPosts = [];
+            }
+        },
+
+        toggleViewMode(mode) {
+            this.viewMode = mode;
+            this.currentPost = null;
+            this.editMode = false;
+            if (mode === 'trash') this.fetchTrashPosts();
+            else this.fetchPosts();
+        },
+
         async loadPost(post) {
-            // Mobile: Close sidebar after selection
             if (window.innerWidth < 768) this.sidebarOpen = false;
 
             const octokit = this.getOctokit();
@@ -157,15 +342,17 @@ new Vue({
                     path: post.path,
                 });
 
-                // Decode Content (GitHub API returns Base64)
                 const content = decodeURIComponent(escape(atob(data.content)));
 
-                // Parse Front-matter (Simple Regex)
                 this.parseFrontMatter(content);
-                this.currentPost = { ...post, sha: data.sha, path: post.path }; // Update SHA is important!
+                this.currentPost = { ...post, sha: data.sha, path: post.path };
+
+                this.editMode = false;
+                document.getElementById('preview-content').innerHTML = this.renderHexoContent(content);
 
             } catch (e) {
-                alert('加载文章失败: ' + e.message);
+
+                this.showAlert('加载文章失败: ' + e.message);
             }
         },
 
@@ -176,57 +363,139 @@ new Vue({
             if (match) {
                 const yamlStr = match[1];
                 const body = match[2];
-                this.easyMDE.value(body);
+                // 添加 easyMDE 存在性检查
+                if (this.easyMDE) {
+                    this.easyMDE.value(body);
+                }
 
-                // Very simple YAML parser (recommend using js-yaml lib for robust parsing)
-                // Here we just extract title, date, tags via Regex
                 this.postTitle = this.extractYamlValue(yamlStr, 'title');
-                this.postDate = this.extractYamlValue(yamlStr, 'date');
-                this.postTags = this.extractYamlValue(yamlStr, 'tags'); // This might be complex if multiline
-                this.postCategories = this.extractYamlValue(yamlStr, 'categories');
+
+                // Parse Date (keep pure string or format for datetime-local)
+                const rawDate = this.extractYamlValue(yamlStr, 'date');
+                this.postDate = this.formatDateForInput(rawDate);
+
+                // Parse Arrays (Simple)
+                // Yaml can be [a, b] or \n - a \n - b
+                this.postTags = this.parseYamlArray(yamlStr, 'tags');
+                this.postCategories = this.parseYamlArray(yamlStr, 'categories');
             } else {
-                // No front-matter or new file
-                this.easyMDE.value(content);
+                // 添加 easyMDE 存在性检查
+                if (this.easyMDE) {
+                    this.easyMDE.value(content);
+                }
                 this.postTitle = this.currentPost ? this.currentPost.name.replace('.md', '') : '';
+                this.postTags = [];
+                this.postCategories = [];
             }
+        },
+
+        formatDateForInput(dateStr) {
+            if (!dateStr) return '';
+            const d = new Date(dateStr);
+            if (isNaN(d.getTime())) return dateStr; // Fallback
+
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const hour = String(d.getHours()).padStart(2, '0');
+            const minute = String(d.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hour}:${minute}`;
+        },
+
+        parseYamlArray(yaml, key) {
+            // Match: key: [a, b, c] OR key: a
+            const regex = new RegExp(`^${key}:\\s*(.*)$`, 'm');
+            const match = yaml.match(regex);
+            if (!match) return [];
+
+            let val = match[1].trim();
+            // Remove brackets
+            if (val.startsWith('[') && val.endsWith(']')) {
+                val = val.slice(1, -1);
+            }
+            if (!val) return [];
+            return val.split(',').map(s => s.trim()).filter(s => s);
         },
 
         extractYamlValue(yaml, key) {
             const regex = new RegExp(`^${key}:\\s*(.*)$`, 'm');
             const match = yaml.match(regex);
+            // If it's an array format [ ... ], we might want to skip this generic extractor or handle it.
+            // This simple extractor is mostly for single lines.
+            // For duplications check: verify render logic.
             return match ? match[1].trim() : '';
         },
 
         newPost() {
             this.currentPost = null;
             this.postTitle = '';
-            this.postDate = new Date().toISOString().replace('T', ' ').substring(0, 19);
-            this.postTags = '';
-            this.postCategories = '';
-            this.easyMDE.value('');
+            // Default to current time YYYY-MM-DD HH:mm for Flatpickr compatibility
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            this.postDate = `${year}-${month}-${day} ${hour}:${minute}`;
+
+            this.postTags = [];
+            this.postCategories = [];
+            // 添加 easyMDE 存在性检查
+            if (this.easyMDE) {
+                this.easyMDE.value('');
+            }
+
+            this.editMode = true;
             if (window.innerWidth < 768) this.sidebarOpen = false;
+
+            this.$nextTick(() => {
+                // 添加 easyMDE 存在性检查
+                if (this.easyMDE && this.easyMDE.codemirror) {
+                    this.easyMDE.codemirror.refresh();
+                }
+                // 添加 flatpickr 存在性检查
+                const datePicker = document.querySelector("#date-picker");
+                if (datePicker && datePicker._flatpickr) {
+                    datePicker._flatpickr.setDate(this.postDate);
+                }
+            });
         },
 
         async savePost() {
             if (!this.postTitle) {
-                alert('请输入标题');
+                this.showAlert('请输入标题');
                 return;
             }
             this.saving = true;
 
+            // Update date to now logic requested by user?
+            // "修改文章的时候默认读入最后保存修改的时间" -> Yes, refresh time.
+            // But usually we respect if user manually picked a time.
+            // Let's reset it to NOW only if it's not set, OR if we want to force update.
+            // User requirement: "修改文章的时候默认读入最后保存修改的时间" -> meaning update the date field to NOW.
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hour = String(now.getHours()).padStart(2, '0');
+            const minute = String(now.getMinutes()).padStart(2, '0');
+            this.postDate = `${year}-${month}-${day} ${hour}:${minute}`;
+
             // Construct Content
+            const tagsStr = `[${this.postTags.join(', ')}]`;
+            const catsStr = `[${this.postCategories.join(', ')}]`;
+
             const frontMatter = `---
 title: ${this.postTitle}
-date: ${this.postDate}
-tags: [${this.postTags}]
-categories: [${this.postCategories}]
+date: ${this.postDate}:00
+tags: ${tagsStr}
+categories: ${catsStr}
 ---
 `;
             const content = frontMatter + this.easyMDE.value();
-            // Encode
             const contentBase64 = btoa(unescape(encodeURIComponent(content)));
 
-            const filename = `${this.postTitle}.md`.replace(/\s+/g, '-'); // Sanitize filename
+            const filename = `${this.postTitle}.md`.replace(/\s+/g, '-');
             const path = this.currentPost ? this.currentPost.path : `${CONFIG.POSTS_PATH}/${filename}`;
             const message = this.currentPost ? `Update post ${this.postTitle}` : `Create post ${this.postTitle}`;
             const sha = this.currentPost ? this.currentPost.sha : undefined;
@@ -242,19 +511,186 @@ categories: [${this.postCategories}]
                     sha: sha
                 });
 
-                // Update current post status
                 this.currentPost = {
                     name: filename,
                     path: data.content.path,
                     sha: data.content.sha
                 };
 
-                alert('发布成功! Cloudflare Pages 将自动构建。');
-                this.fetchPosts(); // Refresh list
+                this.showAlert('发布成功! Cloudflare Pages 将自动构建。');
+                this.saveStatus = '已保存';
+                setTimeout(() => this.saveStatus = '', 3000);
+
+                this.fetchPosts();
+
 
             } catch (e) {
                 console.error(e);
-                alert('保存失败: ' + e.message);
+                this.showAlert('保存失败: ' + e.message);
+            } finally {
+                this.saving = false;
+            }
+        },
+
+        // --- Recycle Bin Logic ---
+
+        // 1. Move to Trash (Soft Delete)
+        async moveToTrash() {
+            console.log("Starting moveToTrash...");
+            if (!this.currentPost) {
+                this.showAlert('请先选择文章');
+                return;
+            }
+
+            const postName = this.currentPost.name;
+
+            if (!await this.showConfirm("移至回收站", `确定要将 "${postName.replace('.md', '')}" 移至回收站吗？`)) {
+                return;
+            }
+
+            this.saving = true;
+            this.saveStatus = 'Moving...';
+            const octokit = this.getOctokit();
+
+            try {
+                // Step 1: Get current content (we need it to recreate in trash)
+                console.log(`Getting content for ${this.currentPost.path}...`);
+                const { data: sourceData } = await octokit.rest.repos.getContent({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: this.currentPost.path,
+                });
+
+                // Step 2: Create in Trash
+                const trashPath = `${CONFIG.TRASH_PATH}/${postName}`;
+                console.log(`Creating copy at ${trashPath}...`);
+
+                await octokit.rest.repos.createOrUpdateFileContents({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: trashPath,
+                    message: `Move ${postName} to Trash`,
+                    content: sourceData.content, // Already base64
+                });
+
+                // Step 3: Delete original
+                console.log(`Deleting original at ${this.currentPost.path}...`);
+                await octokit.rest.repos.deleteFile({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: this.currentPost.path,
+                    message: `Move ${postName} to Trash (Source Delete)`,
+                    sha: sourceData.sha
+                });
+
+                this.showAlert('已移至回收站');
+
+                // Clear state
+                this.currentPost = null;
+                this.editMode = false;
+
+                // Refresh both lists
+                await this.fetchPosts();
+                await this.fetchTrashPosts();
+
+            } catch (e) {
+                console.error("Move to trash failed:", e);
+
+                this.showAlert('移动失败: ' + e.message);
+            } finally {
+                this.saving = false;
+                this.saveStatus = '';
+            }
+        },
+
+        // 2. Restore Post
+        async restorePost() {
+            if (!this.currentPost) return;
+
+            const postName = this.currentPost.name;
+
+            if (!await this.showConfirm("确认还原", `确定要还原 "${postName.replace('.md', '')}" 吗？\n\n注意：还原操作基于 GitHub 仓库的当前状态。如果您刚刚将其移至回收站，可能需要稍候片刻等待远程数据同步。`)) {
+                return;
+            }
+
+            this.saving = true;
+            this.saveStatus = 'Restoring...';
+            const octokit = this.getOctokit();
+
+            try {
+                // Step 1: Get content from Trash
+                const { data: trashData } = await octokit.rest.repos.getContent({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: this.currentPost.path,
+                });
+
+                // Step 2: Create in Posts
+                const postsPath = `${CONFIG.POSTS_PATH}/${postName}`;
+                await octokit.rest.repos.createOrUpdateFileContents({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: postsPath,
+                    message: `Restore ${postName}`,
+                    content: trashData.content,
+                });
+
+                // Step 3: Delete from Trash
+                await octokit.rest.repos.deleteFile({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: this.currentPost.path,
+                    message: `Restore ${postName} (Cleanup Trash)`,
+                    sha: trashData.sha
+                });
+
+                this.showAlert('已恢复文章');
+                this.currentPost = null;
+
+                await this.fetchPosts();
+                await this.fetchTrashPosts();
+                this.toggleViewMode('posts'); // Auto switch back
+
+            } catch (e) {
+                console.error("Restore failed:", e);
+
+                this.showAlert('恢复失败: ' + e.message);
+            } finally {
+                this.saving = false;
+                this.saveStatus = '';
+            }
+        },
+
+        // 3. Permanent Delete
+        async permanentDelete() {
+            if (!this.currentPost) return;
+
+            const postName = this.currentPost.name.replace('.md', '');
+
+            if (!await this.showConfirm("彻底删除警告", `⚠️ 确定要彻底销毁 "${postName}" 吗？\n\n此操作将永久删除文件，无法找回！`)) {
+                return;
+            }
+
+            this.saving = true;
+            const octokit = this.getOctokit();
+
+            try {
+                await octokit.rest.repos.deleteFile({
+                    owner: CONFIG.OWNER,
+                    repo: CONFIG.REPO,
+                    path: this.currentPost.path,
+                    message: `Permanent Delete: ${postName}`,
+                    sha: this.currentPost.sha
+                });
+
+                this.showAlert('文件已彻底销毁');
+                this.currentPost = null;
+                await this.fetchTrashPosts();
+
+
+            } catch (e) {
+                console.error(e);
+                this.showAlert('删除失败: ' + e.message);
             } finally {
                 this.saving = false;
             }
