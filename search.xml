@@ -6,13 +6,13 @@
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="APlayer-音乐播放器测试"><a href="#APlayer-音乐播放器测试" class="headerlink" title="APlayer 音乐播放器测试"></a>APlayer 音乐播放器测试</h1><p>本文演示如何在 Hexo 博客中使用 APlayer 播放器播放网易云音乐。</p>
 <h2 id="单曲播放示例"><a href="#单曲播放示例" class="headerlink" title="单曲播放示例"></a>单曲播放示例</h2><p>下面是一首网易云音乐的单曲示例：</p>
 
-    <div id="aplayer-QCFwpnof" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-bkOKNzvb" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="28391863" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
 <h2 id="歌单播放示例"><a href="#歌单播放示例" class="headerlink" title="歌单播放示例"></a>歌单播放示例</h2><p>下面是一个网易云音乐歌单示例（带自定义参数）：</p>
 <h2 id="我的歌单"><a href="#我的歌单" class="headerlink" title="我的歌单"></a>我的歌单</h2>
-    <div id="aplayer-DKzOEKwJ" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-asazxHFf" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="17400710741" data-server="netease" data-type="playlist" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#667eea" data-order="list" data-loop="all"
     ></div>
 
@@ -140,7 +140,7 @@
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-XsPFIpQq" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-jdPWMxqD" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 

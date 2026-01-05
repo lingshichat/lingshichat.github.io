@@ -1,0 +1,268 @@
+<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script>
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 | 迷途</title>
+    <!-- 引入 Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            /* 严格复用 custom.css 变量 */
+            --primary-color: #3b70fc;
+            --primary-glow: rgba(59, 112, 252, 0.5);
+            /* 深色毛玻璃背景 */
+            --glass-bg: rgba(0, 0, 0, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #fff;
+            --text-secondary: #eee;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            background: url('/img/bg.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(3px);
+            /* 极轻微的背景模糊，突出主体 */
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+        }
+
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            padding: 3.5rem 5rem;
+            text-align: center;
+            max-width: 600px;
+            /* 稍微加宽以容纳大号文字 */
+            width: 90%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-2px);
+        }
+
+        /* V4 核心：大号融合字体 */
+        .error-composite {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Arial Black', 'Impact', sans-serif;
+            position: relative;
+            /* 文字微光质感 */
+            background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.5) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0 4px 15px rgba(0, 0, 0, 0.3));
+        }
+
+        /* 融合的指南针 '0' */
+        .compass-zero {
+            font-size: 8rem;
+            /* 稍微调整这一位的大小以视觉对齐 */
+            margin: 0 10px;
+            color: #fff;
+            /* 改为纯白 */
+            -webkit-text-fill-color: #fff;
+            /* 覆盖上面的渐变 */
+            display: flex;
+            align-items: center;
+            animation: breathe 4s ease-in-out infinite alternate;
+            /* 保持微弱的白色光晕，或者改成蓝色光晕也可以，这里保持一种圣洁感 */
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+        }
+
+        .compass-zero i {
+            animation: compassRotate 12s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+
+        .error-divider {
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+            margin: 10px 0 30px 0;
+            border-radius: 2px;
+            opacity: 0.8;
+        }
+
+        .error-desc {
+            font-size: 1.3rem;
+            /* 稍微加大一点字号 */
+            color: rgba(255, 255, 255, 0.95);
+            margin-bottom: 3rem;
+            font-weight: 500;
+            /* 加重字重，不那么飘 */
+            letter-spacing: 1.5px;
+            /* 收紧间距，大约是一个舒适的阅读距离 */
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+            /* 增加投影清晰度 */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            /* 回归系统默认无衬线，最稳 */
+        }
+
+        /* V2 幽灵按钮 + V4 蓝色辉光 */
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 36px;
+            font-size: 15px;
+            color: #fff;
+            text-decoration: none;
+            /* V2: 透明背景 + 边框 */
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            /* V2 的圆润风格 */
+            backdrop-filter: blur(4px);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 1px;
+        }
+
+        .back-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: 0.5s;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            /* V4: 蓝色辉光 */
+            background: rgba(59, 112, 252, 0.2);
+            /* 微微泛蓝 */
+            border-color: var(--primary-color);
+            box-shadow: 0 0 20px rgba(59, 112, 252, 0.6), 0 0 40px rgba(59, 112, 252, 0.3);
+        }
+
+        .back-btn:hover::before {
+            left: 100%;
+        }
+
+        /* Animations */
+        @keyframes compassRotate {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            20% {
+                transform: rotate(45deg);
+            }
+
+            40% {
+                transform: rotate(-20deg);
+            }
+
+            60% {
+                transform: rotate(180deg);
+            }
+
+            80% {
+                transform: rotate(160deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes breathe {
+            from {
+                transform: scale(0.95);
+                opacity: 0.8;
+            }
+
+            to {
+                transform: scale(1.05);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .glass-card {
+                padding: 3rem 2rem;
+                width: 85%;
+            }
+
+            .error-composite {
+                font-size: 6rem;
+            }
+
+            .compass-zero {
+                font-size: 5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="glass-card">
+            <div class="error-composite">
+                <span>4</span>
+                <div class="compass-zero">
+                    <i class="far fa-compass"></i>
+                </div>
+                <span>4</span>
+            </div>
+
+            <div class="error-divider"></div>
+            <div class="error-desc">啊哦，似乎来到了不存在的领域呢</div>
+
+            <a href="/" class="back-btn">
+                <i class="fas fa-satellite"></i>
+                <span>回到主页</span>
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>
