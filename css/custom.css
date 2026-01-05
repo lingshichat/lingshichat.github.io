@@ -553,7 +553,7 @@
    7. 分类/标签/归档页面
    ========================================================== */
 
-/* 7.1 分类页面 - 透明背景 */
+/* 7.1 分类页面 & 侧边栏分类列表 - 统一交互 */
 #category,
 #categories,
 .category-lists,
@@ -572,15 +572,82 @@
 #categories a,
 #category a {
     color: #fff !important;
+    padding: 4px 10px !important;
+    /* 增加内边距以适应背景块 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
 }
 
+/* 统一复刻 TOC 选中态 (Blue Background + Glow) */
 .category-list a:hover,
 .category-lists a:hover {
-    color: #3b70fc !important;
-    text-shadow: 0 0 8px rgba(59, 112, 252, 0.5);
+    color: #fff !important;
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+    padding-left: 14px !important;
+    /* 悬停时稍微右移，增加交互感 */
 }
 
-/* 7.2 标签页面 - 透明背景 */
+/* 7.1 分类页面 & 侧边栏分类列表 - 强制覆盖 */
+/* 针对侧边栏的具体选择器 - Flexbox 布局优化 */
+.card-category-list .card-category-list-item a {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    color: #eee !important;
+}
+
+.card-category-list .card-category-list-item a:hover {
+    background-color: #3b70fc !important;
+    color: #fff !important;
+    padding-left: 18px !important;
+    /* 悬停右移特效 */
+    padding-right: 12px !important;
+    /* 保持右侧间距稳定 */
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+    text-decoration: none !important;
+}
+
+/* 分类名称 */
+.card-category-list .card-category-list-item a .card-category-list-name {
+    flex-grow: 1;
+    /* 占据剩余空间 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 分类数量 - 徽标样式 (圆形优化) */
+.card-category-list .card-category-list-item a .card-category-list-count {
+    color: #eee !important;
+    background: rgba(255, 255, 255, 0.2);
+    width: 24px;
+    /* 固定宽度 */
+    height: 24px;
+    /* 固定高度 */
+    display: flex;
+    /* Flex 居中 */
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    /* 圆形 */
+    font-size: 12px;
+    margin-left: 8px;
+    transition: all 0.3s;
+    line-height: 1 !important;
+    /* 重置行高 */
+}
+
+.card-category-list .card-category-list-item a:hover .card-category-list-count {
+    color: #3b70fc !important;
+    background: #fff !important;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 7.2 标签页面 & 侧边栏标签云 */
 #tag,
 #tags,
 .tag-cloud-list,
@@ -593,17 +660,98 @@
     box-shadow: none !important;
 }
 
+/* 7.2 标签页面 & 侧边栏标签云 - 完美复刻 */
+/* 7.2 标签页面 & 侧边栏标签云 - 完美复刻 */
+/* 侧边栏标签云专用选择器 - 强制覆盖内联样式 */
+#aside-content .card-widget .card-tag-cloud a,
+.card-widget .card-tag-cloud a {
+    position: relative;
+    /* 确保 z-index 生效 */
+    z-index: 1;
+    display: inline-block !important;
+    /* 强制覆盖内联颜色 */
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    margin: 4px 4px 0 0 !important;
+    /* 保留 Hexo 生成的字体大小云效果 */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    line-height: 1.5 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    /* 增强文字可读性 */
+}
+
+#aside-content .card-widget .card-tag-cloud a:hover,
+.card-widget .card-tag-cloud a:hover {
+    z-index: 10;
+    /* 悬停时层级最高 */
+    color: #fff !important;
+    background: #3b70fc !important;
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 12px rgba(59, 112, 252, 0.6) !important;
+    transform: translateY(-2px);
+
+    /* 修复文字被遮盖的视觉问题 */
+    opacity: 1 !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    /* 加深阴影增强立体感 */
+    font-weight: 600 !important;
+    /* 适当加粗但不要太粗 */
+    -webkit-font-smoothing: antialiased;
+    /* 字体平滑 */
+}
+
+/* 标签页面样式 (保持一致) */
 .tag-cloud-list a {
+    display: inline-block !important;
     color: #eee !important;
     background: rgba(255, 255, 255, 0.1) !important;
     border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    border-radius: 15px !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    margin: 4px 4px 0 0 !important;
+    transition: all 0.3s ease;
 }
 
 .tag-cloud-list a:hover {
     color: #fff !important;
-    background: rgba(59, 112, 252, 0.3) !important;
-    border-color: rgba(59, 112, 252, 0.5) !important;
+    background: #3b70fc !important;
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+}
+
+/* 7.2.1 标签云文本选中样式 - 强制覆盖主题默认 */
+/* 统一使用蓝底白字，匹配截图中的按钮风格 */
+#aside-content .card-widget .card-tag-cloud a::selection,
+.card-widget.card-tags .card-tag-cloud a::selection,
+.card-widget .card-tag-cloud a::selection,
+.tag-cloud-list a::selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+#aside-content .card-widget .card-tag-cloud a::-moz-selection,
+.card-widget.card-tags .card-tag-cloud a::-moz-selection,
+.card-widget .card-tag-cloud a::-moz-selection,
+.tag-cloud-list a::-moz-selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+/* 全局文本选中样式覆盖 - 统一蓝色主题 */
+/* 使用 * 选择器匹配主题的 *::selection 特异性 */
+*::selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+}
+
+*::-moz-selection {
+    background: #3b70fc !important;
+    color: #fff !important;
 }
 
 /* 7.3 归档页面 */
@@ -634,11 +782,21 @@
 #archive a,
 #archives a {
     color: #eee !important;
+    padding: 6px 10px !important;
+    /* 增加点击区域 */
+    border-radius: 6px;
+    display: inline-block;
+    /* 确保 padding 生效 */
+    transition: all 0.3s ease;
 }
 
+/* 归档列表悬停统一 */
 .archive-item a:hover,
 .archives-item a:hover {
-    color: #3b70fc !important;
+    color: #fff !important;
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+    transform: translateX(5px);
 }
 
 .archive-item .article-title,
@@ -879,4 +1037,83 @@
     animation: breathingGlow 2s ease-in-out infinite alternate;
     /* 增加一个高亮边框以增强拟物感 */
     box-shadow: 0 0 15px var(--primary-color) !important;
+}
+
+/* ==========================================================
+   10. 分页器与其他细节修复 (新增)
+   ========================================================== */
+
+/* 10.1 分页器 (Pagination) */
+#pagination .page-number.current {
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+#pagination .page-number:not(.current):hover,
+#pagination .extend:hover {
+    background: #3b70fc !important;
+    color: #fff !important;
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+}
+
+/* 10.2 文章卡片内的标签 */
+#article-container .tag-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: #eee !important;
+}
+
+#article-container .tag-link:hover {
+    background: #3b70fc !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    box-shadow: 0 0 8px rgba(59, 112, 252, 0.4);
+}
+
+/* 10.3 侧边栏-最新文章列表悬停统一 (增强权重) */
+.card-widget .aside-list .aside-list-item {
+    padding: 8px 10px !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-bottom: 4px !important;
+}
+
+.card-widget .aside-list .aside-list-item:hover {
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+    transform: translateX(5px);
+}
+
+.card-widget .aside-list .aside-list-item:hover .content .title,
+.card-widget .aside-list .aside-list-item:hover .content time,
+.card-widget .aside-list .aside-list-item:hover a {
+    color: #fff !important;
+}
+
+.card-widget .aside-list .aside-list-item .thumbnail {
+    border-radius: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 10.4 首页文章卡片元数据标签悬停 (补充) */
+.recent-post-item .article-meta-wrap a:hover {
+    color: #3b70fc !important;
+    text-shadow: 0 0 8px rgba(59, 112, 252, 0.5);
+}
+
+/* 10.5 归档与标签云增强 (确保生效) */
+.card-tag-cloud a {
+    color: #fff !important;
+}
+
+.card-archive-list>.card-archive-list-item a:hover,
+.card-tag-cloud a:hover {
+    background: #3b70fc !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
 }
