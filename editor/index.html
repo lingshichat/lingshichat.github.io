@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>云端灵感空间 | Editor</title>
+
+    <!-- Libraries -->
+    <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
+    <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+    <script type="module" src="https://cdn.skypack.dev/@octokit/rest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Custom Style -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="app" v-cloak>
+        <!-- 🔐 登录界面 -->
+        <div v-if="!isLoggedIn" class="login-container">
+            <div class="glass-card login-card">
+                <div class="login-header">
+                    <i class="fa-solid fa-cloud"></i>
+                    <h2>云端通行证</h2>
+                </div>
+                <div class="login-body">
+                    <div class="input-group">
+                        <i class="fa-solid fa-key"></i>
+                        <input type="password" v-model="password" @keyup.enter="login" placeholder="请输入访问密码..."
+                            autofocus>
+                    </div>
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="remember" v-model="rememberMe">
+                        <label for="remember">记住我 (自动登录)</label>
+                    </div>
+                    <button @click="login" :disabled="loading" class="btn-glow">
+                        <span v-if="loading"><i class="fa-solid fa-spinner fa-spin"></i> 验证中...</span>
+                        <span v-else>解锁进入</span>
+                    </button>
+                    <p v-if="errorMsg" class="error-msg">{{ errorMsg }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📝 编辑器界面 -->
+        <div v-else class="editor-container">
+            <!-- 顶部导航 -->
+            <nav class="glass-nav">
+                <div class="nav-left">
+                    <button class="nav-btn" @click="toggleSidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <span class="logo-text">灵感空间</span>
+                </div>
+                <div class="nav-right">
+                    <button class="nav-btn action-btn" @click="newPost">
+                        <i class="fa-solid fa-plus"></i> <span class="desktop-only">新建</span>
+                    </button>
+                    <button class="nav-btn action-btn primary" @click="savePost" :disabled="saving">
+                        <i class="fa-solid" :class="saving ? 'fa-spinner fa-spin' : 'fa-paper-plane'"></i>
+                        <span class="desktop-only">{{ saving ? '发布中...' : '发布' }}</span>
+                    </button>
+                    <button class="nav-btn logout-btn" @click="logout" title="退出">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </nav>
+
+            <div class="main-content">
+                <!-- 左侧文章列表 -->
+                <aside class="sidebar glass-panel" :class="{ 'open': sidebarOpen }">
+                    <div class="sidebar-header">
+                        <h3>文章列表</h3>
+                        <button @click="fetchPosts" title="刷新"><i class="fa-solid fa-rotate-right"></i></button>
+                    </div>
+                    <ul class="post-list">
+                        <li v-for="post in posts" :key="post.sha" @click="loadPost(post)"
+                            :class="{ active: currentPost && currentPost.sha === post.sha }">
+                            <span class="post-title">{{ post.name.replace('.md', '') }}</span>
+                            <span class="post-date text-xs">{{ formatDate(post.date) }}</span> <!-- 需要后续实现获取日期 -->
+                        </li>
+                        <li v-if="posts.length === 0" class="empty-state">暂无文章或加载中...</li>
+                    </ul>
+                </aside>
+
+                <!-- 核心编辑区 -->
+                <main class="editor-area glass-panel">
+                    <div class="metadata-form">
+                        <input type="text" v-model="postTitle" placeholder="在此输入文章标题..." class="title-input">
+                        <div class="meta-tags">
+                            <input type="text" v-model="postDate" placeholder="YYYY-MM-DD HH:mm:ss" class="meta-input">
+                            <input type="text" v-model="postTags" placeholder="标签 (逗号分隔)" class="meta-input">
+                            <input type="text" v-model="postCategories" placeholder="分类" class="meta-input">
+                            <!-- 移动端视图切换 -->
+                            <div class="view-toggle mobile-only">
+                                <button :class="{active: !previewMode}" @click="previewMode = false">编辑</button>
+                                <button :class="{active: previewMode}" @click="previewMode = true">预览</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="editor-wrapper" :class="{ 'preview-active': previewMode }">
+                        <textarea id="markdown-editor"></textarea>
+                    </div>
+                </main>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="auth.js"></script>
+    <script type="module" src="app.js"></script>
+</body>
+
+</html>
