@@ -17,12 +17,6 @@
 ]]></content>
   </entry>
   <entry>
-    <title>测试</title>
-    <url>/2026/01/06/%E6%B5%8B%E8%AF%95/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>哈基米南北路多~</p>
-]]></content>
-  </entry>
-  <entry>
     <title>深夜更新</title>
     <url>/2026/01/05/%E6%B7%B1%E5%A4%9C%E6%9B%B4%E6%96%B0/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>太折腾了，折腾了一个晚上也没折腾啥东西<br>撰写页面的卡片背景一直弄不了高斯模糊的玻璃卡片，现在看着好臭好臭<br>就酱紫，第一篇在在线blog的editor上写文章<br>晚安</p>
@@ -36,11 +30,83 @@
       </tags>
   </entry>
   <entry>
+    <title>音乐使用说明</title>
+    <url>/2026/01/03/%E9%9F%B3%E4%B9%90%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="🎵-音乐播放器使用说明"><a href="#🎵-音乐播放器使用说明" class="headerlink" title="🎵 音乐播放器使用说明"></a>🎵 音乐播放器使用说明</h1><h2 id="快速插入"><a href="#快速插入" class="headerlink" title="快速插入"></a>快速插入</h2><p>在 Obsidian 中：</p>
+<ol>
+<li>按 <code>Ctrl+P</code> 打开命令面板</li>
+<li>搜索 “模板” （Templates: Insert template）</li>
+<li>选择对应的音乐模板</li>
+<li>替换其中的 ID 即可</li>
+</ol>
+<h2 id="模板列表"><a href="#模板列表" class="headerlink" title="模板列表"></a>模板列表</h2><h3 id="📀-单曲播放器"><a href="#📀-单曲播放器" class="headerlink" title="📀 单曲播放器"></a>📀 单曲播放器</h3><ul>
+<li><strong>模板</strong>：<code>音乐-单曲</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌曲ID" "netease" "song" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌曲ID</code> 为实际的歌曲ID</li>
+</ul>
+<h3 id="📁-歌单播放器（红色主题）"><a href="#📁-歌单播放器（红色主题）" class="headerlink" title="📁 歌单播放器（红色主题）"></a>📁 歌单播放器（红色主题）</h3><ul>
+<li><strong>模板</strong>：<code>音乐-歌单</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#C20C0C" "mutex:true" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
+</ul>
+<h3 id="📁-歌单播放器（紫色主题）"><a href="#📁-歌单播放器（紫色主题）" class="headerlink" title="📁 歌单播放器（紫色主题）"></a>📁 歌单播放器（紫色主题）</h3><ul>
+<li><strong>模板</strong>：<code>音乐-歌单-紫色</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
+</ul>
+<h2 id="如何获取音乐ID？"><a href="#如何获取音乐ID？" class="headerlink" title="如何获取音乐ID？"></a>如何获取音乐ID？</h2><h3 id="网易云音乐"><a href="#网易云音乐" class="headerlink" title="网易云音乐"></a>网易云音乐</h3><ol>
+<li>打开网易云音乐网页版：<a href="https://music.163.com/">https://music.163.com</a></li>
+<li>搜索并打开你想要的歌曲或歌单</li>
+<li>查看浏览器地址栏：<ul>
+<li><strong>歌曲</strong>：<code>https://music.163.com/#/song?id=123456</code> → ID是 <code>123456</code></li>
+<li><strong>歌单</strong>：<code>https://music.163.com/#/playlist?id=789012</code> → ID是 <code>789012</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><strong>单曲示例</strong>：</p>
+<ul>
+<li>歌曲：袁娅维 - 说散就散</li>
+<li>链接：<code>https://music.163.com/#/song?id=500224267</code></li>
+<li>ID：<code>500224267</code></li>
+<li>代码：<code>&#123;% meting "500224267" "netease" "song" %&#125;</code></li>
+</ul>
+<p><strong>歌单示例</strong>：</p>
+<ul>
+<li>歌单：我喜欢的音乐</li>
+<li>链接：<code>https://music.163.com/#/playlist?id=17400710741</code></li>
+<li>ID：<code>17400710741</code></li>
+<li>代码：<code>&#123;% meting "17400710741" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
+</ul>
+<h2 id="快捷键设置（可选）"><a href="#快捷键设置（可选）" class="headerlink" title="快捷键设置（可选）"></a>快捷键设置（可选）</h2><p>你可以在 Obsidian 设置中为常用模板设置快捷键：</p>
+<ol>
+<li>打开设置 → 快捷键</li>
+<li>搜索 “Templates”</li>
+<li>为 “Insert template” 设置快捷键（比如 <code>Ctrl+Shift+T</code>）</li>
+</ol>
+<p>这样就可以：</p>
+<ol>
+<li>按快捷键</li>
+<li>选择音乐模板</li>
+<li>填入ID</li>
+<li>完成！</li>
+</ol>
+<hr>
+<p>💡 <strong>提示</strong>：如果你经常使用某个歌单，可以直接复制完整的代码保存在你的笔记中作为参考。</p>
+]]></content>
+      <categories>
+        <category>测试</category>
+      </categories>
+      <tags>
+        <tag>APlayer</tag>
+        <tag>音乐</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>笛月</title>
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-FSDbNOHo" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-bIQgLLdz" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
@@ -178,78 +244,6 @@
       <tags>
         <tag>歌词</tag>
         <tag>摘抄</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>音乐使用说明</title>
-    <url>/2026/01/03/%E9%9F%B3%E4%B9%90%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="🎵-音乐播放器使用说明"><a href="#🎵-音乐播放器使用说明" class="headerlink" title="🎵 音乐播放器使用说明"></a>🎵 音乐播放器使用说明</h1><h2 id="快速插入"><a href="#快速插入" class="headerlink" title="快速插入"></a>快速插入</h2><p>在 Obsidian 中：</p>
-<ol>
-<li>按 <code>Ctrl+P</code> 打开命令面板</li>
-<li>搜索 “模板” （Templates: Insert template）</li>
-<li>选择对应的音乐模板</li>
-<li>替换其中的 ID 即可</li>
-</ol>
-<h2 id="模板列表"><a href="#模板列表" class="headerlink" title="模板列表"></a>模板列表</h2><h3 id="📀-单曲播放器"><a href="#📀-单曲播放器" class="headerlink" title="📀 单曲播放器"></a>📀 单曲播放器</h3><ul>
-<li><strong>模板</strong>：<code>音乐-单曲</code></li>
-<li><strong>格式</strong>：<code>&#123;% meting "歌曲ID" "netease" "song" %&#125;</code></li>
-<li><strong>使用</strong>：只需替换 <code>歌曲ID</code> 为实际的歌曲ID</li>
-</ul>
-<h3 id="📁-歌单播放器（红色主题）"><a href="#📁-歌单播放器（红色主题）" class="headerlink" title="📁 歌单播放器（红色主题）"></a>📁 歌单播放器（红色主题）</h3><ul>
-<li><strong>模板</strong>：<code>音乐-歌单</code></li>
-<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#C20C0C" "mutex:true" %&#125;</code></li>
-<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
-</ul>
-<h3 id="📁-歌单播放器（紫色主题）"><a href="#📁-歌单播放器（紫色主题）" class="headerlink" title="📁 歌单播放器（紫色主题）"></a>📁 歌单播放器（紫色主题）</h3><ul>
-<li><strong>模板</strong>：<code>音乐-歌单-紫色</code></li>
-<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
-<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
-</ul>
-<h2 id="如何获取音乐ID？"><a href="#如何获取音乐ID？" class="headerlink" title="如何获取音乐ID？"></a>如何获取音乐ID？</h2><h3 id="网易云音乐"><a href="#网易云音乐" class="headerlink" title="网易云音乐"></a>网易云音乐</h3><ol>
-<li>打开网易云音乐网页版：<a href="https://music.163.com/">https://music.163.com</a></li>
-<li>搜索并打开你想要的歌曲或歌单</li>
-<li>查看浏览器地址栏：<ul>
-<li><strong>歌曲</strong>：<code>https://music.163.com/#/song?id=123456</code> → ID是 <code>123456</code></li>
-<li><strong>歌单</strong>：<code>https://music.163.com/#/playlist?id=789012</code> → ID是 <code>789012</code></li>
-</ul>
-</li>
-</ol>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><strong>单曲示例</strong>：</p>
-<ul>
-<li>歌曲：袁娅维 - 说散就散</li>
-<li>链接：<code>https://music.163.com/#/song?id=500224267</code></li>
-<li>ID：<code>500224267</code></li>
-<li>代码：<code>&#123;% meting "500224267" "netease" "song" %&#125;</code></li>
-</ul>
-<p><strong>歌单示例</strong>：</p>
-<ul>
-<li>歌单：我喜欢的音乐</li>
-<li>链接：<code>https://music.163.com/#/playlist?id=17400710741</code></li>
-<li>ID：<code>17400710741</code></li>
-<li>代码：<code>&#123;% meting "17400710741" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
-</ul>
-<h2 id="快捷键设置（可选）"><a href="#快捷键设置（可选）" class="headerlink" title="快捷键设置（可选）"></a>快捷键设置（可选）</h2><p>你可以在 Obsidian 设置中为常用模板设置快捷键：</p>
-<ol>
-<li>打开设置 → 快捷键</li>
-<li>搜索 “Templates”</li>
-<li>为 “Insert template” 设置快捷键（比如 <code>Ctrl+Shift+T</code>）</li>
-</ol>
-<p>这样就可以：</p>
-<ol>
-<li>按快捷键</li>
-<li>选择音乐模板</li>
-<li>填入ID</li>
-<li>完成！</li>
-</ol>
-<hr>
-<p>💡 <strong>提示</strong>：如果你经常使用某个歌单，可以直接复制完整的代码保存在你的笔记中作为参考。</p>
-]]></content>
-      <categories>
-        <category>测试</category>
-      </categories>
-      <tags>
-        <tag>APlayer</tag>
-        <tag>音乐</tag>
       </tags>
   </entry>
 </search>
