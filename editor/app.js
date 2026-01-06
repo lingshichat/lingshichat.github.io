@@ -1,6 +1,6 @@
 import { CONFIG } from './config.js';
 import { Auth } from './auth.js';
-import { Octokit } from "https://cdn.skypack.dev/@octokit/rest";
+import { Octokit } from "https://esm.sh/@octokit/rest";
 
 new Vue({
     el: '#app',
@@ -26,6 +26,9 @@ new Vue({
         sidebarOpen: window.innerWidth > 768,
         editMode: false,
         saveStatus: '',
+        splitMode: false,
+        fullscreenMode: false,
+        compiledMarkdown: '',
 
         // Recycle Bin State
         trashPosts: [],
@@ -42,6 +45,13 @@ new Vue({
         }
     },
     async mounted() {
+        // ESC listener for fullscreen
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.fullscreenMode) {
+                this.toggleFullscreen();
+            }
+        });
+
         if (window.innerWidth < 768) {
             this.sidebarOpen = false;
         }
@@ -56,6 +66,16 @@ new Vue({
     },
     methods: {
         // --- Modal System ---
+        showLoading(title, message) {
+            this.modal = {
+                show: true,
+                type: 'loading',
+                title: title,
+                message: message,
+                resolve: null
+            };
+        },
+
         showConfirm(title, message) {
             return new Promise((resolve) => {
                 this.modal = {
@@ -80,10 +100,13 @@ new Vue({
 
         closeModal(result) {
             this.modal.show = false;
-            if (this.modal.resolve) {
-                this.modal.resolve(result);
-                this.modal.resolve = null;
-            }
+            // 短暂延迟清理，避免快速切换样式闪烁
+            setTimeout(() => {
+                if (this.modal.resolve) {
+                    this.modal.resolve(result);
+                    this.modal.resolve = null;
+                }
+            }, 100);
         },
 
         async login() {
@@ -173,6 +196,16 @@ new Vue({
                 return;
             }
 
+            // prevent duplicate initialization
+            if (this.easyMDE) {
+                try {
+                    this.easyMDE.toTextArea();
+                } catch (e) {
+                    console.warn("Retrying EasyMDE cleanup...", e);
+                }
+                this.easyMDE = null;
+            }
+
             this.easyMDE = new EasyMDE({
                 element: editorElem,
                 spellChecker: false,
@@ -184,17 +217,62 @@ new Vue({
                 toolbar: [
                     "bold", "italic", "heading", "quote", "unordered-list", "ordered-list",
                     "link", "image", "table",
-                    "preview", "side-by-side", "fullscreen"
+                    // Custom Split Button
+                    {
+                        name: "side-by-side",
+                        action: () => {
+                            this.toggleSplitMode();
+                        },
+                        className: "fa fa-columns no-disable",
+                        title: "双栏预览",
+                    },
+                    {
+                        name: "zen-mode",
+                        action: () => {
+                            this.toggleFullscreen();
+                        },
+                        className: "fa fa-expand no-disable",
+                        title: "沉浸模式 (ESC 退出)",
+                    }
                 ],
                 status: ["lines", "words"],
                 previewRender: (plainText) => {
                     return this.renderHexoContent(plainText);
                 }
             });
+
+            // Bind change event for real-time preview
+            this.easyMDE.codemirror.on("change", () => {
+                if (this.splitMode) {
+                    this.updateSplitPreview();
+                }
+            });
         },
 
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
+        },
+
+        toggleSplitMode() {
+            this.splitMode = !this.splitMode;
+            if (this.splitMode) {
+                // Auto close sidebar for more space
+                this.sidebarOpen = false;
+                this.updateSplitPreview();
+            }
+            // Trigger layout refresh for CodeMirror
+            this.$nextTick(() => {
+                this.easyMDE.codemirror.refresh();
+            });
+        },
+
+        updateSplitPreview() {
+            const raw = this.easyMDE.value();
+            this.compiledMarkdown = this.renderHexoContent(raw);
+        },
+
+        toggleFullscreen() {
+            this.fullscreenMode = !this.fullscreenMode;
         },
 
         enableEditMode() {
@@ -536,20 +614,20 @@ categories: ${catsStr}
 
         // 1. Move to Trash (Soft Delete)
         async moveToTrash() {
-            console.log("Starting moveToTrash...");
             if (!this.currentPost) {
                 this.showAlert('请先选择文章');
                 return;
             }
 
             const postName = this.currentPost.name;
+            const postSha = this.currentPost.sha; // Capture SHA
 
             if (!await this.showConfirm("移至回收站", `确定要将 "${postName.replace('.md', '')}" 移至回收站吗？`)) {
                 return;
             }
 
-            this.saving = true;
-            this.saveStatus = 'Moving...';
+            this.showLoading("正在移动...", "正在将文章移至回收站，请稍候...");
+
             const octokit = this.getOctokit();
 
             try {
@@ -583,23 +661,32 @@ categories: ${catsStr}
                     sha: sourceData.sha
                 });
 
+                // --- Optimistic Update ---
+                this.posts = this.posts.filter(p => p.sha !== postSha);
+
+                // Add to trashPosts manually
+                this.trashPosts.unshift({
+                    name: postName,
+                    path: trashPath,
+                    sha: postSha + '_trash_temp',
+                    type: 'file'
+                });
+                // We don't add to trashPosts immediately because we don't have the new SHA
+                // But removing from current list is enough for visual feedback
+                this.viewMode = 'posts'; // Ensure we stay on posts view or switch? Usually stay.
+
                 this.showAlert('已移至回收站');
 
                 // Clear state
                 this.currentPost = null;
                 this.editMode = false;
 
-                // Refresh both lists
-                await this.fetchPosts();
-                await this.fetchTrashPosts();
+                // REMOVED fetch to avoid race condition
 
             } catch (e) {
                 console.error("Move to trash failed:", e);
 
                 this.showAlert('移动失败: ' + e.message);
-            } finally {
-                this.saving = false;
-                this.saveStatus = '';
             }
         },
 
@@ -608,13 +695,14 @@ categories: ${catsStr}
             if (!this.currentPost) return;
 
             const postName = this.currentPost.name;
+            const postSha = this.currentPost.sha;
 
             if (!await this.showConfirm("确认还原", `确定要还原 "${postName.replace('.md', '')}" 吗？\n\n注意：还原操作基于 GitHub 仓库的当前状态。如果您刚刚将其移至回收站，可能需要稍候片刻等待远程数据同步。`)) {
                 return;
             }
 
-            this.saving = true;
-            this.saveStatus = 'Restoring...';
+            this.showLoading("正在还原...", "正在从回收站还原文章，请稍候...");
+
             const octokit = this.getOctokit();
 
             try {
@@ -644,20 +732,25 @@ categories: ${catsStr}
                     sha: trashData.sha
                 });
 
+                // --- Optimistic Update ---
+                this.trashPosts = this.trashPosts.filter(p => p.sha !== postSha);
+
+                // Add to posts manually
+                this.posts.unshift({
+                    name: postName,
+                    path: postsPath,
+                    sha: postSha + '_restore_temp',
+                    type: 'file'
+                });
+
                 this.showAlert('已恢复文章');
                 this.currentPost = null;
-
-                await this.fetchPosts();
-                await this.fetchTrashPosts();
                 this.toggleViewMode('posts'); // Auto switch back
 
             } catch (e) {
                 console.error("Restore failed:", e);
 
                 this.showAlert('恢复失败: ' + e.message);
-            } finally {
-                this.saving = false;
-                this.saveStatus = '';
             }
         },
 
@@ -666,12 +759,14 @@ categories: ${catsStr}
             if (!this.currentPost) return;
 
             const postName = this.currentPost.name.replace('.md', '');
+            const postSha = this.currentPost.sha;
 
             if (!await this.showConfirm("彻底删除警告", `⚠️ 确定要彻底销毁 "${postName}" 吗？\n\n此操作将永久删除文件，无法找回！`)) {
                 return;
             }
 
-            this.saving = true;
+            this.showLoading("正在删除...", "正在彻底删除文件，此操作不可逆...");
+
             const octokit = this.getOctokit();
 
             try {
@@ -683,16 +778,16 @@ categories: ${catsStr}
                     sha: this.currentPost.sha
                 });
 
+                // --- Optimistic Update ---
+                this.trashPosts = this.trashPosts.filter(p => p.sha !== postSha);
+
                 this.showAlert('文件已彻底销毁');
                 this.currentPost = null;
-                await this.fetchTrashPosts();
 
 
             } catch (e) {
                 console.error(e);
                 this.showAlert('删除失败: ' + e.message);
-            } finally {
-                this.saving = false;
             }
         },
 

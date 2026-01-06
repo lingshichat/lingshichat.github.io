@@ -103,7 +103,8 @@ body::before {
 
     to {
         opacity: 1;
-        transform: scale(1);
+        transform: none;
+        /* 关键修复：移除 transform 以避免破坏 position: fixed 全屏行为 */
     }
 }
 
@@ -578,8 +579,12 @@ body::before {
 
 .CodeMirror {
     flex: 1;
-    height: auto !important;
-    /* 让 CodeMirror 自适应高度 */
+    height: 100% !important;
+    /* 关键修复：允许 CodeMirror 内部滚动条生效，而不是撑开外部容器 */
+    min-height: 0;
+    /* Flex 子项滚动必须 */
+    border-radius: 0 0 8px 8px;
+    background: transparent;
 }
 
 
@@ -643,6 +648,13 @@ body::before {
     color: #ffccc7;
     box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
 }
+
+/* =========================================
+   Mobile Adaptation (Need to be placed before specific overrides or at end)
+   But for structural clarity, we keep basic logic here.
+   See bottom of file for strict overrides.
+   ========================================= */
+
 
 /* 元数据输入区域 */
 .meta-tags-container {
@@ -905,11 +917,67 @@ body::before {
 }
 
 .reader-meta {
-    color: var(--text-muted);
-    font-size: 0.9rem;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     display: flex;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+/* 拟物化胶囊 (Reader Mode) */
+.meta-capsule {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.9);
+
+    /* 玻璃拟物基底 */
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        2px 2px 5px rgba(0, 0, 0, 0.2),
+        inset 1px 1px 1px rgba(255, 255, 255, 0.1);
+
+    transition: all 0.3s ease;
+    cursor: default;
+    user-select: none;
+}
+
+.meta-capsule:hover {
+    transform: translateY(-1px);
+    box-shadow:
+        4px 4px 8px rgba(0, 0, 0, 0.3),
+        inset 1px 1px 2px rgba(255, 255, 255, 0.2);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.05));
+}
+
+.meta-capsule i {
+    opacity: 0.7;
+    font-size: 0.8rem;
+}
+
+/* 特定类型胶囊微调 */
+.time-capsule {
+    color: #a5b4fc;
+    /* Indigo tint */
+    border-color: rgba(165, 180, 252, 0.2);
+}
+
+.category-capsule {
+    color: #6ee7b7;
+    /* Emerald tint */
+    border-color: rgba(16, 185, 129, 0.2);
+    background: linear-gradient(145deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+}
+
+.tag-capsule {
+    color: #93c5fd;
+    /* Blue tint */
+    border-color: rgba(59, 112, 252, 0.2);
+    background: linear-gradient(145deg, rgba(59, 112, 252, 0.15), rgba(59, 112, 252, 0.05));
 }
 
 /* Markdown 渲染样式覆盖 */
@@ -1141,6 +1209,107 @@ body::before {
     background: rgba(59, 112, 252, 0.3) !important;
     border-color: var(--primary-color) !important;
 }
+
+/* 修复预览模式 (全覆盖) */
+.editor-preview {
+    background: rgba(20, 20, 30, 0.85) !important;
+    backdrop-filter: blur(50px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(50px) saturate(180%) !important;
+    color: #e0e0e0 !important;
+    border: none !important;
+    padding: 20px !important;
+    z-index: 10 !important;
+}
+
+/* 修复双栏预览 (Side-by-Side) */
+.editor-preview-side {
+    background: transparent !important;
+    /* 双栏模式下背景透明，透出 writer-mode 或全屏的毛玻璃背景 */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    color: #e0e0e0 !important;
+    border: none !important;
+    border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+    /* 仅保留左边框 */
+    padding: 20px !important;
+    z-index: 10 !important;
+}
+
+/* 修复全屏模式下的重叠问题 */
+.EasyMDEContainer.EasyMDEContainer-fullscreen {
+    z-index: 99999 !important;
+    /* 确保覆盖所有自定义 UI */
+    background: transparent !important;
+    /* 让伪元素负责背景，实现磨砂 */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+}
+
+/* 全屏强力高斯模糊背景 */
+.EasyMDEContainer.EasyMDEContainer-fullscreen::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /* 用户要求：直接加上一个高斯模糊开最大，透明度也改一下 */
+    background: rgba(20, 20, 30, 0.85);
+    /* 深色底，高不透明度 */
+    backdrop-filter: blur(50px) saturate(180%);
+    -webkit-backdrop-filter: blur(50px) saturate(180%);
+    z-index: -1;
+}
+
+/* 全屏模式下，隐藏其他所有干扰元素 (禅模式) */
+body.fullscreen-active .glass-nav,
+body.fullscreen-active .sidebar,
+body.fullscreen-active .metadata-form,
+body.fullscreen-active .sidebar-overlay,
+body.fullscreen-active .welcome-mode,
+body.fullscreen-active .reader-mode,
+body.fullscreen-active #aplayer,
+body.fullscreen-active .aplayer {
+    display: none !important;
+}
+
+/* 全屏下的编辑区域优化 */
+.EasyMDEContainer.EasyMDEContainer-fullscreen .CodeMirror {
+    height: calc(100vh - 60px) !important;
+    /* 减去工具栏高度 */
+    width: 100% !important;
+    max-width: 900px !important;
+    /* 限制阅读宽度 */
+    margin: 0 auto !important;
+    /* 居中 */
+    padding-top: 40px !important;
+}
+
+/* 全屏下的工具栏优化 */
+.EasyMDEContainer.EasyMDEContainer-fullscreen .editor-toolbar {
+    width: 100% !important;
+    max-width: 900px !important;
+    margin: 0 auto !important;
+    border-radius: 0 0 12px 12px !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    top: 0 !important;
+}
+
+.editor-preview h1,
+.editor-preview h2,
+.editor-preview h3 {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.editor-preview pre {
+    background: rgba(0, 0, 0, 0.3);
+}
+
 
 /* 欢迎页/空状态 - 强化毛玻璃效果 */
 .welcome-mode {
@@ -1507,61 +1676,6 @@ span.flatpickr-weekday {
     font-size: 1.1em;
 }
 
-/* 移动端适配 */
-@media (max-width: 768px) {
-    .sidebar {
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        z-index: 300;
-        border-radius: 0 16px 16px 0;
-        transform: translateX(-100%);
-        width: 80%;
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-    }
-
-    .sidebar-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        z-index: 250;
-        display: none;
-    }
-
-    .sidebar.open+.sidebar-overlay {
-        display: block;
-    }
-
-    .main-content {
-        padding: 10px;
-    }
-
-    .reader-mode {
-        padding: 20px;
-    }
-
-    .reader-header h1 {
-        font-size: 1.4rem;
-    }
-
-    .meta-header {
-        flex-direction: column;
-        gap: 10px;
-    }
-
-    .meta-actions {
-        justify-content: flex-end;
-    }
-
-    .meta-tags {
-        flex-direction: column;
-    }
-}
-
 /* =========================================
    3. 拟物化模态框 (Modal)
    ========================================= */
@@ -1670,4 +1784,330 @@ span.flatpickr-weekday {
 
 .modal-btn:active {
     transform: scale(0.96);
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+
+    /* --- Sidebar & Layout --- */
+    .sidebar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 300;
+        border-radius: 0 16px 16px 0;
+        transform: translateX(-100%);
+        width: 85%;
+        /* Slightly wider for better touch targets */
+        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 250;
+        display: none;
+        backdrop-filter: blur(4px);
+        /* Enhanced Blur */
+        -webkit-backdrop-filter: blur(4px);
+    }
+
+    .sidebar.open+.sidebar-overlay {
+        display: block;
+    }
+
+    .main-content {
+        padding: 12px;
+        /* Reduced padding */
+        gap: 12px;
+    }
+
+    /* --- Login Page --- */
+    .login-card {
+        padding: 2.5rem 1.5rem;
+        /* Reduced padding */
+        width: 90%;
+        max-width: none;
+    }
+
+    .login-icon {
+        font-size: 3rem;
+    }
+
+    .login-title {
+        margin-bottom: 2rem;
+        font-size: 1.2rem;
+    }
+
+    /* --- Editor (Writer Mode) --- */
+    .writer-mode {
+        border-radius: 8px;
+        /* Smaller radius */
+    }
+
+    .editor-wrapper {
+        border-radius: 8px;
+    }
+
+    .meta-header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        align-items: stretch;
+        /* Full width items */
+    }
+
+    .title-input {
+        font-size: 1.1rem;
+        padding: 8px 0;
+        text-align: center;
+        width: 100%;
+    }
+
+    .meta-actions {
+        width: 100%;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    /* 修复：仅让发布按钮拉伸，取消按钮保持圆形 */
+    .meta-actions .publish-btn {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .meta-actions .cancel-btn {
+        flex: 0 0 42px;
+        /* 固定宽度，比 PC 端稍大 */
+        height: 42px;
+        /* 固定高度 */
+        border-radius: 50%;
+        /* 保持圆形 */
+        font-size: 1.1rem;
+    }
+
+    .meta-tags-container {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .meta-group {
+        width: 100%;
+        flex: 0 0 auto !important;
+        /* Force full width override */
+        height: auto;
+        /* Allow auto height */
+        min-height: 48px;
+        /* Larger touch target */
+        padding: 8px 12px;
+    }
+
+    /* Improved Touch Targets for Capsules */
+    .capsule-tag {
+        padding: 4px 12px;
+        height: 28px;
+    }
+
+    /* EasyMDE Toolbar Fix */
+    .editor-toolbar {
+        overflow-x: auto;
+        /* Scrollable if too wide */
+        white-space: nowrap;
+        padding: 0 10px;
+        -webkit-overflow-scrolling: touch;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .editor-toolbar i {
+        font-size: 18px !important;
+        /* Larger icons */
+    }
+
+    .editor-toolbar button {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .CodeMirror {
+        padding: 10px;
+        /* Reduced padding */
+        font-size: 16px;
+        /* Prevent iOS zoom */
+        border-radius: 0 0 8px 8px;
+    }
+
+    /* --- Reader Mode --- */
+    .reader-mode {
+        padding: 24px 16px;
+        border-radius: 8px;
+    }
+
+    .reader-header h1 {
+        font-size: 1.4rem;
+        line-height: 1.35;
+        margin-bottom: 15px;
+    }
+
+    .reader-actions {
+        margin-top: 20px;
+        width: 100%;
+        display: flex;
+        gap: 12px;
+    }
+
+    .reader-actions button {
+        flex: 1;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    /* --- Nav --- */
+    .glass-nav {
+        padding: 0 16px;
+        height: 56px;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+    }
+
+    /* --- Modal - Mobile Optimized --- */
+    .glass-modal {
+        width: 90%;
+        padding: 24px 20px;
+        gap: 20px;
+    }
+
+    .modal-actions {
+        width: 100%;
+        gap: 12px;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 12px 0;
+        /* Taller buttons */
+        font-size: 1rem;
+    }
+}
+
+/* =========================================
+   Custom Split View Styles (Desktop)
+   ========================================= */
+
+/* Use row direction when split is active */
+.editor-wrapper.split-active {
+    flex-direction: row;
+    gap: 20px;
+    align-items: stretch;
+}
+
+/* Adjust EasyMDE container in split mode */
+.editor-wrapper.split-active .EasyMDEContainer {
+    width: 50%;
+    flex: 1;
+    max-width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+.editor-wrapper.split-active .EasyMDEContainer .CodeMirror {
+    height: 100% !important;
+}
+
+
+/* Custom Preview Container */
+.custom-split-preview {
+    flex: 1;
+    width: 50%;
+    overflow-y: auto;
+    padding: 30px;
+    background: rgba(30, 60, 114, 0.65);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    color: var(--text-primary);
+    animation: fadeInEditor 0.3s ease-out;
+}
+
+/* =========================================
+   Zen Mode Styles (Immersive Glass)
+   ========================================= */
+.writer-mode.zen-mode {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    /* Highest priority */
+    margin: 0;
+    border-radius: 0;
+    /* 拟物化：深度磨砂玻璃，而非纯色 */
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(60px) saturate(180%);
+    -webkit-backdrop-filter: blur(60px) saturate(180%);
+    /* 内阴影营造沉浸感 */
+    box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.6);
+    padding: 20px 8%;
+    /* Centered content with breathing room */
+    border: none;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Fix wrapper height in Zen Mode */
+.writer-mode.zen-mode .editor-wrapper {
+    flex: 1;
+    /* Occupy remaining space */
+    height: auto;
+    /* Reset fixed height if any */
+    overflow: hidden;
+    /* Contain internal scrolls */
+}
+
+/* Ensure toolbar looks good in Zen Mode */
+.writer-mode.zen-mode .editor-toolbar {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: transparent;
+    margin-bottom: 10px;
+}
+
+/* Zen Mode + Split View Layout Adaptation */
+.writer-mode.zen-mode .editor-wrapper.split-active {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+    align-items: stretch;
+    height: 100%;
+}
+
+.writer-mode.zen-mode .editor-wrapper.split-active .EasyMDEContainer,
+.writer-mode.zen-mode .custom-split-preview {
+    height: 100%;
+    /* Force full height */
+    flex: 1;
+    overflow: hidden;
+    /* Internal scrolling */
+}
+
+.writer-mode.zen-mode .custom-split-preview {
+    background: rgba(255, 255, 255, 0.03);
+    /* Lighter glass for contrast */
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.writer-mode.zen-mode .EasyMDEContainer .CodeMirror {
+    height: 100% !important;
 }

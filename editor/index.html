@@ -9,7 +9,7 @@
     <!-- Libraries -->
     <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css">
     <script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
-    <script type="module" src="https://cdn.skypack.dev/@octokit/rest"></script>
+    <!-- <script type="module" src="https://cdn.skypack.dev/@octokit/rest"></script> Removed: Imported in app.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.js"></script>
@@ -168,8 +168,18 @@
                             </div>
                         </div>
                         <div class="reader-meta">
-                            <span><i class="fa-regular fa-clock"></i> {{ postDate || '刚刚' }}</span>
-                            <span v-if="postCategories"><i class="fa-regular fa-folder"></i> {{ postCategories }}</span>
+                            <span class="meta-capsule time-capsule">
+                                <i class="fa-regular fa-clock"></i> {{ postDate || '刚刚' }}
+                            </span>
+
+                            <span v-for="(cat, index) in postCategories" :key="'cat-'+index"
+                                class="meta-capsule category-capsule">
+                                <i class="fa-regular fa-folder"></i> {{ cat }}
+                            </span>
+
+                            <span v-for="(tag, index) in postTags" :key="'tag-'+index" class="meta-capsule tag-capsule">
+                                <i class="fa-solid fa-tags"></i> {{ tag }}
+                            </span>
                         </div>
                         <div class="reader-content markdown-body" id="preview-content">
                             <!-- 渲染后的 HTML 将注入这里 -->
@@ -177,7 +187,7 @@
                     </div>
 
                     <!-- 2. 编辑模式 -->
-                    <div v-show="editMode" class="writer-mode">
+                    <div v-show="editMode" class="writer-mode" :class="{ 'zen-mode': fullscreenMode }">
                         <div class="metadata-form">
                             <div class="meta-header">
                                 <input type="text" v-model="postTitle" placeholder="在此输入标题..." class="title-input">
@@ -229,8 +239,11 @@
                             </div>
                         </div>
 
-                        <div class="editor-wrapper">
+                        <div class="editor-wrapper" :class="{ 'split-active': splitMode }">
                             <textarea id="markdown-editor"></textarea>
+                            <!-- 自定义双栏预览区 -->
+                            <div v-show="splitMode" class="custom-split-preview markdown-body"
+                                v-html="compiledMarkdown"></div>
                         </div>
                     </div>
                 </main>
@@ -240,13 +253,19 @@
         <div id="modal-container" :class="{ visible: modal.show }">
             <div class="glass-modal">
                 <div class="modal-header">
-                    <h3><i class="fa-solid fa-triangle-exclamation" v-if="modal.type === 'confirm'"
-                            style="color: #ffd700;"></i> {{ modal.title }}</h3>
+                    <h3>
+                        <i class="fa-solid fa-spinner fa-spin" v-if="modal.type === 'loading'"
+                            style="color: var(--primary-color);"></i>
+                        <i class="fa-solid fa-triangle-exclamation" v-else-if="modal.type === 'confirm'"
+                            style="color: #ffd700;"></i>
+                        {{ modal.title }}
+                    </h3>
                 </div>
                 <div class="modal-body">
                     <p>{{ modal.message }}</p>
                 </div>
-                <div class="modal-actions">
+                <!-- 只有非 loading 状态才显示操作按钮 -->
+                <div class="modal-actions" v-if="modal.type !== 'loading'">
                     <button v-if="modal.type === 'confirm'" class="modal-cancel-btn modal-btn"
                         @click="closeModal(false)">取消</button>
                     <button class="modal-confirm-btn modal-btn" @click="closeModal(true)">确定</button>
