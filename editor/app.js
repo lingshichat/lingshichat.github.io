@@ -56,11 +56,24 @@ new Vue({
             this.sidebarOpen = false;
         }
 
-        // Check LocalStorage
+        // Check Shared Session (from Admin) first
+        try {
+            const session = JSON.parse(localStorage.getItem('auth_session'));
+            if (session && session.github && session.expires > Date.now()) {
+                this.token = session.github;
+                this.isLoggedIn = true;
+                this.initData();
+                return;
+            }
+        } catch (e) {
+            console.warn('Failed to parse auth_session', e);
+        }
+
+        // Fallback to legacy check
         const cachedToken = localStorage.getItem('blog_editor_token');
         if (cachedToken) {
             this.token = cachedToken;
-            this.isLoggedIn = true; // Prioritize rendering the editor DOM first
+            this.isLoggedIn = true;
             this.initData();
         }
     },
@@ -134,6 +147,11 @@ new Vue({
 
                 if (this.rememberMe) {
                     localStorage.setItem('blog_editor_token', this.token);
+                    // Also save to shared session (GitHub only)
+                    localStorage.setItem('auth_session', JSON.stringify({
+                        github: this.token,
+                        expires: Date.now() + 24 * 60 * 60 * 1000
+                    }));
                 }
 
                 // 添加淡出动画
@@ -157,6 +175,7 @@ new Vue({
 
         logout() {
             localStorage.removeItem('blog_editor_token');
+            localStorage.removeItem('auth_session'); // Clear shared session
             this.token = '';
             this.isLoggedIn = false;
             this.password = '';
