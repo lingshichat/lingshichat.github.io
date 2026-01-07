@@ -44,7 +44,7 @@
                 <div class="login-input-area">
                     <input type="password" v-model="password" @keyup.enter="login" placeholder="输入密钥，开启时空..." autofocus>
                     <button class="login-btn" @click="login" :disabled="loading">
-                        <i class="fa-solid fa-arrow-right"></i>
+                        <i class="fa-solid" :class="loading ? 'fa-circle-notch fa-spin' : 'fa-arrow-right'"></i>
                     </button>
                 </div>
 

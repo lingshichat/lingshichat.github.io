@@ -1,13 +1,35 @@
-/* 变量定义 */
+/* =========================================
+   Editor Design System
+   Theme: Dark Glassmorphism + Skeuomorphism
+   (与 Admin 保持一致)
+   ========================================= */
+
 :root {
+    /* 品牌色 */
     --primary-color: #3b70fc;
     --primary-gradient: linear-gradient(135deg, #3b70fc 0%, #667eea 100%);
     --primary-glow: rgba(59, 112, 252, 0.5);
-    --glass-bg: rgba(20, 20, 30, 0.65);
-    --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+
+    /* 背景层次 */
+    --bg-base: url('/img/bg.jpg');
+
+    /* 玻璃质感 */
+    --glass-bg: rgba(30, 60, 114, 0.65);
+    --glass-border: 1px solid rgba(255, 255, 255, 0.18);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+
+    /* 文字 */
     --text-primary: #fff;
     --text-secondary: rgba(255, 255, 255, 0.7);
     --text-muted: rgba(255, 255, 255, 0.4);
+
+    /* 状态色 */
+    --success: #10b981;
+    --warning: #fbbf24;
+    --danger: #ef4444;
+
+    /* 动画曲线 */
+    --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
     --transition-speed: 0.3s;
 }
 
@@ -23,7 +45,7 @@ body {
     position: relative;
 }
 
-/* 关键修复：复刻 404 页面的全局预模糊底板 */
+/* 全局预模糊底板 (与 Admin 一致的深蓝色调) */
 body::before {
     content: '';
     position: absolute;
@@ -31,11 +53,10 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.4);
-    /* 遮罩层 */
-    backdrop-filter: blur(3px);
-    /* iOS 风格轻微背景模糊 */
-    -webkit-backdrop-filter: blur(3px);
+    background: rgba(0, 10, 30, 0.6);
+    /* 深蓝色遮罩，突出高级感 */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     z-index: 0;
 }
 
@@ -387,11 +408,16 @@ body::before {
     padding: 0 24px;
     z-index: 200;
 
-    /* iOS 毛璃瑶风格 */
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    /* 拟物玻璃拟态导航 (与 Admin 一致) */
+    background: rgba(10, 20, 40, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+    /* 拟物阴影效果 */
+    box-shadow:
+        0 4px 30px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .nav-left,
@@ -428,20 +454,23 @@ body::before {
     background: transparent;
 }
 
-/* 侧边栏 - 强化毛玻璃效果 */
+/* 侧边栏 - 拟物玻璃拟态 (与 Admin 一致) */
 .sidebar {
     width: 260px;
-    /* 蓝色调半透明背景 - 强化毛玻璃 */
-    background: rgba(30, 60, 114, 0.65);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    /* 深色玻璃背景 */
+    background: rgba(10, 20, 40, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    /* 拟物阴影 */
+    box-shadow:
+        var(--glass-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s var(--ease-out-expo);
 }
 
 .sidebar-header {
@@ -498,21 +527,41 @@ body::before {
     border: 1px solid transparent;
     position: relative;
     overflow: hidden;
+    /* 拟物内阴影 */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 
 .post-list li:hover {
     background: rgba(255, 255, 255, 0.08);
     color: white;
     transform: translateX(4px);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 .post-list li.active {
-    background: linear-gradient(135deg, rgba(59, 112, 252, 0.6) 0%, rgba(59, 112, 252, 0.4) 100%);
+    background: linear-gradient(90deg, rgba(59, 112, 252, 0.25) 0%, rgba(59, 112, 252, 0.05) 100%);
     color: white;
-    font-weight: 600;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 15px rgba(59, 112, 252, 0.3);
-    /* No Left Border */
+    font-weight: 500;
+    border: 1px solid rgba(59, 112, 252, 0.3);
+    /* 拟物发光效果 */
+    box-shadow:
+        0 0 15px var(--primary-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.post-list li.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background: var(--primary-color);
+    border-radius: 0 4px 4px 0;
+    box-shadow: 0 0 15px var(--primary-glow);
 }
 
 /* 编辑/阅读主区域 - 容器 */
@@ -531,35 +580,41 @@ body::before {
     flex-direction: column;
 }
 
-/* 阅读模式 - 强化毛玻璃效果 */
+/* 阅读模式 - 拟物玻璃拟态 (与 Admin 一致) */
 .reader-mode {
     flex: 1;
     overflow-y: auto;
     padding: 40px;
     height: 100%;
-    /* 蓝色调半透明背景 - 强化毛玻璃 */
-    background: rgba(30, 60, 114, 0.65);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    /* 深色玻璃背景 */
+    background: rgba(10, 20, 40, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    /* 拟物阴影 */
+    box-shadow:
+        var(--glass-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-/* 写作模式 - 强化毛玻璃效果 */
+/* 写作模式 - 拟物玻璃拟态 (与 Admin 一致) */
 .writer-mode {
     flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
     height: 100%;
-    /* 蓝色调半透明背景 - 强化毛玻璃 */
-    background: rgba(30, 60, 114, 0.65);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    /* 深色玻璃背景 */
+    background: rgba(10, 20, 40, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    /* 拟物阴影 */
+    box-shadow:
+        var(--glass-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
 .editor-wrapper {
@@ -588,7 +643,7 @@ body::before {
 }
 
 
-/* 新建/更多按钮 - 胶囊风格 */
+/* 新建/更多按钮 - 拟物胶囊风格 */
 .new-post-btn {
     border-radius: 50px;
     padding: 8px 20px;
@@ -596,21 +651,33 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.1);
     color: white;
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s var(--ease-out-expo);
     display: flex;
     align-items: center;
     gap: 8px;
-    gap: 8px;
     font-size: 0.9rem;
     flex: 1;
-    /* Take available space */
     justify-content: center;
+    /* 拟物阴影 */
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .new-post-btn:hover {
     background: var(--primary-color);
     border-color: var(--primary-color);
-    box-shadow: 0 0 15px var(--primary-glow);
+    box-shadow:
+        0 0 15px var(--primary-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.new-post-btn:active {
+    transform: translateY(0);
+    box-shadow:
+        inset 0 2px 4px rgba(0, 0, 0, 0.3),
+        0 0 10px var(--primary-glow);
 }
 
 .nav-btn {
@@ -620,12 +687,21 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.05);
     color: var(--text-secondary);
     cursor: pointer;
-    transition: 0.3s;
+    transition: all 0.3s var(--ease-out-expo);
+    /* 拟物阴影 */
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .nav-btn:hover {
     background: rgba(255, 255, 255, 0.15);
     color: white;
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.nav-btn:active {
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .trash-toggle-btn {
@@ -1311,7 +1387,7 @@ body.fullscreen-active .aplayer {
 }
 
 
-/* 欢迎页/空状态 - 强化毛玻璃效果 */
+/* 欢迎页/空状态 - 拟物玻璃拟态 (与 Admin 一致) */
 .welcome-mode {
     flex: 1;
     display: flex;
@@ -1319,15 +1395,18 @@ body.fullscreen-active .aplayer {
     align-items: center;
     text-align: center;
     color: white;
-    animation: fadeIn 0.5s;
-    /* 蓝色调半透明背景 - 强化毛玻璃 */
-    background: rgba(30, 60, 114, 0.65);
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-    transition: transform 0.3s ease;
+    animation: fadeIn 0.5s var(--ease-out-expo);
+    /* 深色玻璃背景 */
+    background: rgba(10, 20, 40, 0.7);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    /* 拟物阴影 */
+    box-shadow:
+        var(--glass-shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: transform 0.3s var(--ease-out-expo);
 }
 
 .welcome-content {
@@ -1702,15 +1781,18 @@ span.flatpickr-weekday {
 }
 
 .glass-modal {
-    background: rgba(30, 60, 114, 0.85);
-    /* Deep Blue Glass */
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    /* 拟物玻璃拟态 (与 Admin 一致) */
+    background: rgba(10, 20, 40, 0.9);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
     width: 400px;
     max-width: 90%;
     border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    /* 拟物阴影 */
+    box-shadow:
+        0 20px 50px rgba(0, 0, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     padding: 24px;
     transform: scale(0.9) translateY(20px);
     transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -2110,4 +2192,128 @@ span.flatpickr-weekday {
 
 .writer-mode.zen-mode .EasyMDEContainer .CodeMirror {
     height: 100% !important;
+}
+
+/* =========================================
+   Toast 通知组件 (Shared via admin.css)
+   ========================================= */
+.toast-container {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    pointer-events: none;
+}
+
+.toast {
+    background: rgba(20, 40, 80, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 14px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    min-width: 280px;
+    max-width: 420px;
+    pointer-events: auto;
+    animation: toastSlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transform-origin: right center;
+}
+
+.toast.toast-exit {
+    animation: toastSlideOut 0.3s ease-in forwards;
+}
+
+.toast-icon {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* 类型颜色 */
+.toast.success .toast-icon {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.toast.warning .toast-icon {
+    background: rgba(251, 191, 36, 0.2);
+    color: #fcd34d;
+    box-shadow: 0 0 15px rgba(251, 191, 36, 0.3);
+}
+
+.toast.error .toast-icon {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    box-shadow: 0 0 15px rgba(239, 68, 68, 0.3);
+}
+
+.toast.info .toast-icon {
+    background: rgba(59, 112, 252, 0.2);
+    color: #60a5fa;
+    box-shadow: 0 0 15px rgba(59, 112, 252, 0.3);
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-message {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.4;
+}
+
+.toast-close {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.toast-close:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Toast 动画 */
+@keyframes toastSlideIn {
+    from {
+        opacity: 0;
+        transform: translateX(100%) scale(0.8);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+}
+
+@keyframes toastSlideOut {
+    from {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
+
+    to {
+        opacity: 0;
+        transform: translateX(50%) scale(0.9);
+    }
 }

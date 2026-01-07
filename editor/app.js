@@ -1,6 +1,8 @@
 import { CONFIG } from './config.js';
 import { Auth } from './auth.js';
 import { Octokit } from "https://esm.sh/@octokit/rest";
+import { Toast } from '../js/toast-module.js';
+
 
 new Vue({
     el: '#app',
@@ -123,7 +125,7 @@ new Vue({
         },
 
         async login() {
-            if (!this.password && !CONFIG.ENCRYPTED_TOKEN) {
+            if (!this.password && !CONFIG.GITHUB_TOKEN) {
                 this.errorMsg = '尚未配置加密 Token，请查看教程';
                 return;
             }
@@ -167,7 +169,17 @@ new Vue({
                 }, 600); // 与 CSS 动画时长匹配
 
             } catch (e) {
-                this.errorMsg = '验证失败: ' + e.message;
+                console.error("Login verification failed", e);
+                const status = e.status;
+                if (status === 401) {
+                    this.errorMsg = '验证失败: 401 Unauthorized (Token 无效)';
+                } else if (status === 403) {
+                    this.errorMsg = '验证失败: 403 Forbidden (API 限制)';
+                } else if (!navigator.onLine) {
+                    this.errorMsg = '验证失败: 网络未连接';
+                } else {
+                    this.errorMsg = '验证失败: ' + (e.message || '未知错误');
+                }
             } finally {
                 this.loading = false;
             }
@@ -448,8 +460,7 @@ new Vue({
                 document.getElementById('preview-content').innerHTML = this.renderHexoContent(content);
 
             } catch (e) {
-
-                this.showAlert('加载文章失败: ' + e.message);
+                Toast.show('加载文章失败: ' + e.message, 'error');
             }
         },
 
@@ -614,7 +625,7 @@ categories: ${catsStr}
                     sha: data.content.sha
                 };
 
-                this.showAlert('发布成功! Cloudflare Pages 将自动构建。');
+                Toast.show('发布成功! Cloudflare Pages 将自动构建。', 'success');
                 this.saveStatus = '已保存';
                 setTimeout(() => this.saveStatus = '', 3000);
 
@@ -623,7 +634,7 @@ categories: ${catsStr}
 
             } catch (e) {
                 console.error(e);
-                this.showAlert('保存失败: ' + e.message);
+                Toast.show('保存失败: ' + e.message, 'error');
             } finally {
                 this.saving = false;
             }
@@ -694,7 +705,7 @@ categories: ${catsStr}
                 // But removing from current list is enough for visual feedback
                 this.viewMode = 'posts'; // Ensure we stay on posts view or switch? Usually stay.
 
-                this.showAlert('已移至回收站');
+                Toast.show('已移至回收站', 'success');
 
                 // Clear state
                 this.currentPost = null;
@@ -705,7 +716,7 @@ categories: ${catsStr}
             } catch (e) {
                 console.error("Move to trash failed:", e);
 
-                this.showAlert('移动失败: ' + e.message);
+                Toast.show('移动失败: ' + e.message, 'error');
             }
         },
 
@@ -762,14 +773,13 @@ categories: ${catsStr}
                     type: 'file'
                 });
 
-                this.showAlert('已恢复文章');
-                this.currentPost = null;
                 this.toggleViewMode('posts'); // Auto switch back
+                Toast.show('已恢复文章', 'success');
 
             } catch (e) {
                 console.error("Restore failed:", e);
 
-                this.showAlert('恢复失败: ' + e.message);
+                Toast.show('恢复失败: ' + e.message, 'error');
             }
         },
 
@@ -800,13 +810,13 @@ categories: ${catsStr}
                 // --- Optimistic Update ---
                 this.trashPosts = this.trashPosts.filter(p => p.sha !== postSha);
 
-                this.showAlert('文件已彻底销毁');
+                Toast.show('文件已彻底销毁', 'success');
                 this.currentPost = null;
 
 
             } catch (e) {
                 console.error(e);
-                this.showAlert('删除失败: ' + e.message);
+                Toast.show('删除失败: ' + e.message, 'error');
             }
         },
 

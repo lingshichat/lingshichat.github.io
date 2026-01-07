@@ -3,9 +3,10 @@
 // 警告：不要直接在此处填入明文 Token！
 
 export const CONFIG = {
-    // 您的加密 Token (由 token-generator.html 生成)
-    // 示例: "U2FsdGVkX1+..."
-    ENCRYPTED_TOKEN: "U2FsdGVkX1+d2SJx+G13fLOncdZ14PXzGe4ZxLamEkqe2LFmhpbxZCeNkZc1pwXHo+K3kyWp/cOUvj0pWx+fqA==",
+    // GitHub Token (加密)
+    // 请使用 tools/token-generator.html 生成
+    // 警告：不要直接在此处填入明文 Token！
+    GITHUB_TOKEN: "U2FsdGVkX1+d2SJx+G13fLOncdZ14PXzGe4ZxLamEkqe2LFmhpbxZCeNkZc1pwXHo+K3kyWp/cOUvj0pWx+fqA==",
 
     // 您的 GitHub 用户名
     OWNER: "lingshichat",

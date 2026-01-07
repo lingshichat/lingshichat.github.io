@@ -11,6 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <!-- CryptoJS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Octokit (ESM import in module) -->
 
     <link rel="stylesheet" href="admin.css">
@@ -78,15 +80,43 @@
                     </nav>
 
                     <div class="sidebar-footer">
-                        <div class="system-status-mini">
-                            <div class="status-header">
-                                <span class="status-dot" :class="{ 'connected': !!cfToken }"></span>
-                                <span class="status-text">{{ cfToken ? '系统正常 & CF已连接' : '系统正常 (未连接 CF)' }}</span>
+                        <!-- 🏥 API 健康状态指示器 (重新设计) -->
+                        <div class="api-health-status">
+                            <!-- GitHub Status -->
+                            <div class="health-card github-card" :class="'status-' + healthCheck.github.status"
+                                @click="checkGitHubHealth" title="点击刷新状态">
+                                <div class="health-card-header">
+                                    <i class="fa-brands fa-github health-brand-icon"></i>
+                                    <span class="health-indicator" :class="healthCheck.github.status"></span>
+                                </div>
+                                <div class="health-card-body">
+                                    <div class="health-status-text">{{ getStatusText(healthCheck.github.status) }}</div>
+                                    <div class="health-time-text" v-if="healthCheck.github.lastCheck">
+                                        {{ formatTimeAgo(healthCheck.github.lastCheck) }}
+                                    </div>
+                                    <div class="health-time-text" v-else>未检测</div>
+                                </div>
                             </div>
-                            <div class="cpu-bar">
-                                <div class="cpu-fill"></div>
+
+                            <!-- Cloudflare Status -->
+                            <div class="health-card cf-card" :class="'status-' + healthCheck.cloudflare.status"
+                                @click="checkCloudflareHealth" title="点击刷新状态">
+                                <div class="health-card-header">
+                                    <i class="fa-brands fa-cloudflare health-brand-icon"></i>
+                                    <span class="health-indicator" :class="healthCheck.cloudflare.status"></span>
+                                </div>
+                                <div class="health-card-body">
+                                    <div class="health-status-text">{{ getStatusText(healthCheck.cloudflare.status) }}
+                                    </div>
+                                    <div class="health-time-text" v-if="healthCheck.cloudflare.lastCheck">
+                                        {{ formatTimeAgo(healthCheck.cloudflare.lastCheck) }}
+                                    </div>
+                                    <div class="health-time-text" v-else>未检测</div>
+                                </div>
                             </div>
                         </div>
+
+
                         <div style="margin-top: 15px; text-align: center;">
                             <a href="#" @click.prevent="logout"
                                 style="color: rgba(255,255,255,0.4); text-decoration: none; font-size: 0.85rem;">
@@ -342,8 +372,14 @@
                                 <div class="input-group target-group">
                                     <div class="input-wrapper">
                                         <i class="fa-solid fa-location-dot input-icon"></i>
-                                        <input type="url" v-model="portalTarget" placeholder="https://bilibili.com"
+                                        <input type="url" v-model="portalTarget" placeholder="bilibili.com"
                                             @keyup.enter="savePortal">
+                                    </div>
+                                    <!-- 实时预览提示 -->
+                                    <div class="url-preview"
+                                        v-if="portalTarget && !portalTarget.match(/^https?:\/\//i)">
+                                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                        将自动补全为: <strong>https://{{ portalTarget }}</strong>
                                     </div>
                                 </div>
 
@@ -425,41 +461,26 @@
                             </ul>
                         </div>
 
-                        <!-- Debug Section (Collapsible) -->
-                        <div style="margin-top: 20px;">
-                            <details
-                                style="background: rgba(0,0,0,0.3); border-radius: 8px; padding: 10px; color: #aaa; cursor: pointer;">
-                                <summary style="font-size: 0.85rem; outline: none;">🐞 调试数据 (Debug Info)</summary>
-                                <div
-                                    style="padding-top: 10px; font-family: monospace; font-size: 0.8rem; white-space: pre-wrap; word-break: break-all;">
-                                    <div v-if="!debugRules">No data. Click Refresh.</div>
-                                    <div v-else>
-                                        <strong>Raw Rules Count:</strong> {{ debugRules.length }}<br>
-                                        <strong>Parsed Portals:</strong> {{ portalList.length }}<br>
-                                        <hr style="border-color: rgba(255,255,255,0.1);">
-                                        <strong>Raw Data:</strong>
-                                        {{ JSON.stringify(debugRules, null, 2) }}
-                                    </div>
-                                </div>
-                            </details>
-                        </div>
+
                     </section>
 
                     <!-- 5. 🔗 短链管理 (Shortlinks) -->
                     <section v-else-if="currentView === 'shortlinks'">
                         <div class="page-header">
-                            <h1 class="page-title">短链生成 (Shortlinks)</h1>
+                            <h1 class="page-title">短链工坊 (Link Shortener)</h1>
                             <p style="color: var(--text-muted); margin-top: 8px;">
-                                基于 Cloudflare KV 的高性能短链接服务。
+                                打造精致且易于记忆的短链接，基于 Cloudflare 边缘网络分发。
                             </p>
                         </div>
 
                         <!-- Generator Form -->
-                        <div class="glass-panel portal-builder">
-                            <div class="panel-header">
-                                <span class="panel-title">
-                                    <i class="fa-solid" :class="kv.editingKey ? 'fa-pen-to-square' : 'fa-link'"></i>
-                                    {{ kv.editingKey ? '编辑短链' : '创建短链' }}
+                        <!-- New Generator Design (Independent Cards) -->
+                        <div class="glass-panel portal-builder" style="padding: 30px;">
+                            <div class="panel-header" style="margin-bottom: 25px;">
+                                <span class="panel-title" style="font-size: 1.2rem;">
+                                    <i class="fa-solid"
+                                        :class="kv.editingKey ? 'fa-pen-to-square' : 'fa-wand-magic-sparkles'"></i>
+                                    {{ kv.editingKey ? '编辑短链' : '新建短链' }}
                                 </span>
                                 <button v-if="kv.editingKey" class="panel-action-btn" @click="cancelShortlinkEdit"
                                     style="background: rgba(255,255,255,0.1);">
@@ -467,79 +488,153 @@
                                 </button>
                             </div>
 
-                            <div class="builder-form shortlink-form">
-                                <div class="input-group">
-                                    <div class="input-wrapper">
-                                        <i class="fa-solid fa-key input-icon"></i>
-                                        <input type="text" v-model="kv.inputKey" placeholder="key (e.g. go)"
-                                            @keyup.enter="saveShortlink" :disabled="!!kv.editingKey">
+                            <div class="shortlink-grid-form">
+                                <!-- Path Input -->
+                                <div class="form-col" style="flex: 2;">
+                                    <label class="sl-label">短链后缀 (Path)</label>
+                                    <div class="sl-input-wrapper">
+                                        <i class="fa-solid fa-link sl-input-icon"></i>
+                                        <span class="sl-prefix">/s/</span>
+                                        <input type="text" class="sl-input with-prefix" v-model="kv.inputKey"
+                                            placeholder="custom-name" @keyup.enter="saveShortlink"
+                                            :disabled="!!kv.editingKey">
+
+                                        <button v-if="!kv.editingKey && !kv.inputKey" class="sl-random-btn"
+                                            @click="generateRandomKey" title="随机生成">
+                                            <i class="fa-solid fa-shuffle"></i>
+                                        </button>
                                     </div>
-                                    <span class="domain-suffix" style="font-size: 0.8rem; opacity: 0.6;">(Slug)</span>
                                 </div>
-                                <i class="fa-solid fa-arrow-right-long arrow-separator"></i>
-                                <div class="input-group" style="flex: 2;">
-                                    <div class="input-wrapper">
-                                        <i class="fa-solid fa-location-dot input-icon"></i>
-                                        <input type="url" v-model="kv.inputUrl" placeholder="Target URL"
+
+                                <!-- Target URL Input -->
+                                <div class="form-col" style="flex: 3;">
+                                    <label class="sl-label">目标链接 (Target URL)</label>
+                                    <div class="sl-input-wrapper">
+                                        <i class="fa-solid fa-location-arrow sl-input-icon"></i>
+                                        <input type="url" class="sl-input" v-model="kv.inputUrl"
+                                            placeholder="https://example.com/very/long/url"
                                             @keyup.enter="saveShortlink">
                                     </div>
                                 </div>
-                                <button class="btn-primary build-btn" @click="saveShortlink"
-                                    :disabled="kv.loading || !kv.inputKey || !kv.inputUrl">
+                            </div>
+
+                            <!-- Big Generate Button -->
+                            <div class="sl-action-row">
+                                <button class="btn-generate" @click="saveShortlink"
+                                    :disabled="kv.loading || !kv.inputUrl">
                                     <span v-if="!kv.loading">
-                                        <i class="fa-solid" :class="kv.editingKey ? 'fa-floppy-disk' : 'fa-plus'"></i>
-                                        保存
+                                        <i class="fa-solid" :class="kv.editingKey ? 'fa-floppy-disk' : 'fa-bolt'"></i>
+                                        {{ kv.editingKey ? '保存修改' : '立即生成' }}
                                     </span>
                                     <span v-else><i class="fa-solid fa-circle-notch fa-spin"></i></span>
                                 </button>
                             </div>
+
+                            <!-- Success Result Panel -->
+                            <transition name="fade">
+                                <div v-if="kv.result" class="sl-result-card">
+                                    <div class="sl-result-icon">
+                                        <i class="fa-solid fa-check"></i>
+                                    </div>
+                                    <div class="sl-result-content">
+                                        <div class="sl-result-title">短链已生成</div>
+                                        <a :href="kv.result" target="_blank" class="sl-result-link">{{ kv.result }}</a>
+                                    </div>
+                                    <button class="sl-copy-btn" @click="copyToClipboard(kv.result)">
+                                        <i class="fa-regular fa-copy"></i> 复制
+                                    </button>
+                                </div>
+                            </transition>
                         </div>
 
-                        <!-- List -->
-                        <div class="panel-header" style="margin-top: 40px; margin-bottom: 20px;">
-                            <span class="panel-title"><i class="fa-solid fa-list-ol"></i> 短链列表</span>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <span class="text-muted" style="font-size: 0.85rem;" v-if="!kv.listLoading">共 {{
-                                    kv.list.length }} 条</span>
-                                <button class="panel-action-btn" @click="loadShortlinks" :disabled="kv.listLoading">
-                                    <i class="fa-solid fa-rotate-right" :class="{'fa-spin': kv.listLoading}"></i> 刷新
-                                </button>
+                        <!-- Modern List Section (Refactored to match Portal Style) -->
+                        <div class="sl-list-container">
+                            <div class="panel-header" style="margin-bottom: 20px;">
+                                <span class="panel-title"
+                                    style="font-size: 1.2rem; display: flex; align-items: center; gap: 10px;">
+                                    <i class="fa-solid fa-layer-group"></i>
+                                    已有短链 ({{ kv.list.length }})
+                                </span>
+
+                                <div
+                                    style="display: flex; gap: 15px; align-items: center; flex: 1; justify-content: flex-end;">
+                                    <!-- Search Box -->
+                                    <div class="sl-search-box" style="max-width: 300px;">
+                                        <i class="fa-solid fa-search"></i>
+                                        <input type="text" v-model="kv.search" placeholder="搜索短链...">
+                                    </div>
+
+                                    <button class="panel-action-btn" @click="loadShortlinks" :disabled="kv.listLoading">
+                                        <i class="fa-solid fa-rotate-right" :class="{'fa-spin': kv.listLoading}"></i> 刷新
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="glass-panel" style="padding: 0; overflow: hidden;">
+                                <ul class="portal-list">
+                                    <!-- 表头 -->
+                                    <li class="portal-item header">
+                                        <div class="col-prefix">短链后缀 (Path)</div>
+                                        <div class="col-arrow"></div>
+                                        <div class="col-target">目标链接 (Target URL)</div>
+                                        <div class="col-actions" style="width: 160px;">操作</div>
+                                    </li>
+
+                                    <!-- 列表项 -->
+                                    <li class="portal-item" v-for="item in filteredShortlinks" :key="item.key"
+                                        :class="{'editing': kv.editingKey === item.key}">
+                                        <div class="col-prefix">
+                                            <span class="prefix-badge">/s/{{ item.key }}</span>
+                                        </div>
+                                        <div class="col-arrow">
+                                            <i class="fa-solid fa-arrow-right"></i>
+                                        </div>
+                                        <div class="col-target">
+                                            <a :href="item.value" target="_blank" class="target-link"
+                                                :title="item.value">
+                                                {{ item.value }}
+                                            </a>
+                                            <a :href="'https://lingshichat.top/s/' + item.key" target="_blank"
+                                                class="live-link" title="访问测试">
+                                                <i class="fa-solid fa-external-link-alt"></i>
+                                            </a>
+                                        </div>
+                                        <div class="col-actions" style="width: 160px;">
+                                            <button class="action-icon-btn" title="访问"
+                                                @click="visitShortlink(item.key)">
+                                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                                            </button>
+                                            <button class="action-icon-btn" title="复制"
+                                                @click="copyToClipboard('https://lingshichat.top/s/' + item.key)">
+                                                <i class="fa-regular fa-copy"></i>
+                                            </button>
+                                            <button class="action-icon-btn edit" @click="editShortlink(item)" title="编辑"
+                                                :disabled="item.deleting">
+                                                <i class="fa-regular fa-pen-to-square"></i>
+                                            </button>
+                                            <button class="action-icon-btn delete" @click="deleteShortlink(item)"
+                                                title="删除" :disabled="item.deleting">
+                                                <i
+                                                    :class="item.deleting ? 'fa-solid fa-circle-notch fa-spin' : 'fa-regular fa-trash-can'"></i>
+                                            </button>
+                                        </div>
+                                    </li>
+
+                                    <!-- 空状态 -->
+                                    <li v-if="filteredShortlinks.length === 0 && !kv.listLoading"
+                                        class="empty-list-item">
+                                        <i class="fa-solid fa-wind"></i>
+                                        {{ kv.search ? '没有找到匹配的短链' : '还没有创建任何短链' }}
+                                    </li>
+                                    <li v-if="kv.listLoading" class="empty-list-item">
+                                        <i class="fa-solid fa-circle-notch fa-spin"></i> 正在同步数据...
+                                    </li>
+                                </ul>
                             </div>
                         </div>
 
-                        <div class="glass-panel" style="padding: 0; overflow: hidden;">
-                            <ul class="portal-list">
-                                <li class="portal-item header">
-                                    <div class="col-prefix">Key (Slug)</div>
-                                    <div class="col-arrow"></div>
-                                    <div class="col-target">目标地址</div>
-                                    <div class="col-actions">操作</div>
-                                </li>
-                                <li class="portal-item" v-for="item in kv.list" :key="item.key"
-                                    :class="{'editing': kv.editingKey === item.key}">
-                                    <div class="col-prefix">
-                                        <span class="prefix-badge"
-                                            style="background: rgba(100, 181, 246, 0.2); color: #64b5f6; border: 1px solid rgba(100, 181, 246, 0.3);">{{
-                                            item.key }}</span>
-                                    </div>
-                                    <div class="col-arrow"><i class="fa-solid fa-arrow-right"></i></div>
-                                    <div class="col-target">
-                                        <a :href="item.value" target="_blank" class="target-link">{{ item.value }}</a>
-                                    </div>
-                                    <div class="col-actions">
-                                        <button class="action-icon-btn edit" @click="editShortlink(item)"><i
-                                                class="fa-regular fa-pen-to-square"></i></button>
-                                        <button class="action-icon-btn delete" @click="deleteShortlink(item)"><i
-                                                class="fa-regular fa-trash-can"></i></button>
-                                    </div>
-                                </li>
-                                <li v-if="kv.list.length === 0 && !kv.listLoading" class="empty-list-item">
-                                    <i class="fa-solid fa-wind"></i> 暂无短链
-                                </li>
-                                <li v-if="kv.listLoading" class="empty-list-item">
-                                    <i class="fa-solid fa-circle-notch fa-spin"></i> 加载中...
-                                </li>
-                            </ul>
+                        <div style="margin-top: 15px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">
+                            <i class="fa-solid fa-database"></i> 数据存储于 Cloudflare Workers KV
                         </div>
                     </section>
 
@@ -582,225 +677,246 @@
                                 <div class="stat-meta">Unique Visitors</div>
                             </div>
                         </div>
+    </div>
 
-                        <!-- Refresh Button -->
-                        <div style="text-align: center; margin-top: 40px;">
-                            <button class="btn-primary" @click="fetchMonitorData" :disabled="monitor.loading">
-                                <i class="fa-solid fa-rotate-right" :class="{'fa-spin': monitor.loading}"></i> 刷新数据
-                            </button>
-                        </div>
-                    </section>
+    <!-- 📈 趋势图表区 -->
+    <div class="charts-grid" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px; margin-top: 20px;">
+        <!-- 1. 流量趋势图 (Line) -->
+        <div class="glass-panel" style="min-height: 350px;">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fa-solid fa-chart-area"></i> 24h 流量趋势</span>
+            </div>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="requestsChart"></canvas>
+            </div>
+        </div>
 
-                    <!-- 7. 📝 博客管理 (Posts) -->
-                    <section v-else-if="currentView === 'posts'">
-                        <div class="page-header">
-                            <h1 class="page-title">博客管理</h1>
-                            <p style="color: var(--text-muted); margin-top: 8px;">
-                                管理您的所有博客文章，点击编辑将在新窗口打开 Editor。
-                            </p>
-                        </div>
+        <!-- 2. 威胁拦截图 (Bar) -->
+        <div class="glass-panel" style="min-height: 350px;">
+            <div class="panel-header">
+                <span class="panel-title"><i class="fa-solid fa-shield-virus"></i> 24h 威胁拦截分布</span>
+            </div>
+            <div style="position: relative; height: 300px; width: 100%;">
+                <canvas id="threatsChart"></canvas>
+            </div>
+        </div>
+    </div>
 
-                        <!-- 操作栏 -->
-                        <div class="posts-toolbar glass-panel"
-                            style="display: flex; gap: 15px; align-items: center; padding: 15px 20px; margin-bottom: 20px;">
-                            <button class="btn-primary" @click="navigateToPost" style="flex-shrink: 0;">
-                                <i class="fa-solid fa-plus"></i> 新建文章
-                            </button>
-                            <div class="input-wrapper" style="flex: 1; position: relative;">
-                                <i class="fa-solid fa-search input-icon"
-                                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
-                                <input type="text" v-model="postSearchQuery" @input="filterPosts"
-                                    placeholder="搜索文章标题..."
-                                    style="width: 100%; padding: 10px 10px 10px 36px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff;">
-                            </div>
-                            <button class="panel-action-btn" @click="loadAllPosts" :disabled="postsLoading">
-                                <i class="fa-solid fa-rotate-right" :class="{'fa-spin': postsLoading}"></i> 刷新
-                            </button>
-                        </div>
+    <!-- Refresh Button -->
+    <div style="text-align: center; margin-top: 40px;">
+        <button class="btn-primary" @click="fetchMonitorData" :disabled="monitor.loading">
+            <i class="fa-solid fa-rotate-right" :class="{'fa-spin': monitor.loading}"></i> 刷新数据
+        </button>
+    </div>
+    </section>
 
-                        <!-- 文章列表 -->
-                        <div class="glass-panel" style="padding: 0; overflow: hidden;">
-                            <ul class="portal-list">
-                                <!-- 表头 -->
-                                <li class="portal-item header">
-                                    <div class="col-prefix" style="flex: 2;">文章标题</div>
-                                    <div class="col-target" style="flex: 1;">发布日期</div>
-                                    <div class="col-actions">操作</div>
-                                </li>
+    <!-- 7. 📝 博客管理 (Posts) -->
+    <section v-else-if="currentView === 'posts'">
+        <div class="page-header">
+            <h1 class="page-title">博客管理</h1>
+            <p style="color: var(--text-muted); margin-top: 8px;">
+                管理您的所有博客文章，点击编辑将在新窗口打开 Editor。
+            </p>
+        </div>
 
-                                <!-- 文章项 -->
-                                <li class="portal-item" v-for="post in filteredPosts" :key="post.path">
-                                    <div class="col-prefix" style="flex: 2;">
-                                        <span class="post-title">{{ post.title || post.name.replace('.md', '') }}</span>
-                                    </div>
-                                    <div class="col-target" style="flex: 1; color: var(--text-muted);">
-                                        {{ post.date ? formatDate(post.date) : '-' }}
-                                    </div>
-                                    <div class="col-actions">
-                                        <button class="action-icon-btn" @click="visitArticle(post)" title="查看">
-                                            <i class="fa-regular fa-eye"></i>
-                                        </button>
-                                        <button class="action-icon-btn edit" @click="openInEditor(post)" title="编辑">
-                                            <i class="fa-regular fa-pen-to-square"></i>
-                                        </button>
-                                    </div>
-                                </li>
+        <!-- 操作栏 -->
+        <div class="posts-toolbar glass-panel"
+            style="display: flex; gap: 15px; align-items: center; padding: 15px 20px; margin-bottom: 20px;">
+            <button class="btn-primary" @click="navigateToPost" style="flex-shrink: 0;">
+                <i class="fa-solid fa-plus"></i> 新建文章
+            </button>
+            <div class="input-wrapper" style="flex: 1; position: relative;">
+                <i class="fa-solid fa-search input-icon"
+                    style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                <input type="text" v-model="postSearchQuery" @input="filterPosts" placeholder="搜索文章标题..."
+                    style="width: 100%; padding: 10px 10px 10px 42px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff;">
+            </div>
+            <button class="panel-action-btn" @click="loadAllPosts" :disabled="postsLoading">
+                <i class="fa-solid fa-rotate-right" :class="{'fa-spin': postsLoading}"></i> 刷新
+            </button>
+        </div>
 
-                                <!-- 空状态 -->
-                                <li v-if="filteredPosts.length === 0 && !postsLoading" class="empty-list-item">
-                                    <i class="fa-solid fa-wind"></i> {{ postSearchQuery ? '未找到匹配的文章' : '暂无文章' }}
-                                </li>
-                                <li v-if="postsLoading" class="empty-list-item">
-                                    <i class="fa-solid fa-circle-notch fa-spin"></i> 加载中...
-                                </li>
-                            </ul>
-                        </div>
+        <!-- 文章列表 -->
+        <div class="glass-panel" style="padding: 0; overflow: hidden;">
+            <ul class="portal-list">
+                <!-- 表头 -->
+                <li class="portal-item header">
+                    <div class="col-prefix" style="flex: 2;">文章标题</div>
+                    <div class="col-target" style="flex: 1;">发布日期</div>
+                    <div class="col-actions">操作</div>
+                </li>
 
-                        <!-- 统计信息 -->
-                        <div style="margin-top: 15px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">
-                            共 {{ allPosts.length }} 篇文章
-                            <span v-if="postSearchQuery"> | 筛选结果 {{ filteredPosts.length }} 篇</span>
-                        </div>
-                    </section>
+                <!-- 文章项 -->
+                <li class="portal-item" v-for="post in filteredPosts" :key="post.path">
+                    <div class="col-prefix" style="flex: 2;">
+                        <span class="post-title">{{ post.title || post.name.replace('.md', '') }}</span>
+                    </div>
+                    <div class="col-target" style="flex: 1; color: var(--text-muted);">
+                        {{ post.date ? formatDate(post.date) : '-' }}
+                    </div>
+                    <div class="col-actions">
+                        <button class="action-icon-btn" @click="visitArticle(post)" title="查看">
+                            <i class="fa-regular fa-eye"></i>
+                        </button>
+                        <button class="action-icon-btn edit" @click="openInEditor(post)" title="编辑">
+                            <i class="fa-regular fa-pen-to-square"></i>
+                        </button>
+                    </div>
+                </li>
 
-                    <!-- 8. ⚙️ 系统设置 (Settings) -->
-                    <section v-else-if="currentView === 'settings'">
-                        <div class="page-header">
-                            <h1 class="page-title">系统设置</h1>
-                            <p style="color: var(--text-muted); margin-top: 8px;">
-                                查看并管理您的博客配置与 API 连接状态。
-                            </p>
-                        </div>
+                <!-- 空状态 -->
+                <li v-if="filteredPosts.length === 0 && !postsLoading" class="empty-list-item">
+                    <i class="fa-solid fa-wind"></i> {{ postSearchQuery ? '未找到匹配的文章' : '暂无文章' }}
+                </li>
+                <li v-if="postsLoading" class="empty-list-item">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> 加载中...
+                </li>
+            </ul>
+        </div>
 
-                        <!-- API 连接状态 -->
-                        <div class="glass-panel" style="margin-bottom: 20px;">
-                            <div class="panel-header" style="margin-bottom: 15px;">
-                                <span class="panel-title"><i class="fa-solid fa-plug-circle-check"></i> API 连接状态</span>
-                            </div>
-                            <div class="settings-status-grid">
-                                <div class="status-card" :class="{ 'connected': octokit }">
-                                    <i class="fa-brands fa-github"></i>
-                                    <span>GitHub</span>
-                                    <span class="status-badge" :class="{ 'success': octokit }">
-                                        {{ octokit ? '已连接' : '未连接' }}
-                                    </span>
-                                </div>
-                                <div class="status-card" :class="{ 'connected': cfToken }">
-                                    <i class="fa-solid fa-cloud"></i>
-                                    <span>Cloudflare</span>
-                                    <span class="status-badge" :class="{ 'success': cfToken }">
-                                        {{ cfToken ? '已连接' : '未连接' }}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
+        <!-- 统计信息 -->
+        <div style="margin-top: 15px; text-align: right; color: var(--text-muted); font-size: 0.85rem;">
+            共 {{ allPosts.length }} 篇文章
+            <span v-if="postSearchQuery"> | 筛选结果 {{ filteredPosts.length }} 篇</span>
+        </div>
+    </section>
 
-                        <!-- 博客配置 (可编辑) -->
-                        <div class="glass-panel" style="margin-bottom: 20px;">
-                            <div class="panel-header" style="margin-bottom: 15px;">
-                                <span class="panel-title"><i class="fa-solid fa-sliders"></i> 博客配置</span>
-                                <button v-if="!settingsEditing" class="panel-action-btn" @click="startEditSettings">
-                                    <i class="fa-regular fa-pen-to-square"></i> 编辑
-                                </button>
-                                <div v-else style="display: flex; gap: 8px;">
-                                    <button class="panel-action-btn" @click="cancelEditSettings"
-                                        style="background: rgba(255,255,255,0.1);">
-                                        <i class="fa-solid fa-xmark"></i> 取消
-                                    </button>
-                                    <button class="btn-primary" @click="saveSettings" :disabled="settingsSaving"
-                                        style="padding: 6px 12px; font-size: 0.85rem;">
-                                        <i class="fa-solid"
-                                            :class="settingsSaving ? 'fa-circle-notch fa-spin' : 'fa-floppy-disk'"></i>
-                                        保存
-                                    </button>
-                                </div>
-                            </div>
+    <!-- 8. ⚙️ 系统设置 (Settings) -->
+    <section v-else-if="currentView === 'settings'">
+        <div class="page-header">
+            <h1 class="page-title">系统设置</h1>
+            <p style="color: var(--text-muted); margin-top: 8px;">
+                查看并管理您的博客配置与 API 连接状态。
+            </p>
+        </div>
 
-                            <div class="config-form">
-                                <div class="config-row">
-                                    <label>仓库 Owner</label>
-                                    <input type="text" v-model="settingsForm.OWNER" :disabled="!settingsEditing"
-                                        :class="{ 'editable': settingsEditing }">
-                                </div>
-                                <div class="config-row">
-                                    <label>仓库 Repo</label>
-                                    <input type="text" v-model="settingsForm.REPO" :disabled="!settingsEditing"
-                                        :class="{ 'editable': settingsEditing }">
-                                </div>
-                                <div class="config-row">
-                                    <label>分支名称</label>
-                                    <input type="text" v-model="settingsForm.BRANCH" :disabled="!settingsEditing"
-                                        :class="{ 'editable': settingsEditing }">
-                                </div>
-                                <div class="config-row">
-                                    <label>CF Zone ID</label>
-                                    <input type="text" v-model="settingsForm.CF_ZONE_ID" :disabled="!settingsEditing"
-                                        :class="{ 'editable': settingsEditing }">
-                                </div>
-                                <div class="config-row">
-                                    <label>CF Account ID</label>
-                                    <input type="text" v-model="settingsForm.CF_ACCOUNT_ID" :disabled="!settingsEditing"
-                                        placeholder="(可选)" :class="{ 'editable': settingsEditing }">
-                                </div>
-                                <div class="config-row">
-                                    <label>CF KV ID</label>
-                                    <input type="text" v-model="settingsForm.CF_KV_ID" :disabled="!settingsEditing"
-                                        placeholder="(可选)" :class="{ 'editable': settingsEditing }">
-                                </div>
-                            </div>
+        <!-- API 连接状态 -->
+        <div class="glass-panel" style="margin-bottom: 20px;">
+            <div class="panel-header" style="margin-bottom: 15px;">
+                <span class="panel-title"><i class="fa-solid fa-plug-circle-check"></i> API 连接状态</span>
+            </div>
+            <div class="settings-status-grid">
+                <div class="status-card" :class="{ 'connected': octokit }">
+                    <i class="fa-brands fa-github"></i>
+                    <span>GitHub</span>
+                    <span class="status-badge" :class="{ 'success': octokit }">
+                        {{ octokit ? '已连接' : '未连接' }}
+                    </span>
+                </div>
+                <div class="status-card" :class="{ 'connected': cfToken }">
+                    <i class="fa-solid fa-cloud"></i>
+                    <span>Cloudflare</span>
+                    <span class="status-badge" :class="{ 'success': cfToken }">
+                        {{ cfToken ? '已连接' : '未连接' }}
+                    </span>
+                </div>
+            </div>
+        </div>
 
-                            <div v-if="settingsEditing"
-                                style="margin-top: 15px; padding: 10px; background: rgba(255,193,7,0.1); border-radius: 8px; border: 1px solid rgba(255,193,7,0.3);">
-                                <p style="color: #ffc107; font-size: 0.85rem; margin: 0;">
-                                    <i class="fa-solid fa-triangle-exclamation"></i>
-                                    保存后将自动更新 <code>config.js</code> 文件并提交到 GitHub。注意：Token 不会在此处显示或修改。
-                                </p>
-                            </div>
-                        </div>
+        <!-- 博客配置 (可编辑) -->
+        <div class="glass-panel" style="margin-bottom: 20px;">
+            <div class="panel-header" style="margin-bottom: 15px;">
+                <span class="panel-title"><i class="fa-solid fa-sliders"></i> 博客配置</span>
+                <button v-if="!settingsEditing" class="panel-action-btn" @click="startEditSettings">
+                    <i class="fa-regular fa-pen-to-square"></i> 编辑
+                </button>
+                <div v-else style="display: flex; gap: 8px;">
+                    <button class="panel-action-btn" @click="cancelEditSettings"
+                        style="background: rgba(255,255,255,0.1);">
+                        <i class="fa-solid fa-xmark"></i> 取消
+                    </button>
+                    <button class="btn-primary" @click="saveSettings" :disabled="settingsSaving"
+                        style="padding: 6px 12px; font-size: 0.85rem;">
+                        <i class="fa-solid" :class="settingsSaving ? 'fa-circle-notch fa-spin' : 'fa-floppy-disk'"></i>
+                        保存
+                    </button>
+                </div>
+            </div>
 
-                        <!-- 快捷工具 -->
-                        <div class="glass-panel">
-                            <div class="panel-header" style="margin-bottom: 15px;">
-                                <span class="panel-title"><i class="fa-solid fa-toolbox"></i> 快捷工具</span>
-                            </div>
-                            <div class="actions-grid"
-                                style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
-                                <a href="/tools/token-generator.html" target="_blank" class="action-btn">
-                                    <i class="fa-solid fa-key"></i>
-                                    <span>Token 生成器</span>
-                                </a>
-                                <div class="action-btn" @click="runDiagnostics">
-                                    <i class="fa-solid fa-stethoscope"></i>
-                                    <span>诊断工具</span>
-                                </div>
-                                <div class="action-btn" @click="openBlog">
-                                    <i class="fa-solid fa-globe"></i>
-                                    <span>访问博客</span>
-                                </div>
-                                <div class="action-btn" @click="logout">
-                                    <i class="fa-solid fa-right-from-bracket"></i>
-                                    <span>退出登录</span>
-                                </div>
-                            </div>
-                        </div>
-                    </section>
+            <div class="config-form">
+                <div class="config-row">
+                    <label>仓库 Owner</label>
+                    <input type="text" v-model="settingsForm.OWNER" :disabled="!settingsEditing"
+                        :class="{ 'editable': settingsEditing }">
+                </div>
+                <div class="config-row">
+                    <label>仓库 Repo</label>
+                    <input type="text" v-model="settingsForm.REPO" :disabled="!settingsEditing"
+                        :class="{ 'editable': settingsEditing }">
+                </div>
+                <div class="config-row">
+                    <label>分支名称</label>
+                    <input type="text" v-model="settingsForm.BRANCH" :disabled="!settingsEditing"
+                        :class="{ 'editable': settingsEditing }">
+                </div>
+                <div class="config-row">
+                    <label>CF Zone ID</label>
+                    <input type="text" v-model="settingsForm.CF_ZONE_ID" :disabled="!settingsEditing"
+                        :class="{ 'editable': settingsEditing }">
+                </div>
+                <div class="config-row">
+                    <label>CF Account ID</label>
+                    <input type="text" v-model="settingsForm.CF_ACCOUNT_ID" :disabled="!settingsEditing"
+                        placeholder="(可选)" :class="{ 'editable': settingsEditing }">
+                </div>
+                <div class="config-row">
+                    <label>CF KV ID</label>
+                    <input type="text" v-model="settingsForm.CF_KV_ID" :disabled="!settingsEditing" placeholder="(可选)"
+                        :class="{ 'editable': settingsEditing }">
+                </div>
+            </div>
 
-                    <!-- 其他视图 Placeholder -->
-                    <section v-else>
-                        <div class="page-header">
-                            <h1 class="page-title">功能建设中</h1>
-                        </div>
-                        <div class="glass-panel">
-                            <div style="text-align: center; padding: 50px;">
-                                <i class="fa-solid fa-person-digging"
-                                    style="font-size: 3rem; color: var(--text-muted); margin-bottom: 20px;"></i>
-                                <p>此模块将在后续阶段开放</p>
-                            </div>
-                        </div>
-                    </section>
-                </main>
-            </template>
-        </template>
+            <div v-if="settingsEditing"
+                style="margin-top: 15px; padding: 10px; background: rgba(255,193,7,0.1); border-radius: 8px; border: 1px solid rgba(255,193,7,0.3);">
+                <p style="color: #ffc107; font-size: 0.85rem; margin: 0;">
+                    <i class="fa-solid fa-triangle-exclamation"></i>
+                    保存后将自动更新 <code>config.js</code> 文件并提交到 GitHub。注意：Token 不会在此处显示或修改。
+                </p>
+            </div>
+        </div>
+
+        <!-- 快捷工具 -->
+        <div class="glass-panel">
+            <div class="panel-header" style="margin-bottom: 15px;">
+                <span class="panel-title"><i class="fa-solid fa-toolbox"></i> 快捷工具</span>
+            </div>
+            <div class="actions-grid" style="grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));">
+                <a href="/tools/token-generator.html" target="_blank" class="action-btn">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Token 生成器</span>
+                </a>
+                <div class="action-btn" @click="runDiagnostics">
+                    <i class="fa-solid fa-stethoscope"></i>
+                    <span>诊断工具</span>
+                </div>
+                <div class="action-btn" @click="openBlog">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>访问博客</span>
+                </div>
+                <div class="action-btn" @click="logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>退出登录</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 其他视图 Placeholder -->
+    <section v-else>
+        <div class="page-header">
+            <h1 class="page-title">功能建设中</h1>
+        </div>
+        <div class="glass-panel">
+            <div style="text-align: center; padding: 50px;">
+                <i class="fa-solid fa-person-digging"
+                    style="font-size: 3rem; color: var(--text-muted); margin-bottom: 20px;"></i>
+                <p>此模块将在后续阶段开放</p>
+            </div>
+        </div>
+    </section>
+    </main>
+    </template>
+    </template>
     </div>
 
     <!-- Toast 通知容器 -->
@@ -808,7 +924,7 @@
 
     <!-- Scripts -->
     <!-- Force reload with version query -->
-    <script type="module" src="admin.js?v=1.5"></script>
+    <script type="module" src="admin.js?v=1.7"></script>
 </body>
 
 </html>

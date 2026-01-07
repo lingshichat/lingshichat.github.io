@@ -91,8 +91,10 @@ export const Cloudflare = {
     // --- 5. 🗺️ DNS 管理 (Portal Phase 1) ---
     async getDNSRecords(token, name) {
         // name: e.g. "tv.lingshichat.top"
-        let url = `/zones/${this.zoneId}/dns_records?type=A`;
-        if (name) url += `&name=${encodeURIComponent(name)}`;
+        // 使用 URLSearchParams 确保查询参数正确编码，避免 CORS 代理误解
+        const params = new URLSearchParams({ type: 'A' });
+        if (name) params.append('name', name);
+        const url = `/zones/${this.zoneId}/dns_records?${params.toString()}`;
         return this.request(url, token);
     },
 
@@ -156,17 +158,19 @@ export const Cloudflare = {
     async createRedirectRule(token, name, targetUrl) {
         const rulesetId = await this.getRedirectRulesetId(token);
 
-        // 构造规则对象
-        // 这里的 name 是规则名，expression 是匹配条件
-        const domain = `${name}.lingshichat.top`; // 假设都在主域下
+        // 1. 先获取现有规则集
+        const currentRuleset = await this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}`, token);
+        const existingRules = currentRuleset.rules || [];
 
-        const rulePayload = {
+        // 2. 构造新规则对象
+        const domain = `${name}.lingshichat.top`;
+        const newRule = {
             description: `Portal: ${name} -> ${targetUrl}`,
             expression: `(http.host eq "${domain}")`,
             action: "redirect",
             action_parameters: {
                 from_value: {
-                    status_code: 302, // 临时重定向，方便随时改
+                    status_code: 302,
                     target_url: {
                         value: targetUrl
                     },
@@ -176,42 +180,69 @@ export const Cloudflare = {
             enabled: true
         };
 
-        return this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}/rules`, token, {
-            method: 'POST',
-            body: JSON.stringify(rulePayload)
+        // 3. 使用 PUT 更新整个规则集 (添加新规则到列表末尾)
+        return this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}`, token, {
+            method: 'PUT',
+            body: JSON.stringify({
+                rules: [...existingRules, newRule]
+            })
         });
     },
 
     async updateRedirectRule(token, ruleId, { prefix, target }) {
         const rulesetId = await this.getRedirectRulesetId(token);
+
+        // 1. 获取现有规则集
+        const currentRuleset = await this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}`, token);
+        const existingRules = currentRuleset.rules || [];
+
+        // 2. 找到并更新目标规则
         const domain = `${prefix}.lingshichat.top`;
+        const updatedRules = existingRules.map(rule => {
+            if (rule.id === ruleId) {
+                return {
+                    ...rule,
+                    description: `Portal: ${prefix} -> ${target}`,
+                    expression: `(http.host eq "${domain}")`,
+                    action_parameters: {
+                        from_value: {
+                            status_code: 302,
+                            target_url: {
+                                value: target
+                            },
+                            preserve_query_string: true
+                        }
+                    }
+                };
+            }
+            return rule;
+        });
 
-        const rulePayload = {
-            description: `Portal: ${prefix} -> ${target}`,
-            expression: `(http.host eq "${domain}")`,
-            action: "redirect",
-            action_parameters: {
-                from_value: {
-                    status_code: 302,
-                    target_url: {
-                        value: target
-                    },
-                    preserve_query_string: true
-                }
-            },
-            enabled: true
-        };
-
-        return this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}/rules/${ruleId}`, token, {
-            method: 'PATCH',
-            body: JSON.stringify(rulePayload)
+        // 3. 使用 PUT 更新整个规则集
+        return this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}`, token, {
+            method: 'PUT',
+            body: JSON.stringify({
+                rules: updatedRules
+            })
         });
     },
 
     async deleteRedirectRule(token, ruleId) {
         const rulesetId = await this.getRedirectRulesetId(token);
-        return this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}/rules/${ruleId}`, token, {
-            method: 'DELETE'
+
+        // 1. 获取现有规则集
+        const currentRuleset = await this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}`, token);
+        const existingRules = currentRuleset.rules || [];
+
+        // 2. 过滤掉要删除的规则
+        const updatedRules = existingRules.filter(rule => rule.id !== ruleId);
+
+        // 3. 使用 PUT 更新整个规则集
+        return this.request(`/zones/${this.zoneId}/rulesets/${rulesetId}`, token, {
+            method: 'PUT',
+            body: JSON.stringify({
+                rules: updatedRules
+            })
         });
     },
 
@@ -240,7 +271,24 @@ export const Cloudflare = {
         };
         const res = await fetch(url, { headers });
         const data = await res.json();
+
+        // 检查API调用是否成功
+        if (!data.success) {
+            const msg = data.errors?.[0]?.message || 'Token验证失败';
+            throw new Error(msg);
+        }
+
         return data.result; // should have status: "active"
+    },
+
+    // 健康检查专用：获取Zone信息（比verifyToken更可靠）
+    async healthCheck(token) {
+        if (!this.zoneId) {
+            throw new Error('未配置 Zone ID');
+        }
+        // 直接获取Zone详情，这是最基础的API
+        const data = await this.request(`/zones/${this.zoneId}`, token);
+        return data; // 返回Zone信息
     },
 
     // --- Helper: Get Account ID ---
@@ -277,7 +325,7 @@ export const Cloudflare = {
     },
 
     async getKV(token, accountId, namespaceId, key) {
-        const url = `${this.API_BASE}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${key}`;
+        const url = `${this.API_BASE}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
         const res = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -289,7 +337,7 @@ export const Cloudflare = {
     async putKV(token, accountId, namespaceId, key, value, metadata = {}) {
         // PUT accounts/:account_identifier/storage/kv/namespaces/:namespace_identifier/values/:key_name
         // 注意：这是写入，需要用 fetch 原生处理，因为 API_BASE 可能是 proxy
-        const url = `${this.API_BASE}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${key}`;
+        const url = `${this.API_BASE}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
         // Header 中可能需要 metadata
         // Cloudflare KV metadata is passed via multipart or distinct header? 
         // 简单 KV 写入直接 body 放 value。Metadata 较复杂，暂时只存 value (target url).
@@ -311,85 +359,105 @@ export const Cloudflare = {
     },
 
     async deleteKV(token, accountId, namespaceId, key) {
-        const url = `/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${key}`;
+        const url = `/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
         return this.request(url, token, { method: 'DELETE' });
     },
 
     // --- Phase 5: 📈 状态监控 (GraphQL Analytics API) ---
     async getZoneAnalytics(token) {
         // 使用 GraphQL API 获取过去 24 小时的统计
-        // 旧的 /analytics/dashboard 已被弃用
+        // 改用 httpRequests1hGroups 以支持 datetime_geq (ISO时间) 过滤，并提供小时级精度
         const now = new Date();
         const since = new Date(now.getTime() - 24 * 60 * 60 * 1000); // 24 hours ago
 
-        const query = `
-            query ZoneAnalytics($zoneTag: String!, $since: Time!, $until: Time!) {
-                viewer {
-                    zones(filter: {zoneTag: $zoneTag}) {
-                        httpRequests1dGroups(limit: 1, filter: {date_geq: $since, date_leq: $until}) {
-                            sum {
-                                requests
-                                bytes
-                                threats
-                                pageViews
-                            }
-                            uniq {
-                                uniques
-                            }
+        const variables = {
+            zoneTag: this.zoneId,
+            since: since.toISOString(),
+            until: now.toISOString()
+        };
+
+        // Helper to run query
+        const runQuery = async (queryName, queryBody) => {
+            const query = `
+                query ${queryName}($zoneTag: String!, $since: Time!, $until: Time!) {
+                    viewer {
+                        zones(filter: {zoneTag: $zoneTag}) {
+                            ${queryBody}
                         }
                     }
                 }
+            `;
+            const url = `${this.API_BASE}/graphql`;
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ query, variables })
+            });
+
+            const data = await res.json();
+            if (data.errors && data.errors.length > 0) {
+                // Return empty if filtered out, or throw if actual error?
+                // For safety, let's throw to be caught by UI
+                throw new Error(data.errors[0].message || `${queryName} GraphQL Error`);
+            }
+            return data.data?.viewer?.zones?.[0]?.result || [];
+        };
+
+        // Query Series Only (we will calc totals from it)
+        const seriesBody = `
+            result: httpRequests1hGroups(
+                limit: 30
+                filter: {datetime_geq: $since, datetime_leq: $until}
+            ) {
+                dimensions { datetime }
+                sum { requests bytes threats pageViews }
+                uniq { uniques }
             }
         `;
 
-        const variables = {
-            zoneTag: this.zoneId,
-            since: since.toISOString().split('T')[0],
-            until: now.toISOString().split('T')[0]
-        };
+        try {
+            const seriesRaw = await runQuery('ZoneSeries', seriesBody);
 
-        const url = `${this.API_BASE}/graphql`;
-
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ query, variables })
-        });
-
-        const data = await res.json();
-
-        if (data.errors && data.errors.length > 0) {
-            throw new Error(data.errors[0].message || 'GraphQL Error');
-        }
-
-        // 解析 GraphQL 响应并转换为原始格式
-        const zones = data.data?.viewer?.zones || [];
-        if (zones.length === 0 || !zones[0].httpRequests1dGroups || zones[0].httpRequests1dGroups.length === 0) {
-            // 返回默认值结构
-            return {
+            const result = {
                 totals: {
                     requests: { all: 0 },
                     bandwidth: { all: 0 },
                     threats: { all: 0 },
                     pageviews: { all: 0 },
                     uniques: { all: 0 }
-                }
+                },
+                series: []
             };
-        }
 
-        const group = zones[0].httpRequests1dGroups[0];
+            if (seriesRaw && seriesRaw.length > 0) {
+                // 1. Map Series
+                result.series = seriesRaw.map(item => ({
+                    time: item.dimensions.datetime,
+                    requests: item.sum.requests || 0,
+                    threats: item.sum.threats || 0,
+                    pageViews: item.sum.pageViews || 0,
+                    uniques: item.uniq.uniques || 0
+                }));
 
-        return {
-            totals: {
-                requests: { all: group.sum.requests || 0 },
-                bandwidth: { all: group.sum.bytes || 0 },
-                threats: { all: group.sum.threats || 0 },
-                pageviews: { all: group.sum.pageViews || 0 },
-                uniques: { all: group.uniq.uniques || 0 }
+                // 2. Calculate Totals (Sum up the series)
+                // Note: Uniques sum might be inaccurate (sum of daily uniques != range unique), 
+                // but for 1h groups it's acceptable approximation or we accept the limitation.
+                seriesRaw.forEach(item => {
+                    result.totals.requests.all += (item.sum.requests || 0);
+                    result.totals.bandwidth.all += (item.sum.bytes || 0);
+                    result.totals.threats.all += (item.sum.threats || 0);
+                    result.totals.pageviews.all += (item.sum.pageViews || 0);
+                    result.totals.uniques.all += (item.uniq.uniques || 0);
+                });
             }
-        };
+
+            return result;
+
+        } catch (e) {
+            throw e;
+        }
     }
 };

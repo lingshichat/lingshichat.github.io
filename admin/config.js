@@ -15,6 +15,10 @@ export const CONFIG = {
     REPO: "myblog-source",
     BRANCH: "main",
 
+    // 路径配置
+    POSTS_PATH: "source/_posts",
+    TRASH_PATH: "source/_trash",
+
     // Cloudflare 配置
     CF_ZONE_ID: "7931b7dab6b4f52709a6d7e1bf4924a2",          // 域名 Zone ID
     CF_ACCOUNT_ID: "",       // 账户 ID

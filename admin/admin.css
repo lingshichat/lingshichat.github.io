@@ -236,6 +236,180 @@ body::before {
 }
 
 /* =========================================
+   API Health Status (Sidebar Footer)
+   ========================================= */
+.api-health-status {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+}
+
+.health-card {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+}
+
+.health-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.health-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.health-brand-icon {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    transition: 0.3s;
+}
+
+/* GitHub Brand Color */
+.health-card.github-card:hover .fa-github {
+    color: #fff;
+}
+
+/* GitHub Connected State (Premium Metal/Dark Glass) */
+.github-card.status-connected,
+.github-card.status-success {
+    background: linear-gradient(135deg, rgba(36, 41, 46, 0.4) 0%, rgba(36, 41, 46, 0.1) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.github-card.status-connected:hover,
+.github-card.status-success:hover {
+    background: linear-gradient(135deg, rgba(36, 41, 46, 0.5) 0%, rgba(36, 41, 46, 0.2) 100%);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 8px 20px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.github-card.status-connected .health-brand-icon,
+.github-card.status-success .health-brand-icon {
+    color: #fff;
+    filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.3));
+}
+
+.github-card.status-connected .health-indicator,
+.github-card.status-success .health-indicator {
+    background: #fff;
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.8), 0 0 4px rgba(255, 255, 255, 1) inset;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Cloudflare Brand Color */
+.health-card.cf-card:hover .fa-cloudflare {
+    color: #f38020;
+}
+
+/* Cloudflare Connected State (Premium Orange Glass) */
+.cf-card.status-connected,
+.cf-card.status-success {
+    background: linear-gradient(135deg, rgba(243, 128, 32, 0.15) 0%, rgba(243, 128, 32, 0.02) 100%);
+    border: 1px solid rgba(243, 128, 32, 0.2);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.05),
+        0 4px 15px rgba(243, 128, 32, 0.1);
+}
+
+.cf-card.status-connected:hover,
+.cf-card.status-success:hover {
+    background: linear-gradient(135deg, rgba(243, 128, 32, 0.25) 0%, rgba(243, 128, 32, 0.05) 100%);
+    border-color: rgba(243, 128, 32, 0.4);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 0 20px rgba(243, 128, 32, 0.2);
+}
+
+.cf-card.status-connected .health-brand-icon,
+.cf-card.status-success .health-brand-icon {
+    color: #f38020;
+    filter: drop-shadow(0 0 8px rgba(243, 128, 32, 0.4));
+}
+
+.cf-card.status-connected .health-indicator,
+.cf-card.status-success .health-indicator {
+    background: #f38020;
+    box-shadow: 0 0 8px #f38020, 0 0 4px rgba(255, 255, 255, 0.5) inset;
+    border: 1px solid rgba(255, 100, 0, 0.3);
+}
+
+
+.health-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    box-shadow: 0 0 5px rgba(255, 255, 255, 0.1);
+    transition: 0.3s;
+}
+
+/* Error States (Universal Red Glass) */
+.status-error .health-indicator,
+.status-disconnected .health-indicator {
+    background: #ef4444;
+    box-shadow: 0 0 8px #ef4444, 0 0 4px rgba(255, 255, 255, 0.3) inset;
+
+}
+
+.health-card.status-error,
+.health-card.status-disconnected {
+    border-left: 3px solid var(--danger);
+    background: linear-gradient(90deg, rgba(239, 68, 68, 0.1), transparent);
+}
+
+.health-card.status-error .health-brand-icon,
+.health-card.status-disconnected .health-brand-icon {
+    color: var(--danger);
+}
+
+/* Checking/Warning States */
+.status-warning .health-indicator,
+.status-checking .health-indicator {
+    background: var(--warning);
+    box-shadow: 0 0 8px var(--warning);
+}
+
+.health-card.status-warning,
+.health-card.status-checking {
+    border-left: 3px solid var(--warning);
+}
+
+.health-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.health-status-text {
+    font-size: 0.75rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.health-time-text {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+}
+
+/* =========================================
    Main Content Area
    ========================================= */
 .admin-main {
@@ -1854,4 +2028,455 @@ input:checked+.slider:before {
         opacity: 0;
         transform: translateX(50%) scale(0.9);
     }
+}
+
+/* =========================================
+   Shortlink Workshop Styles (短链工坊)
+   ========================================= */
+
+/* 短链表单网格布局 */
+.shortlink-grid-form {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+.form-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.sl-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+.sl-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sl-input-icon {
+    position: absolute;
+    left: 16px;
+    color: var(--text-muted);
+    font-size: 1rem;
+    z-index: 2;
+}
+
+.sl-prefix {
+    position: absolute;
+    left: 44px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    /* Matched with input font size */
+    z-index: 2;
+    pointer-events: none;
+    line-height: 1;
+    /* Ensure no line-height shift */
+    margin-top: -1px;
+    /* Optical adjustment */
+}
+
+.sl-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 12px 16px 12px 44px;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+
+.sl-input.with-prefix {
+    padding-left: 65px;
+    /* 为 prefix 留出空间 */
+}
+
+.sl-input:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.4);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 112, 252, 0.15);
+}
+
+.sl-input:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.sl-input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.sl-random-btn {
+    position: absolute;
+    right: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.85rem;
+}
+
+.sl-random-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* 生成按钮 */
+.sl-action-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.btn-generate {
+    background: var(--primary-gradient);
+    border: none;
+    color: white;
+    padding: 12px 30px;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(59, 112, 252, 0.3);
+}
+
+.btn-generate:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(59, 112, 252, 0.5);
+}
+
+.btn-generate:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 结果展示卡片 */
+.sl-result-card {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 20px;
+}
+
+.sl-result-icon {
+    width: 40px;
+    height: 40px;
+    background: rgba(16, 185, 129, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #34d399;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.3);
+}
+
+.sl-result-content {
+    flex: 1;
+}
+
+.sl-result-title {
+    font-size: 0.85rem;
+    color: #34d399;
+    margin-bottom: 4px;
+    font-weight: 500;
+}
+
+.sl-result-link {
+    color: var(--text-primary);
+    font-family: monospace;
+    font-size: 0.95rem;
+    word-break: break-all;
+    text-decoration: none;
+}
+
+.sl-result-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.sl-copy-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.3s;
+    font-size: 0.85rem;
+}
+
+.sl-copy-btn:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+/* 短链列表容器 */
+.sl-list-container {
+    margin-top: 40px;
+}
+
+.sl-list-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.sl-list-title {
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.sl-search-box {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.sl-search-box i {
+    position: absolute;
+    left: 14px;
+    color: var(--text-muted);
+}
+
+.sl-search-box input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    padding: 10px 16px 10px 42px;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+
+.sl-search-box input:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.3);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(59, 112, 252, 0.15);
+}
+
+.sl-search-box input::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.sl-refresh-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.sl-refresh-btn:hover:not(:disabled) {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    box-shadow: 0 0 10px var(--primary-glow);
+}
+
+.sl-refresh-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* 短链卡片列表 */
+.sl-cards-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.sl-card {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    transition: all 0.3s;
+}
+
+.sl-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(59, 112, 252, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transform: translateY(-2px);
+}
+
+.sl-card.editing {
+    background: rgba(59, 112, 252, 0.1);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 20px rgba(59, 112, 252, 0.3);
+}
+
+.sl-card-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 0;
+    /* 允许子元素收缩 */
+}
+
+.sl-card-path {
+    font-family: monospace;
+    font-size: 1rem;
+    color: var(--primary-color);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.sl-card-path .dim {
+    color: var(--text-muted);
+    font-weight: 400;
+}
+
+.sl-card-arrow {
+    color: var(--text-muted);
+    flex-shrink: 0;
+}
+
+.sl-card-target {
+    flex: 1;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sl-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+
+.sl-action-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-secondary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.9rem;
+}
+
+.sl-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    transform: translateY(-1px);
+}
+
+.sl-action-btn.view:hover {
+    background: rgba(59, 112, 252, 0.2);
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+}
+
+.sl-action-btn.copy:hover {
+    background: rgba(16, 185, 129, 0.2);
+    border-color: #34d399;
+    color: #34d399;
+}
+
+.sl-action-btn.edit:hover {
+    background: rgba(251, 191, 36, 0.2);
+    border-color: #fbbf24;
+    color: #fbbf24;
+}
+
+.sl-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: #ef4444;
+    color: #ef4444;
+}
+
+/* 空状态 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.empty-state p {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* 列表过渡动画 */
+.list-enter-active,
+.list-leave-active {
+    transition: all 0.3s;
+}
+
+.list-enter {
+    opacity: 0;
+    transform: translateY(-10px);
+}
+
+.list-leave-to {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+/* 淡入淡出过渡 */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.3s;
+}
+
+.fade-enter,
+.fade-leave-to {
+    opacity: 0;
 }

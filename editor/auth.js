@@ -1,6 +1,13 @@
+/**
+ * 🔐 Editor 认证模块 (引用公共模块)
+ */
 import { CONFIG } from './config.js';
+import { AuthModule } from '../js/auth-module.js';
 
-// 🔐 解密与验证逻辑
+// 初始化配置
+AuthModule.init(CONFIG);
+
+// 导出兼容接口 - 保持与原有代码的兼容性
 export const Auth = {
     /**
      * 尝试使用密码解密 Token
@@ -8,25 +15,7 @@ export const Auth = {
      * @returns {string|null} 解密后的 Token 或 null
      */
     decryptToken(password) {
-        if (!CONFIG.ENCRYPTED_TOKEN) {
-            throw new Error("请先在 config.js 中配置加密的 Token");
-        }
-
-        try {
-            const bytes = CryptoJS.AES.decrypt(CONFIG.ENCRYPTED_TOKEN, password);
-            const originalToken = bytes.toString(CryptoJS.enc.Utf8);
-
-            // 简单验证解密结果是否像一个 Token (以 ghp_ 开头或长度足够)
-            // GitHub Classic Token: ghp_...
-            // Fine-grained Token: github_pat_...
-            if (originalToken.startsWith('ghp_') || originalToken.startsWith('github_pat_')) {
-                return originalToken;
-            }
-            return null; // 解密出来的东西不像 Token，密码可能错了
-        } catch (e) {
-            console.error("解密失败", e);
-            return null;
-        }
+        return AuthModule.decryptGitHubToken(password);
     },
 
     /**
@@ -42,5 +31,11 @@ export const Auth = {
         } catch (e) {
             throw new Error("Token 无效或已过期");
         }
-    }
+    },
+
+    // 透传公共模块的方法
+    saveSession: AuthModule.saveSession.bind(AuthModule),
+    getSession: AuthModule.getSession.bind(AuthModule),
+    logout: AuthModule.logout.bind(AuthModule),
+    isLoggedIn: AuthModule.isLoggedIn.bind(AuthModule)
 };
