@@ -1,8 +1,16 @@
 import { CONFIG } from '../config.js';
 
 export const Cloudflare = {
-    // 基础 API 地址 (使用 CORS 代理绕过浏览器限制)
-    API_BASE: 'https://corsproxy.io/?https://api.cloudflare.com/client/v4',
+    // 基础 API 地址 (动态获取)
+    get apiBase() {
+        // 优先使用用户配置的 Worker 代理
+        if (CONFIG.CF_API_PROXY) {
+            // 确保没有末尾斜杠
+            return CONFIG.CF_API_PROXY.replace(/\/+$/, '');
+        }
+        // 回退到公共代理 (不稳定，仅作备用)
+        return 'https://corsproxy.io/?https://api.cloudflare.com/client/v4';
+    },
 
     /**
      * 获取 Zone ID (如果未配置，尝试自动获取)
@@ -22,7 +30,7 @@ export const Cloudflare = {
         if (!token) throw new Error("Missing Cloudflare Token");
         if (!this.zoneId) throw new Error("Missing Cloudflare Zone ID");
 
-        const url = `${this.API_BASE}${endpoint}`;
+        const url = `${this.apiBase}${endpoint}`;
 
         const headers = {
             'Authorization': `Bearer ${token}`,
@@ -249,7 +257,7 @@ export const Cloudflare = {
     // --- 调试工具 ---
     async getZones(token) {
         // 不依赖 CONFIG.CF_ZONE_ID
-        const url = `${this.API_BASE}/zones`;
+        const url = `${this.apiBase}/zones`;
         const headers = {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -264,7 +272,7 @@ export const Cloudflare = {
     },
 
     async verifyToken(token) {
-        const url = `${this.API_BASE}/user/tokens/verify`;
+        const url = `${this.apiBase}/user/tokens/verify`;
         const headers = {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json'
@@ -325,7 +333,7 @@ export const Cloudflare = {
     },
 
     async getKV(token, accountId, namespaceId, key) {
-        const url = `${this.API_BASE}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
+        const url = `${this.apiBase}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
         const res = await fetch(url, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -337,7 +345,7 @@ export const Cloudflare = {
     async putKV(token, accountId, namespaceId, key, value, metadata = {}) {
         // PUT accounts/:account_identifier/storage/kv/namespaces/:namespace_identifier/values/:key_name
         // 注意：这是写入，需要用 fetch 原生处理，因为 API_BASE 可能是 proxy
-        const url = `${this.API_BASE}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
+        const url = `${this.apiBase}/accounts/${accountId}/storage/kv/namespaces/${namespaceId}/values/${encodeURIComponent(key)}`;
         // Header 中可能需要 metadata
         // Cloudflare KV metadata is passed via multipart or distinct header? 
         // 简单 KV 写入直接 body 放 value。Metadata 较复杂，暂时只存 value (target url).
@@ -387,7 +395,7 @@ export const Cloudflare = {
                     }
                 }
             `;
-            const url = `${this.API_BASE}/graphql`;
+            const url = `${this.apiBase}/graphql`;
             const res = await fetch(url, {
                 method: 'POST',
                 headers: {

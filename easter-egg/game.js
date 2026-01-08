@@ -1223,8 +1223,20 @@ window.addEventListener('keydown', e => {
 
 // 移动端/鼠标点击 全屏跳跃
 const el = document.querySelector('.game-container');
-el.addEventListener('touchstart', e => { e.preventDefault(); onJump(e); }, { passive: false });
+el.addEventListener('touchstart', e => {
+    // 修复：如果点击的是按钮或成就面板，这不应触发跳跃，也不应阻止默认行为（如滚动）
+    if (e.target.closest('button') || e.target.closest('.panel-pixel') || e.target.closest('.achievement-list')) {
+        return;
+    }
+    e.preventDefault();
+    onJump(e);
+}, { passive: false });
+
 el.addEventListener('mousedown', e => {
+    // 修复：避免点击按钮时触发跳跃
+    if (e.target.closest('button') || e.target.closest('.panel-pixel')) {
+        return;
+    }
     // 只有左键点击才跳跃
     if (e.button === 0) {
         onJump(e);

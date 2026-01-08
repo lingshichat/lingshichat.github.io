@@ -10,6 +10,12 @@ export const CONFIG = {
     // 权限要求: Zone.Cache Purge, Zone.DNS, Workers KV, Zone.Page Rules, Zone.Settings
     CF_TOKEN: "U2FsdGVkX18eef0TlSVDCmajbxNYmeC6NDLNoj6pShHFUQUb4FO+js+Uto/IFcr7kyBsy7vmwBxUuiNT1ZUSWQ==", // 待配置
 
+    // API 代理服务 (Worker) - 解决移动端连接问题
+    // 复用 Shortlink Worker，请填入 Worker 根地址 + /_api
+    // 例如 "https://shortlink.yourname.workers.dev/_api"
+    // 留空则使用默认公共代理 (不稳定)
+    CF_API_PROXY: "https://shortlink-handler.lingshichat.workers.dev/_api",
+
     // 博客配置
     OWNER: "lingshichat",
     REPO: "myblog-source",
