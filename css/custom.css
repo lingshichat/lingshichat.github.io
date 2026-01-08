@@ -1353,3 +1353,392 @@
         gap: 8px;
     }
 }
+
+/* ==========================================================
+   12.1 待机状态 - 大水晶球 (Idle State)
+   ========================================================== */
+
+.fortune-idle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    min-height: 180px;
+    transition: transform 0.3s ease;
+}
+
+.fortune-idle-container:hover {
+    transform: scale(1.02);
+}
+
+.fortune-idle-container:active {
+    transform: scale(0.98);
+}
+
+/* 大水晶球 */
+.fortune-orb-large {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.fortune-orb-large .orb-inner {
+    position: relative;
+    z-index: 2;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 玻璃质感背景 */
+    background: radial-gradient(circle at 30% 30%,
+            rgba(200, 180, 255, 0.3),
+            rgba(120, 100, 200, 0.2) 50%,
+            rgba(80, 60, 160, 0.25));
+    box-shadow:
+        inset 0 0 20px rgba(255, 255, 255, 0.15),
+        inset 0 -10px 30px rgba(100, 80, 180, 0.2);
+    animation: orbInnerFloat 3s ease-in-out infinite;
+}
+
+.fortune-orb-large .orb-emoji {
+    font-size: 48px;
+    filter: drop-shadow(0 0 10px rgba(147, 112, 219, 0.6));
+}
+
+/* 外发光层 */
+.fortune-orb-large .orb-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+            rgba(147, 112, 219, 0.4) 0%,
+            rgba(147, 112, 219, 0.1) 50%,
+            transparent 70%);
+    animation: orbGlowPulse 2.5s ease-in-out infinite;
+}
+
+/* 脉冲光圈 */
+.fortune-orb-large .orb-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid rgba(147, 112, 219, 0.4);
+    animation: orbPulseRing 3s ease-out infinite;
+}
+
+@keyframes orbInnerFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+}
+
+@keyframes orbGlowPulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+}
+
+@keyframes orbPulseRing {
+    0% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.8);
+    }
+}
+
+/* 点击提示文字 */
+.fortune-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+.fortune-hint .hint-star {
+    color: rgba(147, 112, 219, 0.8);
+    animation: hintStarTwinkle 2s ease-in-out infinite;
+}
+
+.fortune-hint .hint-star:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.fortune-hint .hint-text {
+    animation: hintTextBreath 2.5s ease-in-out infinite;
+}
+
+@keyframes hintStarTwinkle {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes hintTextBreath {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ==========================================================
+   12.2 绽放动画 (Reveal Animation)
+   ========================================================== */
+
+/* 绽放中状态 */
+.card-fortune.revealing {
+    pointer-events: none;
+}
+
+.card-fortune.revealing .fortune-hint {
+    animation: hintFadeOut 0.3s ease-out forwards;
+}
+
+@keyframes hintFadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+/* 水晶球爆发动画 */
+.fortune-orb-large.orb-bursting .orb-inner {
+    animation: orbBurst 1.7s ease-out forwards;
+}
+
+.fortune-orb-large.orb-bursting .orb-glow {
+    animation: glowBurst 1s ease-out forwards;
+}
+
+.fortune-orb-large.orb-bursting .orb-pulse {
+    animation: none;
+    opacity: 0;
+}
+
+@keyframes orbBurst {
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    20% {
+        transform: scale(1.2);
+        filter: brightness(1.3);
+    }
+
+    40% {
+        transform: scale(1.1);
+        filter: brightness(1.8);
+        box-shadow:
+            0 0 40px rgba(255, 255, 255, 0.8),
+            0 0 80px rgba(147, 112, 219, 0.6),
+            inset 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+
+    100% {
+        transform: scale(0.3) translateY(-60px);
+        opacity: 0;
+        filter: brightness(2);
+    }
+}
+
+@keyframes glowBurst {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(5);
+        opacity: 0;
+    }
+}
+
+/* 光芒粒子 */
+.light-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color, #fff);
+    box-shadow: 0 0 10px var(--color, #fff);
+    transform: translate(-50%, -50%);
+    animation: particleFly 1.2s ease-out forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    30% {
+        transform:
+            translate(-50%, -50%) rotate(var(--angle, 0deg)) translateX(30px) scale(1.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) rotate(var(--angle, 0deg)) translateX(100px) scale(0);
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   12.3 展示状态调整 (Revealed State)
+   ========================================================== */
+
+/* 展示状态的小水晶球 */
+.fortune-orb-small {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fortune-orb-small .orb-emoji {
+    font-size: 24px;
+    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.5));
+    animation: orbSmallFloat 4s ease-in-out infinite;
+}
+
+@keyframes orbSmallFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+/* 展示状态入场动画 */
+.card-fortune.fortune-entering {
+    opacity: 0;
+    animation: fortuneRevealEnter 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes fortuneRevealEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 展示状态的各部分依次入场 */
+.card-fortune[data-state="revealed"] .fortune-header {
+    animation: contentFadeIn 0.5s ease-out 0.1s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-level-wrapper {
+    animation: contentFadeIn 0.5s ease-out 0.2s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-dimensions {
+    animation: contentFadeIn 0.5s ease-out 0.4s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-quote {
+    animation: contentFadeIn 0.5s ease-out 0.6s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-lucky {
+    animation: contentFadeIn 0.5s ease-out 0.7s both;
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 移动端待机状态适配 */
+@media (max-width: 768px) {
+    .fortune-orb-large {
+        width: 90px;
+        height: 90px;
+    }
+
+    .fortune-orb-large .orb-inner {
+        width: 70px;
+        height: 70px;
+    }
+
+    .fortune-orb-large .orb-emoji {
+        font-size: 40px;
+    }
+
+    .fortune-idle-container {
+        min-height: 160px;
+        padding: 25px 15px;
+    }
+}
