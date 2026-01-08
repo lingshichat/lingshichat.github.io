@@ -14,7 +14,7 @@ export const CONFIG = {
     // 复用 Shortlink Worker，请填入 Worker 根地址 + /_api
     // 例如 "https://shortlink.yourname.workers.dev/_api"
     // 留空则使用默认公共代理 (不稳定)
-    CF_API_PROXY: "https://shortlink-handler.lingshichat.workers.dev/_api",
+    CF_API_PROXY: "https://api.lingshichat.top/_api",
 
     // 博客配置
     OWNER: "lingshichat",
