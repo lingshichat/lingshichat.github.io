@@ -1070,6 +1070,7 @@ function init() {
     distance = 0;
     speed = CONFIG.SPEED;
     isGameOver = false;
+    deathTime = 0; // 初始化死亡时间
 
     // 初始化成就系统
     if (!achievements) {
@@ -1185,6 +1186,7 @@ function checkCollision(bot, obs) {
 function gameOver() {
     isPlaying = false;
     isGameOver = true;
+    deathTime = Date.now(); // 记录死亡时间
     // 结算成就
     if (achievements) {
         achievements.onGameEnd(score);
@@ -1202,29 +1204,32 @@ function gameOver() {
 // === 输入 ===
 function onJump(e) {
     if (e) e.preventDefault();
-    if (!isPlaying || isGameOver) {
-        reset();
-    } else {
-        bot.jump(speed);
-    }
-}
-
-function onDuck(down) {
     if (isPlaying) {
-        bot.ducking = down;
+        bot.jump(speed);
+    } else if (isGameOver) {
+        // 防止连点误触：死亡后需要等待 800ms 才能重开
+        if (Date.now() - deathTime > 800) {
+            reset();
+        }
+    } else {
+        // 未开始状态
+        reset();
     }
 }
 
 window.addEventListener('keydown', e => {
     if (e.code === 'Space' || e.code === 'ArrowUp') onJump(e);
-    if (e.code === 'ArrowDown') { e.preventDefault(); onDuck(true); }
-});
-window.addEventListener('keyup', e => {
-    if (e.code === 'ArrowDown') onDuck(false);
 });
 
+// 移动端/鼠标点击 全屏跳跃
 const el = document.querySelector('.game-container');
 el.addEventListener('touchstart', e => { e.preventDefault(); onJump(e); }, { passive: false });
+el.addEventListener('mousedown', e => {
+    // 只有左键点击才跳跃
+    if (e.button === 0) {
+        onJump(e);
+    }
+});
 
 function tryPlayMusic() {
     const ap = document.querySelector('meting-js').aplayer;

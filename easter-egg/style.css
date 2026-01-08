@@ -347,3 +347,149 @@ canvas {
 .ach-item.unlocked .ach-desc {
     color: #ccc;
 }
+
+/* 指引文本 */
+.tutorial-text {
+    font-family: 'DotGothic16', sans-serif;
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 0 #000;
+    opacity: 0.8;
+    animation: blink 1.5s infinite;
+}
+
+.desktop-hint {
+    display: inline;
+}
+
+.mobile-hint {
+    display: none;
+}
+
+@keyframes blink {
+
+    0%,
+    100% {
+        opacity: 0.8;
+    }
+
+    50% {
+        opacity: 0.4;
+    }
+}
+
+/* ============================================
+   移动端适配
+   ============================================ */
+
+/* 1. 响应式 Canvas */
+.game-container {
+    width: 100%;
+    max-width: 800px;
+    /* 保持最大宽度 */
+    height: auto;
+    aspect-ratio: 800 / 300;
+    /* 维持宽高比 */
+    position: relative;
+    box-shadow: 0 0 30px rgba(0, 243, 255, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+#gameCanvas {
+    width: 100%;
+    height: 100%;
+    /* 解决 canvas 模糊问题，虽然 game.js 里设了尺寸，这里确保拉伸 */
+    display: block;
+}
+
+/* 2. 移动端 UI 调整 */
+@media (max-width: 768px) {
+
+    /* 切换指引文本 */
+    .desktop-hint {
+        display: none;
+    }
+
+    .mobile-hint {
+        display: inline;
+    }
+
+    /* 缩小标题字体 */
+    .game-container h1 {
+        font-size: 24px;
+    }
+
+    /* 调整成就按钮位置和大小，避免挡手 */
+    #achievementsBtnStart,
+    #achievementsBtnOver {
+        padding: 8px 12px;
+        font-size: 14px;
+    }
+
+    /* 移动端主界面按钮布局 */
+    .initial-state {
+        gap: 15px;
+        flex-direction: column;
+        /* 竖排展示按钮 */
+    }
+
+    /* 像素面板适配手机屏幕 */
+    .panel-pixel {
+        width: 95%;
+        height: 70%;
+        max-width: none;
+    }
+
+    .panel-header h2 {
+        font-size: 12px;
+    }
+}
+
+/* 3. 竖屏提示 (Portrait Mode Warning) */
+@media (orientation: portrait) and (max-width: 800px) {
+    .game-container::after {
+        content: "请旋转屏幕以获得最佳体验 🔄";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.85);
+        color: var(--neon-cyan);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: 'DotGothic16', sans-serif;
+        font-size: 24px;
+        z-index: 9999;
+        text-align: center;
+        backdrop-filter: blur(5px);
+        pointer-events: none;
+    }
+}
+
+/* 隐藏 APlayer 播放器组件 */
+.aplayer {
+    /* 使用移出可视区域的方式隐藏，避免 display:none 导致无法播放 */
+    position: fixed !important;
+    left: -9999px !important;
+    bottom: -9999px !important;
+    opacity: 0 !important;
+    visibility: hidden;
+    z-index: -1;
+}
+
+.achievement-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.achievement-list::-webkit-scrollbar-track {
+    background: #0d0a14;
+}
+
+.achievement-list::-webkit-scrollbar-thumb {
+    background: var(--neon-purple);
+    border: 1px solid #000;
+}
