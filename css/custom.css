@@ -1723,6 +1723,8 @@
 
 /* 移动端待机状态适配 */
 @media (max-width: 768px) {
+
+    /* 待机状态 - 水晶球 */
     .fortune-orb-large {
         width: 90px;
         height: 90px;
@@ -1740,5 +1742,118 @@
     .fortune-idle-container {
         min-height: 160px;
         padding: 25px 15px;
+    }
+
+    /* 展示状态 - 完整运势 */
+    .card-fortune[data-state="revealed"] {
+        padding: 16px 12px !important;
+    }
+
+    .card-fortune .fortune-header {
+        flex-direction: row;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .card-fortune .fortune-orb-small {
+        width: 28px;
+        height: 28px;
+    }
+
+    .card-fortune .fortune-orb-small .orb-emoji {
+        font-size: 20px;
+    }
+
+    .card-fortune .fortune-title {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .card-fortune .fortune-level-wrapper {
+        margin: 16px 0;
+        gap: 6px;
+    }
+
+    .card-fortune .fortune-level {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+
+    .card-fortune .fortune-level-icon {
+        font-size: 1.5rem;
+    }
+
+    .card-fortune .fortune-divider {
+        margin: 12px 0;
+    }
+
+    .card-fortune .fortune-dimensions {
+        padding: 0 8px;
+        gap: 8px;
+    }
+
+    .card-fortune .fortune-dimension {
+        font-size: 0.85rem;
+        padding: 4px 0;
+    }
+
+    .card-fortune .fortune-dimension .dim-icon {
+        width: 22px;
+        font-size: 0.9rem;
+    }
+
+    .card-fortune .fortune-dimension .dim-name {
+        margin-left: 6px;
+    }
+
+    .card-fortune .fortune-stars {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+
+    .card-fortune .fortune-quote {
+        padding: 10px;
+        margin: 6px 0;
+        gap: 6px;
+    }
+
+    .card-fortune .fortune-quote .quote-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .card-fortune .fortune-lucky {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 10px;
+        font-size: 0.8rem;
+    }
+
+    .card-fortune .lucky-item {
+        gap: 4px;
+    }
+
+    .card-fortune .lucky-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* 超小屏幕适配 (iPhone SE 等) */
+@media (max-width: 375px) {
+    .card-fortune .fortune-level {
+        font-size: 1.3rem;
+    }
+
+    .card-fortune .fortune-lucky {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .card-fortune .fortune-dimension .dim-name {
+        font-size: 0.8rem;
     }
 }

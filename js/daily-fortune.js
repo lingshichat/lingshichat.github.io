@@ -3,8 +3,8 @@
  * 
  * 功能：水晶球占卜交互 + 绽放动画 + 运势展示
  * 特点：
- * - 点击水晶球触发占卜动画
- * - 当天只需点一次，刷新后直接显示结果（localStorage）
+ * - 每次刷新都可重新点击水晶球体验动画
+ * - 运势结果基于日期种子，同一天固定
  * - 缓慢优雅的 2 秒绽放动画
  */
 
@@ -60,8 +60,7 @@
         { name: "宝石蓝", hex: "#3b70fc" }
     ];
 
-    // 存储键
-    const STORAGE_KEY = "daily_fortune_revealed";
+    // 注：已移除 localStorage，每次刷新都可重新交互
 
     // ==================== 核心算法 ====================
 
@@ -104,25 +103,8 @@
         return { level: fortuneLevel, dimensions, quote, luckyColor, luckyNumber };
     }
 
-    // ==================== 状态管理 ====================
-
-    function getTodayKey() {
-        return STORAGE_KEY + "_" + getDateSeed();
-    }
-
-    function isRevealedToday() {
-        return localStorage.getItem(getTodayKey()) === "true";
-    }
-
-    function markAsRevealed() {
-        // 清除旧的记录
-        Object.keys(localStorage).forEach(key => {
-            if (key.startsWith(STORAGE_KEY) && key !== getTodayKey()) {
-                localStorage.removeItem(key);
-            }
-        });
-        localStorage.setItem(getTodayKey(), "true");
-    }
+    // ==================== 状态管理（已简化）====================
+    // 每次刷新都从待机状态开始，运势结果由日期种子保证同一天固定
 
     // ==================== UI 渲染 ====================
 
@@ -286,7 +268,6 @@
         const fortune = generateDailyFortune();
 
         playRevealAnimation(cardElement, fortune).then(() => {
-            markAsRevealed();
             console.log("[DailyFortune] 占卜完成:", fortune.level.level);
         });
     }
@@ -301,13 +282,8 @@
             return;
         }
 
-        const fortune = generateDailyFortune();
-        const revealed = isRevealedToday();
-
-        // 根据状态选择渲染模式
-        const cardHtml = revealed
-            ? renderRevealedState(fortune)
-            : renderIdleState();
+        // 每次都显示待机状态（水晶球）
+        const cardHtml = renderIdleState();
 
         const tempDiv = document.createElement("div");
         tempDiv.innerHTML = cardHtml.trim();
@@ -316,14 +292,12 @@
         // 插入到侧边栏最顶部
         aside.insertBefore(fortuneCard, aside.firstChild);
 
-        // 如果是待机状态，绑定点击事件
-        if (!revealed) {
-            const orbContainer = fortuneCard.querySelector(".fortune-idle-container");
-            orbContainer.addEventListener("click", () => handleOrbClick(fortuneCard));
-            orbContainer.style.cursor = "pointer";
-        }
+        // 绑定点击事件
+        const orbContainer = fortuneCard.querySelector(".fortune-idle-container");
+        orbContainer.addEventListener("click", () => handleOrbClick(fortuneCard));
+        orbContainer.style.cursor = "pointer";
 
-        console.log("[DailyFortune] 卡片已加载", revealed ? "(已揭示)" : "(待机中)");
+        console.log("[DailyFortune] 水晶球已就位，等待占卜...");
     }
 
     // ==================== 初始化 ====================
