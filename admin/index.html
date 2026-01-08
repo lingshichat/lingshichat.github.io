@@ -58,8 +58,16 @@
 
             <!-- 🚀 核心界面 (登录后显示) -->
             <template v-else>
+                <!-- 📱 移动端汉堡菜单按钮 -->
+                <button class="mobile-menu-btn" @click="toggleSidebar">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+
+                <!-- 🌑 侧边栏遮罩层 (移动端点击关闭) -->
+                <div class="sidebar-overlay" v-if="isSidebarOpen" @click="closeSidebar"></div>
+
                 <!-- 左侧导航 -->
-                <aside class="admin-sidebar">
+                <aside class="admin-sidebar" :class="{ 'sidebar-open': isSidebarOpen }">
                     <div class="user-profile">
                         <div class="avatar-wrapper">
                             <img src="/img/avatar.jpg" class="user-avatar" alt="Avatar">
@@ -73,7 +81,7 @@
 
                     <nav class="nav-menu">
                         <a v-for="item in navItems" :key="item.id" class="nav-item"
-                            :class="{ active: currentView === item.id }" @click="currentView = item.id">
+                            :class="{ active: currentView === item.id }" @click="currentView = item.id; closeSidebar()">
                             <i :class="item.icon"></i>
                             <span>{{ item.label }}</span>
                         </a>

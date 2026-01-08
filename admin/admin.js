@@ -17,6 +17,9 @@ new Vue({
 
         currentView: 'dashboard',
 
+        // 📱 移动端侧边栏状态
+        isSidebarOpen: false,
+
         // 导航菜单配置
         navItems: [
             { id: 'dashboard', label: '仪表盘', icon: 'fa-solid fa-chart-line' },
@@ -704,6 +707,15 @@ new Vue({
                 'unknown': '未连接'
             };
             return statusMap[status] || '未知';
+        },
+
+        // --- 📱 移动端侧边栏控制 ---
+        toggleSidebar() {
+            this.isSidebarOpen = !this.isSidebarOpen;
+        },
+
+        closeSidebar() {
+            this.isSidebarOpen = false;
         },
 
         // --- 任意门逻辑 (Portals) ---

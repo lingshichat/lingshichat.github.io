@@ -2026,27 +2026,90 @@ span.flatpickr-weekday {
 
     /* --- Reader Mode --- */
     .reader-mode {
-        padding: 24px 16px;
+        padding: 24px 20px;
+        /* 增加左右内边距 */
         border-radius: 8px;
     }
 
+    .reader-header {
+        margin-bottom: 20px;
+        /* 增加底部间距 */
+        flex-direction: column;
+        /* 修复：改为列布局，避免 h1 被按钮挤压成竖排 */
+        align-items: stretch;
+        /* 拉伸子元素占满宽度 */
+        gap: 16px;
+        /* 标题和按钮之间的间距 */
+    }
+
     .reader-header h1 {
-        font-size: 1.4rem;
-        line-height: 1.35;
-        margin-bottom: 15px;
+        font-size: 1.5rem;
+        /* 稍微增大字号以提升可读性 */
+        line-height: 1.4;
+        margin-bottom: 16px;
+        writing-mode: horizontal-tb;
+        /* 强制横向书写，修复竖排问题 */
+        word-break: break-word;
+        /* 允许长单词换行 */
+        white-space: normal;
+        /* 允许正常换行 */
+        text-align: left;
+        /* 左对齐 */
+        width: 100%;
+        /* 占满宽度 */
+    }
+
+    .reader-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 24px;
+    }
+
+    .meta-capsule {
+        padding: 6px 14px;
+        /* 增加内边距 */
+        font-size: 0.85rem;
+        min-height: 32px;
+        /* 确保最小高度 */
+        display: inline-flex;
+        align-items: center;
     }
 
     .reader-actions {
         margin-top: 20px;
         width: 100%;
         display: flex;
-        gap: 12px;
+        gap: 16px;
+        /* 增加间距从 12px 到 16px */
     }
 
     .reader-actions button {
         flex: 1;
         justify-content: center;
-        padding: 10px;
+        padding: 14px;
+        /* 增加内边距从 10px 到 14px */
+        min-height: 48px;
+        /* 确保最小触控目标为 48px */
+        font-size: 0.95rem;
+    }
+
+    .reader-content {
+        line-height: 1.8;
+        /* 增加行高提升可读性 */
+        font-size: 1rem;
+    }
+
+    /* 确保内容中的标题不会竖排 */
+    .reader-content h1,
+    .reader-content h2,
+    .reader-content h3,
+    .reader-content h4,
+    .reader-content h5,
+    .reader-content h6 {
+        writing-mode: horizontal-tb;
+        word-break: break-word;
+        white-space: normal;
     }
 
     /* --- Nav --- */

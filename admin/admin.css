@@ -2480,3 +2480,360 @@ input:checked+.slider:before {
 .fade-leave-to {
     opacity: 0;
 }
+
+/* =========================================
+   📱 移动端响应式设计 (Responsive Design)
+   ========================================= */
+
+/* 汉堡菜单按钮 (仅移动端显示) */
+.mobile-menu-btn {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1001;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    background: rgba(10, 20, 40, 0.9);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--primary-color);
+    box-shadow: 0 0 20px var(--primary-glow);
+    transform: scale(1.05);
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
+}
+
+/* 侧边栏展开时隐藏汉堡按钮 */
+.app-container:has(.admin-sidebar.sidebar-open) .mobile-menu-btn {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* 侧边栏遮罩层 (点击关闭侧边栏) */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* =====================================
+   平板断点 (Tablet: 768px - 1024px)
+   ===================================== */
+@media (max-width: 1024px) {
+
+    /* 统计卡片：4列 -> 2列 */
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+    }
+
+    /* 主内容区缩小内边距 */
+    .admin-main {
+        padding: 30px 24px;
+    }
+
+    /* 页面标题缩小 */
+    .page-title {
+        font-size: 1.75rem;
+    }
+}
+
+/* =====================================
+   移动端断点 (Mobile: < 768px)
+   ===================================== */
+@media (max-width: 768px) {
+
+    /* 显示汉堡菜单按钮 */
+    .mobile-menu-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* 显示遮罩层 */
+    .sidebar-overlay {
+        display: block;
+    }
+
+    /* 侧边栏默认隐藏在左侧 */
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 280px;
+        z-index: 1000;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-out;
+    }
+
+    /* 侧边栏展开状态 */
+    .admin-sidebar.sidebar-open {
+        transform: translateX(0);
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* 主内容区占满全屏 */
+    .admin-main {
+        flex: 1;
+        width: 100%;
+        padding: 80px 16px 20px;
+        /* 顶部留出空间给汉堡按钮 */
+    }
+
+    /* 页面标题缩小 */
+    .page-title {
+        font-size: 1.5rem;
+    }
+
+    /* 统计卡片：1列布局 */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        margin-bottom: 30px;
+    }
+
+    /* 快捷操作：改为垂直排列 */
+    .actions-grid {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    /* 按钮增大触摸区域 */
+    .action-btn {
+        min-height: 48px;
+        padding: 16px;
+    }
+
+    .panel-action-btn {
+        min-height: 40px;
+        padding: 8px 16px;
+    }
+
+    /* 表单输入框增大 */
+    .login-input-area input,
+    .sl-input,
+    input[type="text"],
+    input[type="url"],
+    input[type="password"] {
+        font-size: 16px;
+        /* 防止 iOS 自动缩放 */
+        min-height: 44px;
+    }
+
+    /* Portal/Shortlinks 列表：优化移动端显示 */
+    .portal-list .portal-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px;
+    }
+
+    .portal-list .col-prefix,
+    .portal-list .col-target,
+    .portal-list .col-arrow {
+        width: 100%;
+    }
+
+    .portal-list .col-arrow {
+        display: none;
+        /* 移动端隐藏箭头 */
+    }
+
+    .portal-list .col-actions {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+
+    .portal-list .header {
+        display: none;
+        /* 移动端隐藏表头 */
+    }
+
+    /* 短链搜索框适配 */
+    .sl-search-box {
+        max-width: 100% !important;
+        margin-bottom: 10px;
+    }
+
+    /* Panel header 换行处理 */
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    .panel-header .panel-title {
+        font-size: 1rem;
+    }
+
+    /* 短链生成表单：垂直布局 */
+    .shortlink-grid-form {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .shortlink-grid-form .form-col {
+        flex: 1 !important;
+        width: 100%;
+    }
+
+    /* Portal Builder 表单优化 */
+    .builder-form {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .arrow-separator {
+        transform: rotate(90deg);
+        font-size: 1.5rem;
+    }
+
+    /* 开关卡片：单列 */
+    .switches-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    /* 图表区域：单列 */
+    .charts-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    /* 博客管理工具栏：优化布局 */
+    .posts-toolbar {
+        flex-direction: column !important;
+        gap: 12px !important;
+        align-items: stretch !important;
+    }
+
+    /* 新建按钮和搜索/刷新放在不同行 */
+    .posts-toolbar .btn-primary {
+        width: 100%;
+        order: 1;
+    }
+
+    .posts-toolbar .input-wrapper {
+        order: 2;
+        flex: 1 !important;
+    }
+
+    .posts-toolbar .panel-action-btn {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* 侧边栏内的用户信息 */
+    .user-profile {
+        flex-direction: row;
+        padding: 16px 20px;
+    }
+
+    /* 导航项增大触摸区域 */
+    .nav-item {
+        padding: 14px 20px;
+        font-size: 0.95rem;
+    }
+
+    /* 健康卡片 */
+    .health-card {
+        padding: 12px 14px;
+    }
+
+    /* 登录卡片适配 */
+    .login-card {
+        padding: 2.5rem 2rem;
+        width: 95%;
+    }
+
+    .login-title {
+        font-size: 1.2rem;
+        letter-spacing: 2px;
+    }
+
+    .login-icon {
+        font-size: 3rem;
+    }
+
+    /* Toast 消息适配 */
+    .toast-container {
+        bottom: 20px !important;
+        right: 20px !important;
+        left: 20px !important;
+        width: auto !important;
+    }
+
+    /* 确认对话框适配 */
+    .confirm-modal-content {
+        max-width: 90%;
+        padding: 24px 20px;
+    }
+}
+
+/* =====================================
+   超小屏幕优化 (< 375px)
+   ===================================== */
+@media (max-width: 375px) {
+    .mobile-menu-btn {
+        width: 44px;
+        height: 44px;
+        top: 16px;
+        left: 16px;
+    }
+
+    .admin-main {
+        padding: 70px 12px 16px;
+    }
+
+    .page-title {
+        font-size: 1.3rem;
+    }
+
+    .stat-card {
+        padding: 16px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+    }
+
+    .login-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .admin-sidebar {
+        width: 260px;
+    }
+}
