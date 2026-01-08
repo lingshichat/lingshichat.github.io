@@ -1117,3 +1117,239 @@
     color: #fff !important;
     box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
 }
+
+/* ==========================================================
+   12. 今日运势卡片 (Daily Fortune Card)
+   ========================================================== */
+
+/* 卡片基础样式 - 继承 card-widget */
+.card-fortune {
+    padding: 20px !important;
+    text-align: center;
+}
+
+/* 标题区域 */
+.fortune-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.fortune-orb {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fortune-orb .orb-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 0 8px rgba(147, 112, 219, 0.6));
+    animation: orbFloat 4s ease-in-out infinite;
+}
+
+/* 水晶球微妙浮动动画 */
+@keyframes orbFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 8px rgba(147, 112, 219, 0.5));
+    }
+
+    50% {
+        transform: translateY(-3px);
+        filter: drop-shadow(0 0 12px rgba(147, 112, 219, 0.7));
+    }
+}
+
+.fortune-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+/* 运势等级区域 */
+.fortune-level-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.fortune-level-icon {
+    font-size: 1.8rem;
+    animation: levelIconPulse 3s ease-in-out infinite;
+}
+
+@keyframes levelIconPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.85;
+    }
+}
+
+.fortune-level {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--fortune-color, #FFD700);
+    text-shadow:
+        0 0 10px var(--fortune-glow, rgba(255, 215, 0, 0.5)),
+        0 0 20px var(--fortune-glow, rgba(255, 215, 0, 0.3)),
+        0 0 30px var(--fortune-glow, rgba(255, 215, 0, 0.2));
+    letter-spacing: 4px;
+    animation: levelGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes levelGlow {
+    0% {
+        text-shadow:
+            0 0 8px var(--fortune-glow, rgba(255, 215, 0, 0.4)),
+            0 0 16px var(--fortune-glow, rgba(255, 215, 0, 0.2));
+    }
+
+    100% {
+        text-shadow:
+            0 0 12px var(--fortune-glow, rgba(255, 215, 0, 0.6)),
+            0 0 24px var(--fortune-glow, rgba(255, 215, 0, 0.4)),
+            0 0 36px var(--fortune-glow, rgba(255, 215, 0, 0.2));
+    }
+}
+
+/* 分割线 */
+.fortune-divider {
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent);
+    margin: 16px 0;
+}
+
+/* 运势维度区域 */
+.fortune-dimensions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.fortune-dimension {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.fortune-dimension .dim-icon {
+    width: 24px;
+    text-align: center;
+}
+
+.fortune-dimension .dim-name {
+    flex: 1;
+    text-align: left;
+    margin-left: 8px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.fortune-stars {
+    color: #FFD700;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+
+/* 每日箴言 */
+.fortune-quote {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.fortune-quote .quote-icon {
+    flex-shrink: 0;
+}
+
+.fortune-quote .quote-text {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* 幸运元素区域 */
+.fortune-lucky {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.lucky-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lucky-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px currentColor;
+}
+
+/* 卡片入场动画 */
+.card-fortune {
+    animation: fortuneCardEnter 0.8s ease-out;
+}
+
+@keyframes fortuneCardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .fortune-level {
+        font-size: 1.6rem;
+    }
+
+    .fortune-dimension {
+        font-size: 0.85rem;
+    }
+
+    .fortune-lucky {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
