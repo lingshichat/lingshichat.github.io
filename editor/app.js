@@ -20,6 +20,7 @@ new Vue({
         currentPost: null, // { sha, name, path, content }
         postTitle: '',
         postDate: '',
+        postUpdated: '', // New: Updated time
         postTags: [], // Changed to Array
         postCategories: [], // Changed to Array
         tagInput: '', // Temp input for tags
@@ -482,6 +483,10 @@ new Vue({
                 const rawDate = this.extractYamlValue(yamlStr, 'date');
                 this.postDate = this.formatDateForInput(rawDate);
 
+                // Parse Updated
+                const rawUpdated = this.extractYamlValue(yamlStr, 'updated');
+                this.postUpdated = this.formatDateForInput(rawUpdated);
+
                 // Parse Arrays (Simple)
                 // Yaml can be [a, b] or \n - a \n - b
                 this.postTags = this.parseYamlArray(yamlStr, 'tags');
@@ -545,6 +550,7 @@ new Vue({
             const hour = String(now.getHours()).padStart(2, '0');
             const minute = String(now.getMinutes()).padStart(2, '0');
             this.postDate = `${year}-${month}-${day} ${hour}:${minute}`;
+            this.postUpdated = this.postDate; // Init updated same as date
 
             this.postTags = [];
             this.postCategories = [];
@@ -576,18 +582,17 @@ new Vue({
             }
             this.saving = true;
 
-            // Update date to now logic requested by user?
-            // "修改文章的时候默认读入最后保存修改的时间" -> Yes, refresh time.
-            // But usually we respect if user manually picked a time.
-            // Let's reset it to NOW only if it's not set, OR if we want to force update.
-            // User requirement: "修改文章的时候默认读入最后保存修改的时间" -> meaning update the date field to NOW.
+            // User requirement: Stay with original date, but update "updated" time.
             const now = new Date();
             const year = now.getFullYear();
             const month = String(now.getMonth() + 1).padStart(2, '0');
             const day = String(now.getDate()).padStart(2, '0');
             const hour = String(now.getHours()).padStart(2, '0');
             const minute = String(now.getMinutes()).padStart(2, '0');
-            this.postDate = `${year}-${month}-${day} ${hour}:${minute}`;
+
+            // Should we update postDate? NO, keep it from input (this.postDate).
+            // But we must set postUpdated to NOW.
+            this.postUpdated = `${year}-${month}-${day} ${hour}:${minute}`;
 
             // Construct Content
             const tagsStr = `[${this.postTags.join(', ')}]`;
@@ -596,6 +601,7 @@ new Vue({
             const frontMatter = `---
 title: ${this.postTitle}
 date: ${this.postDate}:00
+updated: ${this.postUpdated}:00
 tags: ${tagsStr}
 categories: ${catsStr}
 ---
@@ -631,6 +637,12 @@ categories: ${catsStr}
 
                 this.fetchPosts();
 
+                // Auto-exit edit mode and show reader view
+                this.editMode = false;
+                // Render content for reader mode
+                this.$nextTick(() => {
+                    document.getElementById('preview-content').innerHTML = this.renderHexoContent(content);
+                });
 
             } catch (e) {
                 console.error(e);

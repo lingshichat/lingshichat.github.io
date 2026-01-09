@@ -115,7 +115,8 @@
 
                     <ul class="post-list">
                         <li v-for="post in (viewMode === 'trash' ? trashPosts : posts)" :key="post.sha"
-                            @click="loadPost(post)" :class="{ active: currentPost && currentPost.sha === post.sha }">
+                            @click="loadPost(post)"
+                            :class="{ active: currentPost && (currentPost.sha === post.sha || (currentPost.path === post.path && currentPost.name === post.name)) }">
                             <span class="post-title">{{ post.name.replace('.md', '') }}</span>
                             <!-- <span class="post-date">{{ formatDate(post.date) }}</span> -->
                         </li>
@@ -245,6 +246,11 @@
                             <div v-show="splitMode" class="custom-split-preview markdown-body"
                                 v-html="compiledMarkdown"></div>
                         </div>
+                    </div>
+
+                    <!-- Updated Time Tag (Reader Mode Only) -->
+                    <div class="last-updated-tag" v-if="!editMode && currentPost && postUpdated">
+                        <i class="fa-regular fa-clock"></i> 本文更新于: {{ postUpdated }}
                     </div>
                 </main>
             </div>
