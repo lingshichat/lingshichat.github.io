@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Sitemap: https://lingshichat.top/sitemap.xml
+Sitemap: https://lingshichat.top/baidusitemap.xml

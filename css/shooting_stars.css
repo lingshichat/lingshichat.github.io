@@ -1,0 +1,14 @@
+/* 拟物化流星雨画布样式 */
+#star-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 999999;
+    /* 确保在最顶层 */
+    pointer-events: none;
+    /* 默认不拦截点击，允许操作博客内容 */
+    mix-blend-mode: screen;
+    /* 混合模式，让光效更自然 */
+}

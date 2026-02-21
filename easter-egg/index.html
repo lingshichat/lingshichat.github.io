@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🌃 Neon City Runner | 彩蛋</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- APlayer CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css">
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+    <!-- 背景音乐：网易云单曲循环，组件隐藏 -->
+    <meting-js server="netease" type="song" id="2718537676" fixed="true" autoplay="true" loop="all" order="list"
+        preload="auto" list-folded="true" list-max-height="500px" lrc-type="0">
+    </meting-js>
+
+    <!-- APlayer & MetingJS Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    <a href="/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+
+    <div class="game-container">
+        <div class="ui-layer">
+            <div class="score-board">
+                <div class="score-item">HI <span id="highScore">00000</span></div>
+                <div class="score-item"><span id="currentScore">00000</span></div>
+            </div>
+        </div>
+
+        <div class="canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+
+        <div class="overlay" id="startOverlay">
+            <div class="title">NEON CITY<br>RUNNER</div>
+            <div class="tutorial-text">
+                <span class="desktop-hint">[空格] 或 [点击] 跳跃</span>
+                <span class="mobile-hint">[点击屏幕] 跳跃</span>
+            </div>
+            <div class="button-group">
+                <button class="btn-pixel" id="startBtn">
+                    <i class="fas fa-play"></i> START
+                </button>
+                <button class="btn-pixel btn-icon" id="achievementsBtnStart" title="Achievements">
+                    <i class="fas fa-trophy"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="overlay hidden" id="gameOverOverlay">
+            <div class="title">GAME OVER</div>
+            <div style="font-size: 16px; color: #00f3ff; margin-bottom: 20px;">
+                SCORE: <span id="finalScore">0</span>
+            </div>
+            <div class="button-group">
+                <button class="btn-pixel" id="restartBtn">
+                    <i class="fas fa-redo"></i> RETRY
+                </button>
+                <button class="btn-pixel btn-icon" id="achievementsBtnOver" title="Achievements">
+                    <i class="fas fa-trophy"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- 成就菜单模态框 -->
+        <div class="overlay hidden" id="achievementsOverlay">
+            <div class="panel-pixel">
+                <div class="panel-header">
+                    <h2>ACHIEVEMENTS</h2>
+                    <button class="btn-close" id="closeAchievementsBtn">×</button>
+                </div>
+                <div class="achievement-list" id="achievementList">
+                    <!-- 成就项将通过 JS 动态生成 -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="./game.js"></script>
+</body>
+
+</html>

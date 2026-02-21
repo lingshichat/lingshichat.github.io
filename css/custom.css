@@ -1,155 +1,1914 @@
 /* ==========================================================
-   ✅ 1. 详情页 (Detail Page) - 老师说这个完美了，阿洛娜用生命守护它！
+   泠诗的小窝 - 自定义样式表
+   整合版本 v1.0 (2026-01-03)
+   
+   目录：
+   1. 基础变量与重置
+   2. 导航栏样式
+   3. 搜索框样式
+   4. 侧边栏卡片
+   5. 滚动条
+   6. BGM 控制按钮
+   7. 分类/标签/归档页面
+   8. 动画定义
    ========================================================== */
-#article-container {
-    color: #eee !important;
-}
 
-#article-container p,
-#article-container li,
-#article-container ul,
-#article-container ol,
-#article-container span,
-#article-container strong,
-#article-container em {
-    color: #ddd !important;
-}
+/* ==========================================================
+   1. 基础变量与重置
+   ========================================================== */
 
-#article-container h1,
-#article-container h2,
-#article-container h3,
-#article-container h4,
-#article-container h5,
-#article-container h6 {
-    color: #fff !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-#post-info .post-title {
-    color: #fff !important;
-}
-
-#post .post-copyright {
-    background: rgba(0, 0, 0, 0.4) !important;
-    border: 1px solid rgba(255, 255, 255, 0.2) !important;
-}
-
-#post .post-copyright * {
-    color: #eee !important;
-}
-
-.post-meta__tag-list,
-.post-reward,
-.post-pagination {
-    color: #fff !important;
+:root {
+    --primary-color: #3b70fc;
+    --primary-glow: rgba(59, 112, 252, 0.5);
+    --glass-bg: rgba(0, 0, 0, 0.5);
+    --glass-border: rgba(255, 255, 255, 0.1);
+    --text-primary: #fff;
+    --text-secondary: #eee;
+    --text-muted: rgba(255, 255, 255, 0.6);
 }
 
 /* ==========================================================
-   🔥 2. 首页卡片 (Home Card) - 标题单独狙击 🔥
+   2. 导航栏样式
    ========================================================== */
-/* 2.1 先把卡片里的一般文字变白 (这个老师说已经生效了) */
-#recent-posts .recent-post-item,
-.layout .recent-posts .recent-post-item {
-    color: #eee !important;
-}
 
-#recent-posts .recent-post-item .content,
-#recent-posts .recent-post-item p {
-    color: #ddd !important;
-}
-
-#recent-posts .recent-post-item .post-meta-wrap,
-#recent-posts .recent-post-item time,
-#recent-posts .recent-post-item i {
-    color: #ccc !important;
-}
-
-/* ⬇️⬇️⬇️ 核心修复：去掉子选择器 > 以匹配实际 DOM 结构 ⬇️⬇️⬇️ */
-/* 2.2 强制【文章标题】变白！ */
-/* 无论它是 a 标签，还是 .article-title 类，或者是被点击过的(:visited)，统统变白！ */
-#recent-posts .recent-post-item .article-title,
-#recent-posts .recent-post-item .article-title a,
-#recent-posts .recent-post-item .recent-post-info .article-title,
-#recent-posts .recent-post-item .recent-post-info .article-title a,
-.recent-post-item .article-title a:visited {
-    color: #ffffff !important;
-    /* 纯白！ */
-    font-weight: bold !important;
-    /* 多层阴影创建强烈的描边效果，确保任何背景下都清晰可见 */
-    text-shadow:
-        0 0 8px rgba(0, 0, 0, 0.9),
-        0 0 12px rgba(0, 0, 0, 0.8),
-        0 2px 6px rgba(0, 0, 0, 0.7),
-        1px 1px 2px rgba(0, 0, 0, 1),
-        -1px -1px 2px rgba(0, 0, 0, 1),
-        1px -1px 2px rgba(0, 0, 0, 1),
-        -1px 1px 2px rgba(0, 0, 0, 1) !important;
-}
-
-/* 2.3 鼠标悬浮时变蓝 */
-#recent-posts .recent-post-item .article-title:hover,
-#recent-posts .recent-post-item .article-title a:hover {
-    color: #3b70fc !important;
-    transition: color 0.3s;
-}
-
-/* ==========================================================
-   3. 顶栏 (Nav) - 保持原样
-   ========================================================== */
+/* 2.0 导航栏玻璃态 */
 #nav {
     background: transparent !important;
     box-shadow: none !important;
-    transition: background 0.3s ease-in-out;
+    transition: background 0.3s;
 }
 
 #nav.fixed {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(20px) !important;
     -webkit-backdrop-filter: blur(20px) !important;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.3) !important;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2) !important;
 }
 
 #nav * {
     color: #fff !important;
-    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* 2.1 顶栏菜单悬停 - 氖光线条效果 (Flexbox 重构版) */
+
+/* === 核心修复：提升 Flexbox 作用域至父容器 === */
+#nav #menus {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    /* 使菜单整体居中 or flex-end */
+    height: 100% !important;
+    flex-wrap: nowrap !important;
+}
+
+/* 强制使用 Flexbox 布局容器 - 仅在桌面端生效 */
+@media (min-width: 769px) {
+    #nav .menus_items {
+        display: flex !important;
+        align-items: center !important;
+        height: 100% !important;
+        margin: 0 !important;
+        /* 清除可能的外边距 */
+    }
+}
+
+/* 搜索按钮容器调整 */
+#nav #search-button {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin-left: 14px !important;
+    /* 保持与菜单项的间距 */
+    padding: 0 !important;
+}
+
+/* 统一每个菜单项的容器 - 仅在桌面端生效 */
+#nav .menus_items .menus_item {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin: 0 0 0 14px !important;
+    padding: 0 !important;
+}
+
+/* 统一所有链接（文字和图标）的盒模型 */
+/* 注意：搜索按钮是 span (class .search)，这里分别指定 */
+#nav .menus_items .menus_item a,
+#nav #search-button .search {
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 40px !important;
+    /* 设定统一高度 */
+    line-height: 40px !important;
+    padding: 0 4px !important;
+    transition: all 0.3s ease !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    color: #fff !important;
+    cursor: pointer !important;
+    /* SPAN 需要手型 */
+}
+
+/* 确保图标垂直居中且不撑开布局 */
+#nav .menus_items .menus_item a i,
+#nav #search-button .search i {
+    display: flex !important;
+    align-items: center !important;
+    height: 100% !important;
+    margin-right: 4px !important;
+    vertical-align: middle !important;
+}
+
+/* 搜索按钮特殊处理：去除多余 margin */
+#nav #search-button .search i {
+    margin: 0 !important;
+}
+
+/* 统一后的蓝条样式 */
+#nav .menus_items .menus_item a::after,
+#nav #search-button .search::after {
+    content: '';
+    position: absolute;
+    bottom: 2px !important;
+    /* 统一距离底部的位置 */
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, #3b70fc, #667eea) !important;
+    box-shadow: 0 0 8px #3b70fc, 0 0 16px rgba(59, 112, 252, 0.5) !important;
+    transition: transform 0.3s ease;
+    transform: scaleX(0);
+    transform-origin: center;
+    border-radius: 2px;
+}
+
+#nav .menus_items .menus_item a:hover::after,
+#nav #search-button .search:hover::after {
+    transform: scaleX(0.8);
+}
+
+#nav .menus_items .menus_item a:hover,
+#nav #search-button .search:hover {
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+}
+
+/* 2.2 下拉菜单玻璃化 */
+#nav .menus_items .menus_item_child {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+#nav .menus_items .menus_item_child li a {
+    color: #eee !important;
+}
+
+#nav .menus_items .menus_item_child li a:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #fff !important;
 }
 
 /* ==========================================================
-   4. 卡片背景与侧边栏 (通用)
+   3. 搜索框样式
    ========================================================== */
+
+/* 3.1 搜索图标悬停效果 - 已通过 nav.pug 结构重构继承 .menus_item 样式 */
+/* 旧样式已移除 */
+
+/* 3.2 搜索遮罩层 */
+#search-mask {
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* 3.3 搜索对话框主体 - 玻璃态 */
+#local-search .search-dialog,
+.search-dialog {
+    background: rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37) !important;
+}
+
+/* 3.4 搜索框头部 */
+.search-dialog .search-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    background: transparent !important;
+}
+
+/* 隐藏剪刀图标和虚线 */
+.search-dialog hr,
+.search-dialog .search-header::before,
+.search-dialog .search-header::after {
+    display: none !important;
+}
+
+/* 3.5 搜索输入框 */
+#local-search-input,
+.search-dialog input {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    border-radius: 25px !important;
+    color: #fff !important;
+    padding: 12px 20px !important;
+    transition: all 0.3s ease;
+}
+
+#local-search-input::placeholder,
+.search-dialog input::placeholder {
+    color: rgba(255, 255, 255, 0.5) !important;
+}
+
+#local-search-input:focus {
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 12px rgba(59, 112, 252, 0.5), 0 0 24px rgba(59, 112, 252, 0.25) !important;
+}
+
+/* 3.6 搜索文字与结果 */
+.search-dialog .search-title,
+.search-dialog label,
+.search-dialog .search-nav span {
+    color: #fff !important;
+}
+
+#local-search .local-search-result,
+.search-dialog .search-result,
+.search-dialog .search-result * {
+    color: #eee !important;
+}
+
+.search-dialog .search-result a {
+    color: #fff !important;
+}
+
+.search-dialog .search-result a:hover {
+    color: #3b70fc !important;
+}
+
+/* 搜索结果标题 */
+#local-search .search-result-title,
+.search-dialog .search-result-title,
+#local-search .search-result .search-result-title a,
+.search-result-list .search-result-title,
+.search-result-list a {
+    color: #fff !important;
+    font-weight: 600 !important;
+}
+
+/* 搜索结果内容 */
+#local-search .search-result-content,
+.search-dialog .search-result-content,
+.search-result .search-keyword {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* 高亮关键词 */
+.search-keyword {
+    color: #3b70fc !important;
+    background: rgba(59, 112, 252, 0.2) !important;
+    padding: 2px 4px !important;
+    border-radius: 3px !important;
+}
+
+/* 关闭按钮 */
+.search-dialog .search-close-button {
+    color: #fff !important;
+}
+
+/* ==========================================================
+   4. 卡片玻璃态效果
+   ========================================================== */
+
+/* 4.1 文章卡片玻璃态 */
 #recent-posts>.recent-post-item,
 .layout>.recent-posts .recent-post-item,
 .layout>#post,
-.layout>#page,
+.layout>#page {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+/* 4.1.1 文章内容文字颜色 */
+#post #article-container,
+#post #article-container p,
+#post #article-container li,
+#post #article-container span,
+#page #article-container,
+#page #article-container p {
+    color: #eee !important;
+}
+
+/* 4.1.2 文章标题颜色 */
+#post #article-container h1,
+#post #article-container h2,
+#post #article-container h3,
+#post #article-container h4,
+#post #article-container h5,
+#post #article-container h6,
+#page #article-container h1,
+#page #article-container h2,
+#page #article-container h3 {
+    color: #fff !important;
+}
+
+/* 4.1.3 文章链接颜色 */
+#post #article-container a,
+#page #article-container a {
+    color: #6a9cff !important;
+}
+
+#post #article-container a:hover,
+#page #article-container a:hover {
+    color: #3b70fc !important;
+    text-decoration: underline;
+}
+
+/* 4.1.4 文章元信息（日期、分类等） */
+#post .post-meta,
+#post .post-meta a,
+#post .post-title {
+    color: #fff !important;
+}
+
+/* 4.1.5 文章卡片标题 */
+.recent-post-item .recent-post-info .article-title {
+    color: #fff !important;
+}
+
+.recent-post-item .recent-post-info .article-meta-wrap {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* 4.2 侧边栏卡片玻璃态 */
 .card-widget {
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 12px !important;
+}
+
+/* 4.3 卡片内文字颜色 */
+.card-widget,
+.recent-post-item,
+.layout>#post,
+.layout>#page {
+    color: #eee !important;
+}
+
+.card-widget a,
+.recent-post-item a,
+.item-headline {
+    color: #fff !important;
+}
+
+/* 4.4 作者卡片样式 - 文章/标签/分类 文字 */
+.card-widget .card-info-data-item .headline,
+.card-widget .card-info-data .headline,
+.card-info-data-item .headline,
+#card-info-head .headline,
+.card-info .headline {
+    color: #fff !important;
+    font-size: 14px !important;
+    opacity: 1 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* 4.4.1 数字部分 */
+.card-widget .card-info-data-item .length-num,
+.card-info-data-item .length-num,
+.card-info .length-num {
+    color: #ffffff !important;
+    font-weight: bold !important;
+    font-size: 18px !important;
+}
+
+/* 4.5 社交图标 */
+.card-info-social-icons .social-icon {
+    color: #fff !important;
+}
+
+/* 4.5.1 公告卡片 */
+#card-announcement .item-headline i,
+#card-announcement .headline i,
+.card-announcement .item-headline i,
+.card-widget.card-announcement i {
+    color: #fff !important;
+}
+
+#card-announcement .item-content,
+#card-announcement .announcement-content,
+.card-announcement .item-content {
+    color: #eee !important;
+}
+
+/* 4.6 Follow Me 按钮 */
+#card-info-btn {
+    background-color: #3b70fc !important;
+    color: #fff !important;
+    border: none !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    animation: breathingGlow 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+#card-info-btn:hover {
+    background-color: #6a9cff !important;
+    animation: none;
+    box-shadow: 0 0 20px rgba(59, 112, 252, 0.8), 0 0 40px rgba(59, 112, 252, 0.4) !important;
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+
+/* 4.7 目录样式 (TOC) */
+/* 目录标题 */
+.card-widget .item-headline span {
+    color: #fff !important;
+}
+
+/* 目录文字 */
+#aside-content .toc-content .toc-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: all 0.2s ease-in-out;
+}
+
+#aside-content .toc-content .toc-link:hover {
+    color: #fff !important;
+}
+
+/* 选中项 - 替换原来的绿色 */
+#aside-content .toc-content .toc-link.active {
+    background: #3b70fc !important;
+    color: #fff !important;
+    border-radius: 6px;
+    padding-left: 10px;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+}
+
+/* ==========================================================
+   5. 滚动条
+   ========================================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(59, 112, 252, 0.5);
+    border-radius: 10px;
+    border: 2px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 6px rgba(59, 112, 252, 0.3);
+    transition: all 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 112, 252, 0.7);
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: rgba(59, 112, 252, 0.9);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
+}
+
+/* ==========================================================
+   6. BGM 控制按钮
+   ========================================================== */
+
+#global-bgm-btn {
+    position: fixed;
+    top: 20px;
+    right: 60px;
+    bottom: auto;
+    left: auto;
+    width: 32px;
+    height: 32px;
+    background: rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3) !important;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+#global-bgm-btn .music-icon {
+    font-size: 18px;
+    color: #fff;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.8);
+    filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.3));
+}
+
+#global-bgm-btn:hover .music-icon {
+    transform: scale(1.2);
+    filter: drop-shadow(0 0 8px rgba(59, 112, 252, 0.6));
+}
+
+/* 播放时旋转动画 */
+#global-bgm-btn.playing .music-icon {
+    animation: musicSpin 3s linear infinite;
+}
+
+/* 暂停状态 */
+#global-bgm-btn.paused .music-icon {
+    animation: none;
+    opacity: 0.6;
+}
+
+#global-bgm-btn.paused::before {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 30px;
+    background: #ff4757;
+    transform: rotate(45deg);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(255, 71, 87, 0.6);
+}
+
+/* ==========================================================
+   7. 分类/标签/归档页面
+   ========================================================== */
+
+/* 7.1 分类页面 & 侧边栏分类列表 - 统一交互 */
+#category,
+#categories,
+.category-lists,
+.category-list,
+.layout>#category,
+.layout>#categories {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.category-list a,
+.category-lists a,
+#categories a,
+#category a {
+    color: #fff !important;
+    padding: 4px 10px !important;
+    /* 增加内边距以适应背景块 */
+    border-radius: 6px;
+    transition: all 0.3s ease;
+}
+
+/* 统一复刻 TOC 选中态 (Blue Background + Glow) */
+.category-list a:hover,
+.category-lists a:hover {
+    color: #fff !important;
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+    padding-left: 14px !important;
+    /* 悬停时稍微右移，增加交互感 */
+}
+
+/* 7.1 分类页面 & 侧边栏分类列表 - 强制覆盖 */
+/* 针对侧边栏的具体选择器 - Flexbox 布局优化 */
+.card-category-list .card-category-list-item a {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 6px 12px !important;
+    border-radius: 8px !important;
+    transition: all 0.3s ease !important;
+    color: #eee !important;
+}
+
+.card-category-list .card-category-list-item a:hover {
+    background-color: #3b70fc !important;
+    color: #fff !important;
+    padding-left: 18px !important;
+    /* 悬停右移特效 */
+    padding-right: 12px !important;
+    /* 保持右侧间距稳定 */
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+    text-decoration: none !important;
+}
+
+/* 分类名称 */
+.card-category-list .card-category-list-item a .card-category-list-name {
+    flex-grow: 1;
+    /* 占据剩余空间 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* 分类数量 - 徽标样式 (圆形优化) */
+.card-category-list .card-category-list-item a .card-category-list-count {
+    color: #eee !important;
+    background: rgba(255, 255, 255, 0.2);
+    width: 24px;
+    /* 固定宽度 */
+    height: 24px;
+    /* 固定高度 */
+    display: flex;
+    /* Flex 居中 */
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    /* 圆形 */
+    font-size: 12px;
+    margin-left: 8px;
+    transition: all 0.3s;
+    line-height: 1 !important;
+    /* 重置行高 */
+}
+
+.card-category-list .card-category-list-item a:hover .card-category-list-count {
+    color: #3b70fc !important;
+    background: #fff !important;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 7.2 标签页面 & 侧边栏标签云 */
+#tag,
+#tags,
+.tag-cloud-list,
+.layout>#tag,
+.layout>#tags {
+    background: transparent !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+/* 7.2 标签页面 & 侧边栏标签云 - 完美复刻 */
+/* 7.2 标签页面 & 侧边栏标签云 - 完美复刻 */
+/* 侧边栏标签云专用选择器 - 强制覆盖内联样式 */
+#aside-content .card-widget .card-tag-cloud a,
+.card-widget .card-tag-cloud a {
+    position: relative;
+    /* 确保 z-index 生效 */
+    z-index: 1;
+    display: inline-block !important;
+    /* 强制覆盖内联颜色 */
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    margin: 4px 4px 0 0 !important;
+    /* 保留 Hexo 生成的字体大小云效果 */
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    line-height: 1.5 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+    /* 增强文字可读性 */
+}
+
+#aside-content .card-widget .card-tag-cloud a:hover,
+.card-widget .card-tag-cloud a:hover {
+    z-index: 10;
+    /* 悬停时层级最高 */
+    color: #fff !important;
+    background: #3b70fc !important;
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 12px rgba(59, 112, 252, 0.6) !important;
+    transform: translateY(-2px);
+
+    /* 修复文字被遮盖的视觉问题 */
+    opacity: 1 !important;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.5);
+    /* 加深阴影增强立体感 */
+    font-weight: 600 !important;
+    /* 适当加粗但不要太粗 */
+    -webkit-font-smoothing: antialiased;
+    /* 字体平滑 */
+}
+
+/* 标签页面样式 (保持一致) */
+.tag-cloud-list a {
+    display: inline-block !important;
+    color: #eee !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    border-radius: 6px !important;
+    padding: 4px 10px !important;
+    margin: 4px 4px 0 0 !important;
+    transition: all 0.3s ease;
+}
+
+.tag-cloud-list a:hover {
+    color: #fff !important;
+    background: #3b70fc !important;
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+}
+
+/* 7.2.1 标签云文本选中样式 - 强制覆盖主题默认 */
+/* 统一使用蓝底白字，匹配截图中的按钮风格 */
+#aside-content .card-widget .card-tag-cloud a::selection,
+.card-widget.card-tags .card-tag-cloud a::selection,
+.card-widget .card-tag-cloud a::selection,
+.tag-cloud-list a::selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+#aside-content .card-widget .card-tag-cloud a::-moz-selection,
+.card-widget.card-tags .card-tag-cloud a::-moz-selection,
+.card-widget .card-tag-cloud a::-moz-selection,
+.tag-cloud-list a::-moz-selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+    text-shadow: none !important;
+}
+
+/* 全局文本选中样式覆盖 - 统一蓝色主题 */
+/* 使用 * 选择器匹配主题的 *::selection 特异性 */
+*::selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+}
+
+*::-moz-selection {
+    background: #3b70fc !important;
+    color: #fff !important;
+}
+
+/* 7.3 归档页面 */
+#archive .card-archive,
+.archives .card-archive,
+#archives .card-archive,
+.archive-list .card-archive,
+#page .archive-group,
+.archives-group,
+#archive,
+#archives,
+.layout>#archive,
+.layout>#archives {
     background: rgba(0, 0, 0, 0.6) !important;
     backdrop-filter: blur(25px) !important;
     -webkit-backdrop-filter: blur(25px) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
     border-radius: 12px !important;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3) !important;
 }
 
-.card-widget,
-.card-widget * {
+.archive-item,
+.archives-item {
+    border-left-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+.archive-item a,
+.archives-item a,
+#archive a,
+#archives a {
+    color: #eee !important;
+    padding: 6px 10px !important;
+    /* 增加点击区域 */
+    border-radius: 6px;
+    display: inline-block;
+    /* 确保 padding 生效 */
+    transition: all 0.3s ease;
+}
+
+/* 归档列表悬停统一 */
+.archive-item a:hover,
+.archives-item a:hover {
+    color: #fff !important;
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+    transform: translateX(5px);
+}
+
+.archive-item .article-title,
+.archives-item .article-title {
+    color: #fff !important;
+}
+
+.archive-item time,
+.archives-item time {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.archive-item .year,
+.archives-item .year,
+#archive .year,
+.archive-group-year {
+    color: #fff !important;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================
+   8. 动画定义
+   ========================================================== */
+
+/* 8.1 呼吸光动画 */
+@keyframes breathingGlow {
+
+    0%,
+    100% {
+        box-shadow: 0 0 8px rgba(59, 112, 252, 0.4), 0 0 16px rgba(59, 112, 252, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 16px rgba(59, 112, 252, 0.6), 0 0 32px rgba(59, 112, 252, 0.3);
+    }
+}
+
+/* 8.2 音乐旋转动画 */
+@keyframes musicSpin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ==========================================================
+   9. APlayer 播放器样式 (玻璃态修复)
+   ========================================================== */
+
+.aplayer {
+    background: rgba(0, 0, 0, 0.25) !important;
+    /* 减浅背景色，从 0.4 -> 0.25 */
+    /* backdrop-filter: blur(20px) !important; 移除模糊效果以便观察 */
+    /* -webkit-backdrop-filter: blur(20px) !important; */
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    color: #fff !important;
+    margin: 20px 0 !important;
+    transition: all 0.3s ease !important;
+}
+
+/* 信息区域透明 */
+.aplayer .aplayer-info {
+    background: transparent !important;
+    padding: 14px 7px 14px 10px !important;
+}
+
+/* 歌曲标题和作者颜色 */
+.aplayer .aplayer-info .aplayer-music .aplayer-title,
+.aplayer .aplayer-info .aplayer-music .aplayer-author {
+    color: #fff !important;
+}
+
+/* 进度条背景 */
+.aplayer .aplayer-info .aplayer-controller .aplayer-bar-wrap .aplayer-bar {
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+/* 时间颜色 */
+.aplayer .aplayer-info .aplayer-controller .aplayer-time {
     color: #eee !important;
 }
 
-.card-widget a,
-.item-headline {
+/* 图标颜色 */
+.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon path {
+    fill: #eee !important;
+}
+
+.aplayer .aplayer-info .aplayer-controller .aplayer-time .aplayer-icon:hover path {
+    fill: #fff !important;
+}
+
+/* 播放列表背景 */
+.aplayer .aplayer-list {
+    background: rgba(0, 0, 0, 0.2) !important;
+}
+
+.aplayer .aplayer-list ol li {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    transition: all 0.2s ease !important;
+}
+
+.aplayer .aplayer-list ol li:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+.aplayer .aplayer-list ol li.aplayer-list-light {
+    background: rgba(59, 112, 252, 0.2) !important;
+}
+
+.aplayer .aplayer-list ol li .aplayer-list-title {
     color: #fff !important;
 }
 
-.card-widget .card-info-data .headline {
-    color: #ccc !important;
+.aplayer .aplayer-list ol li .aplayer-list-author {
+    color: rgba(255, 255, 255, 0.6) !important;
 }
 
-.card-widget .card-info-data .length-num {
-    color: #fff !important;
-    font-weight: bold;
+/* 歌词部分 */
+.aplayer .aplayer-lrc:before,
+.aplayer .aplayer-lrc:after {
+    display: none !important;
 }
 
-#card-info-btn {
-    background-color: #3b70fc !important;
+.aplayer .aplayer-lrc p {
+    color: #eee !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.aplayer .aplayer-lrc p.aplayer-lrc-current {
+    color: #3b70fc !important;
+    font-weight: bold !important;
+}
+
+
+/* 移除最新文章等侧边栏列表项的分割线 */
+.aside-list-item {
+    border-bottom: none !important;
+}
+
+/* 归档页面“全部文章”标题颜色修改 */
+.article-sort-title {
     color: #fff !important;
+}
+
+/* ==========================================================
+   6. BGM 控制按钮 (导航栏集成版)
+   ========================================================== */
+#nav-music {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    /* 与其他图标保持间距 */
+}
+
+/* 移动端调整 BGM 按钮间距 */
+@media (max-width: 768px) {
+    #nav-music {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+}
+
+#nav-music-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.8) !important;
+    /* 细实线，微透更有质感 */
+    transition: all 0.3s;
+    cursor: pointer;
+    box-sizing: border-box;
+    /* 确保边框包含在尺寸内 */
+}
+
+#nav-music-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+#nav-music-btn i {
+    font-size: 14px;
+    /* 图标大小 */
+    transition: all 0.3s;
+}
+
+/* 播放状态下的动画 */
+#nav-music-btn.playing i {
+    animation: rotate-music 3s linear infinite;
+}
+
+#nav-music-btn.paused i {
+    animation-play-state: paused;
+}
+
+@keyframes rotate-music {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* 10. 临时补丁 - 隐藏目录百分比 */
+.toc-percentage {
+    display: none !important;
+}
+
+/* ==========================================================
+   11. 头像悬浮特效 (拟物发光)
+   ========================================================== */
+/* 1. 禁用原主题的图片旋转 */
+.avatar-img img:hover {
+    transform: none !important;
+}
+
+/* 2. 为外层容器添加过渡和辉光 */
+.card-info .avatar-img {
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border-radius: 50%;
+    /* 确保辉光是圆形的 */
+}
+
+.card-info .avatar-img:hover {
+    /* 轻微放大整个容器 */
+    transform: scale(1.1) !important;
+    /* 应用呼吸发光动画 */
+    animation: breathingGlow 2s ease-in-out infinite alternate;
+    /* 增加一个高亮边框以增强拟物感 */
+    box-shadow: 0 0 15px var(--primary-color) !important;
+}
+
+/* ==========================================================
+   10. 分页器与其他细节修复 (新增)
+   ========================================================== */
+
+/* 10.1 分页器 (Pagination) */
+#pagination .page-number.current {
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+    border: none !important;
+    color: #fff !important;
+}
+
+#pagination .page-number:not(.current):hover,
+#pagination .extend:hover {
+    background: #3b70fc !important;
+    color: #fff !important;
+    border-color: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+}
+
+/* 10.2 文章卡片内的标签 */
+#article-container .tag-link {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 6px;
+    padding: 2px 8px;
+    color: #eee !important;
+}
+
+#article-container .tag-link:hover {
+    background: #3b70fc !important;
+    color: #fff !important;
+    text-decoration: none !important;
+    box-shadow: 0 0 8px rgba(59, 112, 252, 0.4);
+}
+
+/* 10.3 侧边栏-最新文章列表悬停统一 (增强权重) */
+.card-widget .aside-list .aside-list-item {
+    padding: 8px 10px !important;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    margin-bottom: 4px !important;
+}
+
+.card-widget .aside-list .aside-list-item:hover {
+    background: #3b70fc !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5);
+    transform: translateX(5px);
+}
+
+.card-widget .aside-list .aside-list-item:hover .content .title,
+.card-widget .aside-list .aside-list-item:hover .content time,
+.card-widget .aside-list .aside-list-item:hover a {
+    color: #fff !important;
+}
+
+.card-widget .aside-list .aside-list-item .thumbnail {
+    border-radius: 4px !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* 10.4 首页文章卡片元数据标签悬停 (补充) */
+.recent-post-item .article-meta-wrap a:hover {
+    color: #3b70fc !important;
+    text-shadow: 0 0 8px rgba(59, 112, 252, 0.5);
+}
+
+/* 10.5 归档与标签云增强 (确保生效) */
+.card-tag-cloud a {
+    color: #fff !important;
+}
+
+.card-archive-list>.card-archive-list-item a:hover,
+.card-tag-cloud a:hover {
+    background: #3b70fc !important;
+    color: #fff !important;
+    box-shadow: 0 0 10px rgba(59, 112, 252, 0.5) !important;
+}
+
+/* ==========================================================
+   12. 今日运势卡片 (Daily Fortune Card)
+   ========================================================== */
+
+/* 卡片基础样式 - 继承 card-widget */
+.card-fortune {
+    padding: 20px !important;
+    text-align: center;
+}
+
+/* 标题区域 */
+.fortune-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.fortune-orb {
+    position: relative;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fortune-orb .orb-icon {
+    font-size: 28px;
+    filter: drop-shadow(0 0 8px rgba(147, 112, 219, 0.6));
+    animation: orbFloat 4s ease-in-out infinite;
+}
+
+/* 水晶球微妙浮动动画 */
+@keyframes orbFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+        filter: drop-shadow(0 0 8px rgba(147, 112, 219, 0.5));
+    }
+
+    50% {
+        transform: translateY(-3px);
+        filter: drop-shadow(0 0 12px rgba(147, 112, 219, 0.7));
+    }
+}
+
+.fortune-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    letter-spacing: 2px;
+}
+
+/* 运势等级区域 */
+.fortune-level-wrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+}
+
+.fortune-level-icon {
+    font-size: 1.8rem;
+    animation: levelIconPulse 3s ease-in-out infinite;
+}
+
+@keyframes levelIconPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.1);
+        opacity: 0.85;
+    }
+}
+
+.fortune-level {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--fortune-color, #FFD700);
+    text-shadow:
+        0 0 10px var(--fortune-glow, rgba(255, 215, 0, 0.5)),
+        0 0 20px var(--fortune-glow, rgba(255, 215, 0, 0.3)),
+        0 0 30px var(--fortune-glow, rgba(255, 215, 0, 0.2));
+    letter-spacing: 4px;
+    animation: levelGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes levelGlow {
+    0% {
+        text-shadow:
+            0 0 8px var(--fortune-glow, rgba(255, 215, 0, 0.4)),
+            0 0 16px var(--fortune-glow, rgba(255, 215, 0, 0.2));
+    }
+
+    100% {
+        text-shadow:
+            0 0 12px var(--fortune-glow, rgba(255, 215, 0, 0.6)),
+            0 0 24px var(--fortune-glow, rgba(255, 215, 0, 0.4)),
+            0 0 36px var(--fortune-glow, rgba(255, 215, 0, 0.2));
+    }
+}
+
+/* 分割线 */
+.fortune-divider {
+    height: 1px;
+    background: linear-gradient(90deg,
+            transparent,
+            rgba(255, 255, 255, 0.15) 20%,
+            rgba(255, 255, 255, 0.15) 80%,
+            transparent);
+    margin: 16px 0;
+}
+
+/* 运势维度区域 */
+.fortune-dimensions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 0 10px;
+}
+
+.fortune-dimension {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.9rem;
+}
+
+.fortune-dimension .dim-icon {
+    width: 24px;
+    text-align: center;
+}
+
+.fortune-dimension .dim-name {
+    flex: 1;
+    text-align: left;
+    margin-left: 8px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.fortune-stars {
+    color: #FFD700;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    text-shadow: 0 0 4px rgba(255, 215, 0, 0.4);
+}
+
+/* 每日箴言 */
+.fortune-quote {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin: 8px 0;
+}
+
+.fortune-quote .quote-icon {
+    flex-shrink: 0;
+}
+
+.fortune-quote .quote-text {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.75);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    text-align: left;
+}
+
+/* 幸运元素区域 */
+.fortune-lucky {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.lucky-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lucky-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    box-shadow: 0 0 6px currentColor;
+}
+
+/* 卡片入场动画 */
+.card-fortune {
+    animation: fortuneCardEnter 0.8s ease-out;
+}
+
+@keyframes fortuneCardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 移动端适配 */
+@media (max-width: 768px) {
+    .fortune-level {
+        font-size: 1.6rem;
+    }
+
+    .fortune-dimension {
+        font-size: 0.85rem;
+    }
+
+    .fortune-lucky {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* ==========================================================
+   12.1 待机状态 - 大水晶球 (Idle State)
+   ========================================================== */
+
+.fortune-idle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+    min-height: 180px;
+    transition: transform 0.3s ease;
+}
+
+.fortune-idle-container:hover {
+    transform: scale(1.02);
+}
+
+.fortune-idle-container:active {
+    transform: scale(0.98);
+}
+
+/* 大水晶球 */
+.fortune-orb-large {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.fortune-orb-large .orb-inner {
+    position: relative;
+    z-index: 2;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* 玻璃质感背景 */
+    background: radial-gradient(circle at 30% 30%,
+            rgba(200, 180, 255, 0.3),
+            rgba(120, 100, 200, 0.2) 50%,
+            rgba(80, 60, 160, 0.25));
+    box-shadow:
+        inset 0 0 20px rgba(255, 255, 255, 0.15),
+        inset 0 -10px 30px rgba(100, 80, 180, 0.2);
+    animation: orbInnerFloat 3s ease-in-out infinite;
+}
+
+.fortune-orb-large .orb-emoji {
+    font-size: 48px;
+    filter: drop-shadow(0 0 10px rgba(147, 112, 219, 0.6));
+}
+
+/* 外发光层 */
+.fortune-orb-large .orb-glow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+            rgba(147, 112, 219, 0.4) 0%,
+            rgba(147, 112, 219, 0.1) 50%,
+            transparent 70%);
+    animation: orbGlowPulse 2.5s ease-in-out infinite;
+}
+
+/* 脉冲光圈 */
+.fortune-orb-large .orb-pulse {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 2px solid rgba(147, 112, 219, 0.4);
+    animation: orbPulseRing 3s ease-out infinite;
+}
+
+@keyframes orbInnerFloat {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(0deg);
+    }
+
+    50% {
+        transform: translateY(-5px) rotate(2deg);
+    }
+}
+
+@keyframes orbGlowPulse {
+
+    0%,
+    100% {
+        opacity: 0.6;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.15);
+    }
+}
+
+@keyframes orbPulseRing {
+    0% {
+        opacity: 0.8;
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.8);
+    }
+}
+
+/* 点击提示文字 */
+.fortune-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.9rem;
+    letter-spacing: 2px;
+}
+
+.fortune-hint .hint-star {
+    color: rgba(147, 112, 219, 0.8);
+    animation: hintStarTwinkle 2s ease-in-out infinite;
+}
+
+.fortune-hint .hint-star:nth-child(3) {
+    animation-delay: 1s;
+}
+
+.fortune-hint .hint-text {
+    animation: hintTextBreath 2.5s ease-in-out infinite;
+}
+
+@keyframes hintStarTwinkle {
+
+    0%,
+    100% {
+        opacity: 0.5;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+@keyframes hintTextBreath {
+
+    0%,
+    100% {
+        opacity: 0.6;
+    }
+
+    50% {
+        opacity: 1;
+    }
+}
+
+/* ==========================================================
+   12.2 绽放动画 (Reveal Animation)
+   ========================================================== */
+
+/* 绽放中状态 */
+.card-fortune.revealing {
+    pointer-events: none;
+}
+
+.card-fortune.revealing .fortune-hint {
+    animation: hintFadeOut 0.3s ease-out forwards;
+}
+
+@keyframes hintFadeOut {
+    to {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+}
+
+/* 水晶球爆发动画 */
+.fortune-orb-large.orb-bursting .orb-inner {
+    animation: orbBurst 1.7s ease-out forwards;
+}
+
+.fortune-orb-large.orb-bursting .orb-glow {
+    animation: glowBurst 1s ease-out forwards;
+}
+
+.fortune-orb-large.orb-bursting .orb-pulse {
+    animation: none;
+    opacity: 0;
+}
+
+@keyframes orbBurst {
+    0% {
+        transform: scale(1);
+        filter: brightness(1);
+    }
+
+    20% {
+        transform: scale(1.2);
+        filter: brightness(1.3);
+    }
+
+    40% {
+        transform: scale(1.1);
+        filter: brightness(1.8);
+        box-shadow:
+            0 0 40px rgba(255, 255, 255, 0.8),
+            0 0 80px rgba(147, 112, 219, 0.6),
+            inset 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+
+    100% {
+        transform: scale(0.3) translateY(-60px);
+        opacity: 0;
+        filter: brightness(2);
+    }
+}
+
+@keyframes glowBurst {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(5);
+        opacity: 0;
+    }
+}
+
+/* 光芒粒子 */
+.light-particle {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color, #fff);
+    box-shadow: 0 0 10px var(--color, #fff);
+    transform: translate(-50%, -50%);
+    animation: particleFly 1.2s ease-out forwards;
+}
+
+@keyframes particleFly {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 1;
+    }
+
+    30% {
+        transform:
+            translate(-50%, -50%) rotate(var(--angle, 0deg)) translateX(30px) scale(1.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform:
+            translate(-50%, -50%) rotate(var(--angle, 0deg)) translateX(100px) scale(0);
+        opacity: 0;
+    }
+}
+
+/* ==========================================================
+   12.3 展示状态调整 (Revealed State)
+   ========================================================== */
+
+/* 展示状态的小水晶球 */
+.fortune-orb-small {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fortune-orb-small .orb-emoji {
+    font-size: 24px;
+    filter: drop-shadow(0 0 6px rgba(147, 112, 219, 0.5));
+    animation: orbSmallFloat 4s ease-in-out infinite;
+}
+
+@keyframes orbSmallFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-2px);
+    }
+}
+
+/* 展示状态入场动画 */
+.card-fortune.fortune-entering {
+    opacity: 0;
+    animation: fortuneRevealEnter 0.8s ease-out 0.1s forwards;
+}
+
+@keyframes fortuneRevealEnter {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* 展示状态的各部分依次入场 */
+.card-fortune[data-state="revealed"] .fortune-header {
+    animation: contentFadeIn 0.5s ease-out 0.1s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-level-wrapper {
+    animation: contentFadeIn 0.5s ease-out 0.2s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-dimensions {
+    animation: contentFadeIn 0.5s ease-out 0.4s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-quote {
+    animation: contentFadeIn 0.5s ease-out 0.6s both;
+}
+
+.card-fortune[data-state="revealed"] .fortune-lucky {
+    animation: contentFadeIn 0.5s ease-out 0.7s both;
+}
+
+@keyframes contentFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 移动端待机状态适配 */
+@media (max-width: 768px) {
+
+    /* 待机状态 - 水晶球 */
+    .fortune-orb-large {
+        width: 90px;
+        height: 90px;
+    }
+
+    .fortune-orb-large .orb-inner {
+        width: 70px;
+        height: 70px;
+    }
+
+    .fortune-orb-large .orb-emoji {
+        font-size: 40px;
+    }
+
+    .fortune-idle-container {
+        min-height: 160px;
+        padding: 25px 15px;
+    }
+
+    /* 展示状态 - 完整运势 */
+    .card-fortune[data-state="revealed"] {
+        padding: 16px 12px !important;
+    }
+
+    .card-fortune .fortune-header {
+        flex-direction: row;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .card-fortune .fortune-orb-small {
+        width: 28px;
+        height: 28px;
+    }
+
+    .card-fortune .fortune-orb-small .orb-emoji {
+        font-size: 20px;
+    }
+
+    .card-fortune .fortune-title {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .card-fortune .fortune-level-wrapper {
+        margin: 16px 0;
+        gap: 6px;
+    }
+
+    .card-fortune .fortune-level {
+        font-size: 1.5rem;
+        letter-spacing: 2px;
+    }
+
+    .card-fortune .fortune-level-icon {
+        font-size: 1.5rem;
+    }
+
+    .card-fortune .fortune-divider {
+        margin: 12px 0;
+    }
+
+    .card-fortune .fortune-dimensions {
+        padding: 0 8px;
+        gap: 8px;
+    }
+
+    .card-fortune .fortune-dimension {
+        font-size: 0.85rem;
+        padding: 4px 0;
+    }
+
+    .card-fortune .fortune-dimension .dim-icon {
+        width: 22px;
+        font-size: 0.9rem;
+    }
+
+    .card-fortune .fortune-dimension .dim-name {
+        margin-left: 6px;
+    }
+
+    .card-fortune .fortune-stars {
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+    }
+
+    .card-fortune .fortune-quote {
+        padding: 10px;
+        margin: 6px 0;
+        gap: 6px;
+    }
+
+    .card-fortune .fortune-quote .quote-text {
+        font-size: 0.85rem;
+        line-height: 1.4;
+    }
+
+    .card-fortune .fortune-lucky {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 10px;
+        font-size: 0.8rem;
+    }
+
+    .card-fortune .lucky-item {
+        gap: 4px;
+    }
+
+    .card-fortune .lucky-dot {
+        width: 10px;
+        height: 10px;
+    }
+}
+
+/* 超小屏幕适配 (iPhone SE 等) */
+@media (max-width: 375px) {
+    .card-fortune .fortune-level {
+        font-size: 1.3rem;
+    }
+
+    .card-fortune .fortune-lucky {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .card-fortune .fortune-dimension .dim-name {
+        font-size: 0.8rem;
+    }
+}
+
+/* ==========================================================
+   缤纷云背景图片渐进式加载样式
+   ========================================================== */
+
+/* 隐藏 body 默认背景，由 JS 接管 */
+body {
+    background-color: #0a1628 !important;
+}
+
+/* 确保背景图层正确显示 */
+#bg-blur,
+#bg-webp {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+
+/* 模糊层样式 */
+#bg-blur {
+    transform: scale(1.05) translateZ(0);
+    filter: blur(0);
+}
+
+/* WebP 清晰层 */
+#bg-webp {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+}
+
+/* 页面内容层确保在背景之上 */
+#body-wrap {
+    position: relative;
+    z-index: 1;
+}
+
+/* 移动端优化 */
+@media (max-width: 768px) {
+    #bg-blur,
+    #bg-webp {
+        background-attachment: scroll !important;
+        background-size: cover !important;
+    }
+}
+
+/* 性能优化：减少重绘 */
+#bg-blur,
+#bg-webp {
+    contain: strict;
 }

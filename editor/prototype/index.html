@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vditor 即时渲染编辑器 - 原型</title>
+    <!-- Vditor CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor@3.9.6/dist/index.css" />
+    <!-- 自定义样式 -->
+    <link rel="stylesheet" href="style.css" />
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="prototype-container">
+        <!-- 顶部导航 -->
+        <nav class="proto-nav">
+            <div class="nav-left">
+                <i class="fas fa-pen-fancy nav-icon"></i>
+                <span class="nav-title">Vditor 即时渲染原型</span>
+            </div>
+            <div class="nav-right">
+                <span class="mode-badge">
+                    <i class="fas fa-bolt"></i> 即时渲染模式
+                </span>
+            </div>
+        </nav>
+
+        <!-- 主编辑区域 -->
+        <main class="proto-main">
+            <div class="editor-container">
+                <div id="vditor"></div>
+            </div>
+        </main>
+
+        <!-- 底部状态栏 -->
+        <footer class="proto-footer">
+            <div class="footer-left">
+                <span id="word-count">字数: 0</span>
+                <span class="divider">|</span>
+                <span id="line-count">行数: 1</span>
+            </div>
+            <div class="footer-right">
+                <span class="status-hint">输入 Markdown 语法即时预览效果</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Vditor JS -->
+    <script src="https://cdn.jsdelivr.net/npm/vditor@3.9.6/dist/index.min.js"></script>
+    <script>
+        // 初始化 Vditor
+        const vditor = new Vditor('vditor', {
+            // 即时渲染模式
+            mode: 'ir',  // ir = instant rendering (即时渲染)
+            
+            // 主题配置
+            theme: 'dark',
+            
+            // 编辑器高度
+            height: '100%',
+            
+            // 占位符
+            placeholder: '开始写作... 支持 Markdown 语法\n\n# 标题\n**粗体** *斜体* ~~删除线~~\n\n- 列表项\n- [ ] 任务列表\n\n> 引用块\n\n```js\n// 代码块\nconsole.log("Hello World");\n```',
+            
+            // 工具栏配置 - 精简版
+            toolbar: [
+                'headings',
+                'bold',
+                'italic',
+                'strike',
+                '|',
+                'line',
+                'quote',
+                'list',
+                'ordered-list',
+                'check',
+                '|',
+                'code',
+                'inline-code',
+                '|',
+                'link',
+                'table',
+                '|',
+                'undo',
+                'redo',
+                '|',
+                'preview',
+                'fullscreen'
+            ],
+            
+            // 工具栏配置
+            toolbarConfig: {
+                pin: true
+            },
+            
+            // 行号禁用
+            counter: {
+                enable: false
+            },
+            
+            // 预览配置
+            preview: {
+                delay: 0,  // 即时渲染
+                theme: {
+                    current: 'dark'
+                },
+                hljs: {
+                    enable: true,
+                    lineNumber: false,  // 禁用代码块行号
+                    style: 'dracula'
+                }
+            },
+            
+            // 大纲（目录）
+            outline: {
+                enable: true,
+                position: 'right'
+            },
+            
+            // 缓存
+            cache: {
+                enable: true,
+                id: 'vditor-prototype-cache'
+            },
+            
+            // 输入回调 - 更新统计
+            input: (value) => {
+                updateStats(value);
+            },
+            
+            // 焦点事件
+            focus: () => {
+                document.querySelector('.proto-footer .status-hint').textContent = '正在编辑...';
+            },
+            
+            // 失焦事件
+            blur: () => {
+                document.querySelector('.proto-footer .status-hint').textContent = '已保存到本地缓存';
+            },
+            
+            // 成功回调
+            after: () => {
+                // 编辑器加载完成
+                updateStats(vditor.getValue());
+            }
+        });
+
+        // 更新字数和行数统计
+        function updateStats(content) {
+            const wordCount = content.replace(/\s/g, '').length;
+            const lineCount = content.split('\n').length;
+            
+            document.getElementById('word-count').textContent = `字数: ${wordCount}`;
+            document.getElementById('line-count').textContent = `行数: ${lineCount}`;
+        }
+
+        // 快捷键支持
+        document.addEventListener('keydown', (e) => {
+            // Ctrl/Cmd + S 阻止默认保存行为
+            if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+                e.preventDefault();
+                console.log('内容已自动保存到本地缓存');
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Vditor 原型页面已加载');
+            console.log('模式: 即时渲染 (Instant Rendering)');
+        });
+    </script>
+</body>
+</html>
