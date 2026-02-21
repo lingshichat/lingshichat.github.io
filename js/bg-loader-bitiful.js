@@ -64,12 +64,9 @@
         const blurUrl = getImageUrl(config.blurParams);
         const webpUrl = getImageUrl(config.webpParams);
         
-        // 先设置 body 背景色作为最底层
-        document.body.style.backgroundColor = config.placeholderColor;
-        
-        // 创建模糊占位图层 (立即显示)
+        // 创建模糊占位图层 (立即显示，无需额外背景色)
         const blurLayer = createLayer('bg-blur', blurUrl, 1, -10002);
-        blurLayer.style.transform = 'scale(1.05) translateZ(0)'; // 轻微放大避免边缘
+        blurLayer.style.transform = 'scale(1.1) translateZ(0)'; // 放大避免模糊边缘
         
         // 创建 WebP 清晰图层 (初始透明)
         const webpLayer = createLayer('bg-webp', webpUrl, 0, -10001);

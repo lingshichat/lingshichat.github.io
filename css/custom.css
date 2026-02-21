@@ -1864,7 +1864,7 @@
 
 /* 隐藏 body 默认背景，由 JS 接管 */
 body {
-    background-color: #0a1628 !important;
+    background-image: none !important;
 }
 
 /* 确保背景图层正确显示 */
