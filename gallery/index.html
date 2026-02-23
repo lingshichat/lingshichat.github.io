@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>泠诗的存图站</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.min.js"></script>
+    <link rel="stylesheet" href="gallery.css">
+</head>
+<body>
+    <script src="../js/bg-loader-bitiful.js"></script>
+
+    <div id="app" v-cloak class="app-container">
+        <!-- 登录界面 -->
+        <div v-if="!isUnlocked" class="login-container">
+            <div class="login-card">
+                <div class="login-icon-wrapper">
+                    <i class="fa-solid fa-images login-icon"></i>
+                    <div class="icon-glow"></div>
+                </div>
+                <h2 class="login-title">泠诗的存图站</h2>
+                <p class="login-subtitle">收藏每一帧美好</p>
+                <div class="login-input-area">
+                    <input type="password" v-model="password" @keyup.enter="unlock" placeholder="输入访问密钥..." autofocus>
+                    <button class="login-btn" @click="unlock" :disabled="loading">
+                        <i class="fa-solid" :class="loading ? 'fa-circle-notch fa-spin' : 'fa-arrow-right'"></i>
+                    </button>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="remember" v-model="rememberMe">
+                    <label for="remember">记住密码</label>
+                </div>
+                <transition name="fade">
+                    <div v-if="errorMsg" class="error-toast">
+                        <i class="fa-regular fa-face-frown-open"></i> {{ errorMsg }}
+                    </div>
+                </transition>
+            </div>
+        </div>
+
+        <!-- 主界面 -->
+        <template v-else>
+            <!-- 顶部导航 -->
+            <nav class="glass-nav">
+                <div class="nav-left">
+                    <span class="logo-text"><i class="fa-solid fa-images"></i> 泠诗的存图站</span>
+                </div>
+                <div class="nav-right">
+                    <span class="image-count"><i class="fa-regular fa-image"></i> {{ images.length }} 张</span>
+                    <button class="nav-btn" @click="loadImages" :disabled="loading" title="刷新">
+                        <i class="fa-solid fa-rotate-right" :class="{'fa-spin': loading}"></i>
+                    </button>
+                    <button class="nav-btn" :class="{ 'active': isAdminMode }" @click="toggleAdminMode" :title="isAdminMode ? '退出管理' : '管理模式'">
+                        <i class="fa-solid" :class="isAdminMode ? 'fa-lock-open' : 'fa-gear'"></i>
+                    </button>
+                    <button class="nav-btn logout-btn" @click="logout" title="锁定">
+                        <i class="fa-solid fa-lock"></i>
+                    </button>
+                </div>
+            </nav>
+
+            <!-- 分类菜单栏 -->
+            <div class="category-bar">
+                <button v-for="cat in categories" :key="cat.key" class="category-btn" :class="{ 'active': currentCategory === cat.key }" @click="selectCategory(cat.key)">
+                    <i :class="cat.icon"></i>
+                    <span>{{ cat.name }}</span>
+                    <span class="category-count" v-if="categoryCounts[cat.key]">{{ categoryCounts[cat.key] }}</span>
+                </button>
+            </div>
+
+            <!-- 主内容区 -->
+            <main class="gallery-main">
+                <div class="drop-zone" :class="{ 'active': isDragging }"
+                     @dragenter.prevent="isDragging = true" @dragover.prevent="isDragging = true"
+                     @dragleave.prevent="isDragging = false" @drop.prevent="handleDrop">
+                    <div class="drop-hint" v-if="isDragging">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <p>释放以上传</p>
+                    </div>
+                </div>
+
+                <!-- 图片网格 -->
+                <div class="masonry-grid" v-if="images.length > 0">
+                    <div class="masonry-item" v-for="image in images" :key="image.key" :class="{ 'admin-mode': isAdminMode }">
+                        <a :href="image.url" data-fancybox="gallery" :data-caption="image.title || image.name">
+                            <img :src="image.thumbnailUrl" :alt="image.title || image.name" loading="lazy">
+                        </a>
+                        <div class="image-overlay">
+                            <span class="image-title" v-if="image.title">{{ image.title }}</span>
+                            <span class="image-name" v-else>{{ image.name }}</span>
+                            <div class="image-tags" v-if="image.tags && image.tags.length">
+                                <span class="tag" v-for="tag in image.tags.slice(0, 3)" :key="tag">{{ tag }}</span>
+                                <span class="tag more" v-if="image.tags.length > 3">+{{ image.tags.length - 3 }}</span>
+                            </div>
+                            <div class="image-actions">
+                                <button class="action-btn" @click="copyMarkdown(image)" title="复制 Markdown"><i class="fa-solid fa-code"></i></button>
+                                <button class="action-btn" @click="copyUrl(image)" title="复制链接"><i class="fa-regular fa-copy"></i></button>
+                                <template v-if="isAdminMode">
+                                    <button class="action-btn edit-btn" @click="openEditModal(image)" title="编辑"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="action-btn delete-btn" @click="confirmDelete(image)" title="删除"><i class="fa-solid fa-trash"></i></button>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="empty-state" v-else-if="!loading">
+                    <i class="fa-regular fa-images"></i>
+                    <h3>暂无图片</h3>
+                    <p>{{ currentCategory === 'all' ? '拖拽图片到此处或点击右下角按钮上传' : '该分类下暂无图片' }}</p>
+                </div>
+
+                <div class="loading-state" v-if="loading && images.length === 0">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i>
+                    <p>正在加载图片...</p>
+                </div>
+            </main>
+
+            <!-- FAB 上传按钮 -->
+            <button class="fab-upload" @click="showUploadModal = true" title="上传图片"><i class="fa-solid fa-plus"></i></button>
+            <input type="file" ref="fileInput" @change="handleFileSelect" accept="image/*" multiple hidden>
+
+            <!-- 上传弹窗 -->
+            <transition name="fade">
+                <div class="modal-overlay" v-if="showUploadModal" @click.self="showUploadModal = false">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fa-solid fa-cloud-arrow-up"></i> 上传图片</h3>
+                            <button class="close-btn" @click="showUploadModal = false"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="file-drop-area" :class="{ 'has-file': uploadFiles.length > 0 }" @click="$refs.fileInput.click()" @dragover.prevent @drop.prevent="handleModalDrop">
+                                <template v-if="uploadFiles.length === 0">
+                                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                                    <p>点击或拖拽图片到此处</p>
+                                    <span class="file-hint">支持 JPG、PNG、GIF、WEBP</span>
+                                </template>
+                                <template v-else>
+                                    <div class="file-preview-list">
+                                        <div class="file-preview-item" v-for="(file, idx) in uploadFiles" :key="idx">
+                                            <img :src="file.preview" v-if="file.preview">
+                                            <span class="file-name">{{ file.name }}</span>
+                                            <button class="remove-file" @click.stop="removeFile(idx)"><i class="fa-solid fa-xmark"></i></button>
+                                        </div>
+                                    </div>
+                                    <p class="add-more" @click.stop="$refs.fileInput.click()"><i class="fa-solid fa-plus"></i> 添加更多</p>
+                                </template>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-heading"></i> 图片标题（可选）</label>
+                                <input type="text" v-model="uploadTitle" placeholder="给图片起个名字..." class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-tags"></i> 标签（可选）</label>
+                                <div class="tags-input-area">
+                                    <div class="tags-list">
+                                        <span class="tag-item" v-for="(tag, idx) in uploadTags" :key="idx">{{ tag }}<button @click="removeTag(idx)"><i class="fa-solid fa-xmark"></i></button></span>
+                                    </div>
+                                    <input type="text" v-model="newTag" @keyup.enter="addTag" placeholder="输入标签后按回车..." class="form-input tag-input">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-folder"></i> 选择分类</label>
+                                <div class="category-select">
+                                    <button v-for="cat in uploadCategories" :key="cat.key" class="category-option" :class="{ 'selected': uploadCategory === cat.key }" @click="uploadCategory = cat.key">
+                                        <i :class="cat.icon"></i> {{ cat.name }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" @click="showUploadModal = false">取消</button>
+                            <button class="btn-primary" @click="startUpload" :disabled="uploadFiles.length === 0 || uploading">
+                                <i class="fa-solid" :class="uploading ? 'fa-circle-notch fa-spin' : 'fa-upload'"></i> {{ uploading ? '上传中...' : '开始上传' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- 编辑弹窗 -->
+            <transition name="fade">
+                <div class="modal-overlay" v-if="showEditModal" @click.self="showEditModal = false">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h3><i class="fa-solid fa-pen"></i> 编辑图片</h3>
+                            <button class="close-btn" @click="showEditModal = false"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="edit-preview" v-if="editingImage"><img :src="editingImage.thumbnailUrl"></div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-heading"></i> 图片标题</label>
+                                <input type="text" v-model="editTitle" placeholder="给图片起个名字..." class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-tags"></i> 标签</label>
+                                <div class="tags-input-area">
+                                    <div class="tags-list">
+                                        <span class="tag-item" v-for="(tag, idx) in editTags" :key="idx">{{ tag }}<button @click="removeEditTag(idx)"><i class="fa-solid fa-xmark"></i></button></span>
+                                    </div>
+                                    <input type="text" v-model="newEditTag" @keyup.enter="addEditTag" placeholder="输入标签后按回车..." class="form-input tag-input">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label><i class="fa-solid fa-folder"></i> 移动到分类</label>
+                                <div class="category-select">
+                                    <button v-for="cat in uploadCategories" :key="cat.key" class="category-option" :class="{ 'selected': editCategory === cat.key }" @click="editCategory = cat.key">
+                                        <i :class="cat.icon"></i> {{ cat.name }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" @click="showEditModal = false">取消</button>
+                            <button class="btn-primary" @click="saveEdit" :disabled="savingEdit">
+                                <i class="fa-solid" :class="savingEdit ? 'fa-circle-notch fa-spin' : 'fa-save'"></i> {{ savingEdit ? '保存中...' : '保存更改' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- 管理员登录弹窗 -->
+            <transition name="fade">
+                <div class="modal-overlay" v-if="showAdminLogin" @click.self="showAdminLogin = false">
+                    <div class="modal-content" style="max-width: 400px;">
+                        <div class="modal-header">
+                            <h3><i class="fa-solid fa-shield-halved"></i> 管理员验证</h3>
+                            <button class="close-btn" @click="showAdminLogin = false"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <p class="admin-hint">请输入管理员密码以进入管理模式</p>
+                            <div class="form-group">
+                                <input type="password" v-model="adminPassword" @keyup.enter="loginAdmin" placeholder="管理员密码..." class="form-input" autofocus>
+                            </div>
+                            <transition name="fade"><p class="error-text" v-if="adminError">{{ adminError }}</p></transition>
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn-secondary" @click="showAdminLogin = false">取消</button>
+                            <button class="btn-primary" @click="loginAdmin" :disabled="!adminPassword"><i class="fa-solid fa-unlock"></i> 验证</button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- 上传进度 -->
+            <transition name="fade">
+                <div class="upload-overlay" v-if="uploading">
+                    <div class="upload-modal">
+                        <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
+                        <h3>正在上传</h3>
+                        <p class="upload-filename">{{ uploadFileName }}</p>
+                        <div class="progress-bar"><div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div></div>
+                        <span class="progress-text">{{ uploadProgress }}%</span>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- Toast -->
+            <transition name="slide-down">
+                <div class="toast" v-if="toast.show" :class="toast.type">
+                    <i class="fa-solid" :class="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i> {{ toast.message }}
+                </div>
+            </transition>
+        </template>
+    </div>
+    <script src="gallery.js"></script>
+</body>
+</html>
