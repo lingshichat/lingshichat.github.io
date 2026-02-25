@@ -91,11 +91,11 @@ const GalleryService = {
         return data.data;
     },
 
-    async register(email, password) {
+    async register(email, password, inviteCode = '') {
         const response = await fetch(`${CONFIG.WORKER_URL}?action=register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password, inviteCode })
         });
         const data = await response.json();
         if (data.code !== 200) {
@@ -103,6 +103,58 @@ const GalleryService = {
             err.code = data.code;
             throw err;
         }
+        return data;
+    },
+
+    // 管理员 API
+    async adminListUsers(token) {
+        const res = await fetch(`${CONFIG.WORKER_URL}?action=adminListUsers`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.message || '获取用户列表失败');
+        return data.data || [];
+    },
+
+    async adminUpdateUser(token, userId, updates) {
+        const res = await fetch(`${CONFIG.WORKER_URL}?action=adminUpdateUser`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ userId, ...updates })
+        });
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.message || '更新用户失败');
+        return data;
+    },
+
+    async adminListInvites(token) {
+        const res = await fetch(`${CONFIG.WORKER_URL}?action=adminListInvites`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.message || '获取邀请码列表失败');
+        return data.data || [];
+    },
+
+    async adminCreateInvite(token, maxUses = 1) {
+        const res = await fetch(`${CONFIG.WORKER_URL}?action=adminCreateInvite`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ maxUses })
+        });
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.message || '创建邀请码失败');
+        return data.data;
+    },
+
+    async adminUpdateInvite(token, code, updates) {
+        const res = await fetch(`${CONFIG.WORKER_URL}?action=adminUpdateInvite`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ code, ...updates })
+        });
+        const data = await res.json();
+        if (data.code !== 200) throw new Error(data.message || '更新邀请码失败');
         return data;
     },
 
@@ -251,6 +303,17 @@ new Vue({
         newEditTag: '',
         editCategory: '',
         savingEdit: false,
+
+        // 注册邀请码
+        inviteCode: '',
+
+        // 管理员控制中心
+        showAdminPanel: false,
+        adminPanelTab: 'users',
+        adminUsers: [],
+        adminInvites: [],
+        adminLoading: false,
+        newInviteMaxUses: 1,
 
         toast: {
             show: false,
@@ -434,7 +497,8 @@ new Vue({
             this.authError = '';
             try {
                 if (this.authMode === 'register') {
-                    await GalleryService.register(this.authEmail, this.authPassword);
+                    await GalleryService.register(this.authEmail, this.authPassword, this.inviteCode);
+                    this.inviteCode = '';
                 }
                 const session = await GalleryService.login(this.authEmail, this.authPassword);
                 this.setSession(session);
@@ -458,6 +522,7 @@ new Vue({
                 }
             }
             this.clearSession();
+            this.showAdminPanel = false;
             await this.loadImages();
             this.showToast('已退出登录', 'success');
         },
@@ -1154,6 +1219,95 @@ new Vue({
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
             }
+        },
+
+        // ============================================
+        // 管理员控制中心
+        // ============================================
+
+        async openAdminPanel() {
+            if (!this.ensureSession("admin")) {
+                this.showToast("仅管理员可访问控制中心", "error");
+                return;
+            }
+            this.showAdminPanel = true;
+            this.adminPanelTab = "users";
+            await this.loadAdminData();
+        },
+
+        async loadAdminData() {
+            this.adminLoading = true;
+            try {
+                const token = this.getReadableSessionToken();
+                const [users, invites] = await Promise.all([
+                    GalleryService.adminListUsers(token),
+                    GalleryService.adminListInvites(token)
+                ]);
+                this.adminUsers = users;
+                this.adminInvites = invites;
+            } catch (error) {
+                console.error("加载管理数据失败:", error);
+                this.showToast("加载管理数据失败: " + error.message, "error");
+            } finally {
+                this.adminLoading = false;
+            }
+        },
+
+        async adminToggleRole(user) {
+            const newRole = user.role === "admin" ? "user" : "admin";
+            const label = newRole === "admin" ? "管理员" : "普通用户";
+            if (!confirm(`确定将 ${user.email} 的角色改为「${label}」吗？`)) return;
+            try {
+                const token = this.getReadableSessionToken();
+                await GalleryService.adminUpdateUser(token, user.id, { role: newRole });
+                this.showToast(`已将 ${user.email} 设为${label}`, "success");
+                await this.loadAdminData();
+            } catch (error) {
+                this.showToast("操作失败: " + error.message, "error");
+            }
+        },
+
+        async adminToggleStatus(user) {
+            const newStatus = user.status === "active" ? "disabled" : "active";
+            const label = newStatus === "active" ? "启用" : "禁用";
+            if (!confirm(`确定${label}用户 ${user.email} 吗？`)) return;
+            try {
+                const token = this.getReadableSessionToken();
+                await GalleryService.adminUpdateUser(token, user.id, { status: newStatus });
+                this.showToast(`已${label}用户 ${user.email}`, "success");
+                await this.loadAdminData();
+            } catch (error) {
+                this.showToast("操作失败: " + error.message, "error");
+            }
+        },
+
+        async adminCreateInvite() {
+            try {
+                const token = this.getReadableSessionToken();
+                const result = await GalleryService.adminCreateInvite(token, this.newInviteMaxUses);
+                this.showToast(`邀请码 ${result.code} 已生成`, "success");
+                await this.loadAdminData();
+            } catch (error) {
+                this.showToast("生成邀请码失败: " + error.message, "error");
+            }
+        },
+
+        async adminToggleInvite(invite) {
+            const newStatus = invite.status === "active" ? "disabled" : "active";
+            const label = newStatus === "active" ? "启用" : "禁用";
+            try {
+                const token = this.getReadableSessionToken();
+                await GalleryService.adminUpdateInvite(token, invite.code, { status: newStatus });
+                this.showToast(`邀请码 ${invite.code} 已${label}`, "success");
+                await this.loadAdminData();
+            } catch (error) {
+                this.showToast("操作失败: " + error.message, "error");
+            }
+        },
+
+        async copyInviteCode(code) {
+            await this.copyToClipboard(code);
+            this.showToast("邀请码已复制: " + code, "success");
         },
 
         // ============================================

@@ -35,7 +35,7 @@
                     <button class="nav-btn" v-if="!sessionToken" @click="openAuthModal('register')" title="注册">
                         <i class="fa-solid fa-user-plus"></i>
                     </button>
-                    <button class="nav-btn" v-if="sessionRole === 'admin'" title="管理员账号">
+                    <button class="nav-btn" v-if="sessionRole === 'admin'" @click="openAdminPanel" title="管理员控制中心">
                         <i class="fa-solid fa-shield-halved"></i>
                     </button>
                     <button class="nav-btn logout-btn" v-if="sessionToken" @click="logout" title="退出登录">
@@ -262,6 +262,11 @@
                                 <input type="password" v-model="authPassword" @keyup.enter="submitAuth"
                                     placeholder="请输入密码" class="form-input">
                             </div>
+                            <div class="form-group" v-if="authMode === 'register'">
+                                <label><i class="fa-solid fa-ticket"></i> 邀请码</label>
+                                <input type="text" v-model="inviteCode" @keyup.enter="submitAuth" placeholder="请输入邀请码"
+                                    class="form-input" style="text-transform: uppercase;">
+                            </div>
                             <transition name="fade">
                                 <p class="error-text" v-if="authError">{{ authError }}</p>
                             </transition>
@@ -276,11 +281,121 @@
                         <div class="modal-footer">
                             <button class="btn-secondary" @click="showAuthModal = false">取消</button>
                             <button class="btn-primary" @click="submitAuth"
-                                :disabled="authSubmitting || !authEmail || !authPassword">
+                                :disabled="authSubmitting || !authEmail || !authPassword || (authMode === 'register' && !inviteCode)">
                                 <i class="fa-solid"
                                     :class="authSubmitting ? 'fa-circle-notch fa-spin' : (authMode === 'register' ? 'fa-user-plus' : 'fa-right-to-bracket')"></i>
                                 {{ authSubmitting ? '提交中...' : (authMode === 'register' ? '注册并登录' : '登录') }}
                             </button>
+                        </div>
+                    </div>
+                </div>
+            </transition>
+
+            <!-- 管理员控制中心 -->
+            <transition name="fade">
+                <div class="modal-overlay" v-if="showAdminPanel" @click.self="showAdminPanel = false">
+                    <div class="modal-content admin-panel">
+                        <div class="modal-header">
+                            <h3><i class="fa-solid fa-shield-halved"></i> 管理员控制中心</h3>
+                            <button class="close-btn" @click="showAdminPanel = false"><i
+                                    class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <!-- Tab 切换 -->
+                        <div class="admin-tabs">
+                            <button :class="{ active: adminPanelTab === 'users' }" @click="adminPanelTab = 'users'">
+                                <i class="fa-solid fa-users"></i> 用户管理
+                            </button>
+                            <button :class="{ active: adminPanelTab === 'invites' }" @click="adminPanelTab = 'invites'">
+                                <i class="fa-solid fa-ticket"></i> 邀请码
+                            </button>
+                        </div>
+                        <div class="modal-body admin-panel-body">
+                            <!-- 加载中 -->
+                            <div v-if="adminLoading" style="text-align:center; padding:24px;">
+                                <i class="fa-solid fa-circle-notch fa-spin" style="font-size:1.5rem;"></i>
+                            </div>
+                            <!-- 用户管理 -->
+                            <template v-if="!adminLoading && adminPanelTab === 'users'">
+                                <div class="admin-table-wrap">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>邮箱</th>
+                                                <th>角色</th>
+                                                <th>状态</th>
+                                                <th>注册时间</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="u in adminUsers" :key="u.id">
+                                                <td>{{ u.email }}</td>
+                                                <td><span class="role-badge" :class="u.role">{{ u.role === 'admin' ?
+                                                        '管理员' : '用户' }}</span></td>
+                                                <td><span class="status-dot" :class="u.status"></span>{{ u.status ===
+                                                    'active' ? '活跃' : '禁用' }}</td>
+                                                <td>{{ u.createdAt ? u.createdAt.slice(0,10) : '-' }}</td>
+                                                <td class="action-cell">
+                                                    <button class="mini-btn" @click="adminToggleRole(u)" title="切换角色"><i
+                                                            class="fa-solid fa-repeat"></i></button>
+                                                    <button class="mini-btn danger" @click="adminToggleStatus(u)"
+                                                        :title="u.status === 'active' ? '禁用' : '启用'"><i class="fa-solid"
+                                                            :class="u.status === 'active' ? 'fa-ban' : 'fa-check'"></i></button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                            <!-- 邀请码管理 -->
+                            <template v-if="!adminLoading && adminPanelTab === 'invites'">
+                                <div class="invite-toolbar">
+                                    <div class="invite-create">
+                                        <label>使用次数</label>
+                                        <input type="number" v-model.number="newInviteMaxUses" min="1" max="100"
+                                            class="form-input" style="width:80px;">
+                                        <button class="btn-primary" @click="adminCreateInvite"><i
+                                                class="fa-solid fa-plus"></i> 生成邀请码</button>
+                                    </div>
+                                </div>
+                                <div class="admin-table-wrap">
+                                    <table class="admin-table">
+                                        <thead>
+                                            <tr>
+                                                <th>邀请码</th>
+                                                <th>创建者</th>
+                                                <th>使用</th>
+                                                <th>状态</th>
+                                                <th>操作</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="inv in adminInvites" :key="inv.code">
+                                                <td><code class="invite-code">{{ inv.code }}</code></td>
+                                                <td>{{ inv.creatorEmail || inv.creatorId }}</td>
+                                                <td>{{ inv.usedCount }}/{{ inv.maxUses === -1 ? '∞' : inv.maxUses }}
+                                                </td>
+                                                <td><span class="status-dot" :class="inv.status"></span>{{ inv.status
+                                                    === 'active' ? '有效' : '已禁用' }}</td>
+                                                <td class="action-cell">
+                                                    <button class="mini-btn" @click="copyInviteCode(inv.code)"
+                                                        title="复制"><i class="fa-solid fa-copy"></i></button>
+                                                    <button class="mini-btn"
+                                                        :class="inv.status === 'active' ? 'danger' : 'success'"
+                                                        @click="adminToggleInvite(inv)"
+                                                        :title="inv.status === 'active' ? '禁用' : '启用'"><i
+                                                            class="fa-solid"
+                                                            :class="inv.status === 'active' ? 'fa-ban' : 'fa-check'"></i></button>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="adminInvites.length === 0">
+                                                <td colspan="5" style="text-align:center; color: var(--text-muted);">
+                                                    暂无邀请码</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
                         </div>
                     </div>
                 </div>
