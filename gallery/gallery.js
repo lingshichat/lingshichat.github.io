@@ -7,7 +7,7 @@
 // 配置区
 // ============================================
 const CONFIG = {
-    WORKER_URL: 'https://gallery-presign.lingshichat.workers.dev',
+    WORKER_URL: 'https://api-gallery.lingshichat.top',
     S3_PUBLIC_URL: 'https://lingshichat.s3.bitiful.net',
     S3_BUCKET: 'lingshichat',
     S3_REGION: 'cn-east-1',
