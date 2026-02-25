@@ -415,6 +415,17 @@ body {
     transform: scale(1.02);
 }
 
+.masonry-item img.lazy-image {
+    filter: blur(14px);
+    transform: scale(1.03);
+    transition: filter 0.35s ease, transform 0.35s ease;
+}
+
+.masonry-item img.lazy-image.is-loaded {
+    filter: blur(0);
+    transform: scale(1);
+}
+
 .image-overlay {
     position: absolute;
     bottom: 0;
