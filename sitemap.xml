@@ -2,15 +2,6 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://lingshichat.top/tags/index.html</loc>
-    
-    <lastmod>2026-02-25</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://lingshichat.top/templates/%E5%8D%9A%E5%AE%A2%E6%96%87%E7%AB%A0.html</loc>
     
     <lastmod>2026-02-25</lastmod>
@@ -21,6 +12,15 @@
   
   <url>
     <loc>https://lingshichat.top/templates/%E9%9F%B3%E4%B9%90-%E5%8D%95%E6%9B%B2.html</loc>
+    
+    <lastmod>2026-02-25</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://lingshichat.top/tags/index.html</loc>
     
     <lastmod>2026-02-25</lastmod>
     
@@ -195,13 +195,6 @@
 
   
   <url>
-    <loc>https://lingshichat.top/categories/%E6%B5%8B%E8%AF%95/</loc>
-    <lastmod>2026-02-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
     <loc>https://lingshichat.top/categories/%E9%9A%8F%E6%83%B3/</loc>
     <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
@@ -209,7 +202,21 @@
   </url>
   
   <url>
+    <loc>https://lingshichat.top/categories/%E6%B5%8B%E8%AF%95/</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
     <loc>https://lingshichat.top/categories/%E5%8D%9A%E5%AE%A2%E6%9B%B4%E6%96%B0/</loc>
+    <lastmod>2026-02-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lingshichat.top/categories/%E5%8D%9A%E5%AE%A2%E6%9B%B4%E6%96%B0/%E6%8A%80%E6%9C%AF/</loc>
     <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -224,13 +231,6 @@
   
   <url>
     <loc>https://lingshichat.top/categories/%E9%9A%8F%E8%AE%B0/</loc>
-    <lastmod>2026-02-25</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lingshichat.top/categories/%E5%8D%9A%E5%AE%A2%E6%9B%B4%E6%96%B0/%E6%8A%80%E6%9C%AF/</loc>
     <lastmod>2026-02-25</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
