@@ -4,13 +4,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>泠诗的存图站</title>
+    <title>Lingshi's Gallery</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="gallery.css">
+    <script>
+        // 在 DOM ready 后立即定位分类栏，避免 Vue 加载延迟导致跳动
+        document.addEventListener('DOMContentLoaded', function() {
+            function positionCategoryBar() {
+                var nav = document.querySelector('.glass-nav');
+                var bar = document.querySelector('.category-bar');
+                if (nav && bar) {
+                    var navH = nav.offsetHeight;
+                    var barH = bar.offsetHeight;
+                    bar.style.top = (navH - barH / 2) + 'px';
+                }
+            }
+            positionCategoryBar();
+            window.addEventListener('resize', positionCategoryBar);
+        });
+    </script>
 </head>
 
 <body>
@@ -22,7 +41,7 @@
             <!-- 顶部导航 -->
             <nav class="glass-nav">
                 <div class="nav-left">
-                    <span class="logo-text"><i class="fa-solid fa-images"></i> 泠诗的存图站</span>
+                    <span class="logo-text gallery-logo"><i class="fa-solid fa-images"></i> Lingshi's Gallery</span>
                 </div>
                 <div class="nav-right">
                     <span class="image-count"><i class="fa-regular fa-image"></i> {{ images.length }} 张</span>
@@ -45,12 +64,12 @@
             </nav>
 
             <!-- 分类菜单栏 -->
-            <div class="category-bar">
+            <div class="category-bar" :class="{ 'is-hidden': isCategoryHidden }" ref="categoryBar">
                 <button v-for="cat in categories" v-if="cat.key !== 'mine' || sessionToken" :key="cat.key"
                     class="category-btn" :class="{ 'active': currentCategory === cat.key }"
                     @click="selectCategory(cat.key)">
                     <i :class="cat.icon"></i>
-                    <span>{{ cat.name }}</span>
+                    <span class="category-name">{{ cat.name }}</span>
                     <span class="category-count" v-if="categoryCounts[cat.key]">{{ categoryCounts[cat.key] }}</span>
                 </button>
             </div>
@@ -68,7 +87,8 @@
 
                 <!-- 图片网格 -->
                 <div class="masonry-grid" v-if="images.length > 0">
-                    <div class="masonry-item" v-for="image in images" :key="image.key">
+                    <div class="masonry-item" v-for="image in images" :key="image.key"
+                        @touchstart="onTouchStart($event, image)" @touchend="onTouchEnd(image)" @touchcancel="onTouchEnd(image)">
                         <a :href="image.url" data-fancybox="gallery" :data-caption="image.title || image.name">
                             <img :src="lazyPlaceholder" :data-src="image.thumbnailUrl" :alt="image.title || image.name"
                                 class="lazy-image" @load="onLazyImageLoad">
@@ -416,13 +436,8 @@
                 </div>
             </transition>
 
-            <!-- Toast -->
             <transition name="slide-down">
-                <div class="toast" v-if="toast.show" :class="toast.type">
-                    <i class="fa-solid"
-                        :class="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i> {{
-                    toast.message }}
-                </div>
+                <div class="toast" v-if="toast.show" :class="toast.type"><i class="fa-solid" :class="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i> {{ toast.message }}</div>
             </transition>
         </template>
     </div>

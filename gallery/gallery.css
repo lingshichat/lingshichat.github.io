@@ -290,7 +290,15 @@ body {
     color: var(--text-primary);
 }
 
-.logo-text i {
+.gallery-logo {
+    font-family: 'Dancing Script', cursive;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #fff;
+}
+
+.gallery-logo i {
     color: var(--primary-color);
     margin-right: 8px;
 }
@@ -673,22 +681,26 @@ body {
    ========================================= */
 .toast {
     position: fixed;
-    top: 24px;
+    top: 110px;
     left: 50%;
     transform: translateX(-50%);
-    padding: 14px 28px;
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
     background: var(--glass-bg);
     backdrop-filter: blur(20px);
     border: var(--glass-border);
-    border-radius: 12px;
+    border-radius: 50px;
     color: var(--text-primary);
-    font-size: 0.95rem;
+    font-size: 0.875rem;
     z-index: 3000;
     box-shadow: var(--glass-shadow);
 }
 
 .toast i {
-    margin-right: 10px;
+    flex-shrink: 0;
 }
 
 .toast.success {
@@ -722,13 +734,13 @@ body {
 
 .slide-down-enter-active,
 .slide-down-leave-active {
-    transition: all 0.3s var(--ease-out-expo);
+    transition: opacity 0.3s var(--ease-out-expo), margin-top 0.3s var(--ease-out-expo);
 }
 
 .slide-down-enter,
 .slide-down-leave-to {
     opacity: 0;
-    transform: translateX(-50%) translateY(-20px);
+    margin-top: -16px;
 }
 
 /* =========================================
@@ -739,57 +751,78 @@ body {
 }
 
 /* =========================================
-   分类菜单栏
+   分类菜单栏 - 悬浮胶囊
    ========================================= */
 .category-bar {
+    position: fixed;
+    top: 48px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 16px 24px;
-    background: rgba(10, 20, 40, 0.5);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    flex-wrap: wrap;
+    gap: clamp(3px, 0.5vw, 6px);
+    padding: clamp(4px, 0.6vw, 8px) clamp(6px, 1vw, 12px);
+    background: rgba(10, 20, 40, 0.75);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: calc(100vw - 32px);
+    scrollbar-width: none;
+}
+
+.category-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.category-bar.is-hidden {
+    transform: translateX(-50%) translateY(-200%);
+    opacity: 0;
+    pointer-events: none;
 }
 
 .category-btn {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    gap: clamp(3px, 0.4vw, 6px);
+    padding: clamp(5px, 0.6vw, 8px) clamp(8px, 1.2vw, 16px);
+    background: transparent;
+    border: none;
+    border-radius: 25px;
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: clamp(0.7rem, 1.1vw, 0.85rem);
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.25s ease;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .category-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: var(--text-primary);
-    transform: translateY(-2px);
 }
 
 .category-btn.active {
     background: var(--primary-gradient);
-    border-color: var(--primary-color);
     color: #fff;
-    box-shadow: 0 4px 20px var(--primary-glow);
+    box-shadow: 0 2px 12px var(--primary-glow);
 }
 
 .category-btn i {
-    font-size: 1rem;
+    font-size: clamp(0.7rem, 1vw, 0.9rem);
 }
 
 .category-count {
     background: rgba(255, 255, 255, 0.15);
-    padding: 2px 8px;
+    padding: clamp(1px, 0.2vw, 2px) clamp(4px, 0.6vw, 8px);
     border-radius: 10px;
-    font-size: 0.75rem;
+    font-size: clamp(0.55rem, 0.8vw, 0.7rem);
     font-weight: 600;
 }
 
@@ -799,13 +832,16 @@ body {
 
 @media (max-width: 600px) {
     .category-bar {
-        padding: 12px 16px;
-        gap: 6px;
+        left: 12px;
+        right: 12px;
+        transform: none;
+        max-width: none;
+        justify-content: flex-start;
+        top: 60px;
     }
 
-    .category-btn {
-        padding: 8px 14px;
-        font-size: 0.85rem;
+    .category-bar.is-hidden {
+        transform: translateY(-200%);
     }
 }
 
@@ -1527,7 +1563,11 @@ body {
         letter-spacing: 1px;
     }
 
-    .logo-text i {
+    .gallery-logo {
+        font-size: 1.25rem;
+    }
+
+    .gallery-logo i {
         margin-right: 4px;
     }
 
@@ -1545,40 +1585,15 @@ body {
         display: none;
     }
 
-    /* 分类栏优化 */
-    .category-bar {
-        padding: 10px 12px;
-        gap: 6px;
-        justify-content: flex-start;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        flex-wrap: nowrap;
-    }
-
-    .category-bar::-webkit-scrollbar {
-        display: none;
-    }
-
-    .category-btn {
-        padding: 8px 14px;
-        font-size: 0.85rem;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-
-    .category-btn i {
-        font-size: 0.9rem;
-    }
-
     /* 主内容区 */
     .gallery-main {
         padding: 12px;
+        padding-bottom: calc(12px + env(safe-area-inset-bottom));
     }
 
     /* 瀑布流单列 */
     .masonry-grid {
-        column-count: 1;
+        column-count: 2;
         column-gap: 12px;
     }
 
@@ -1587,12 +1602,17 @@ body {
         border-radius: 12px;
     }
 
-    /* 图片覆盖层常驻显示 */
+    /* 图片覆盖层 - 默认隐藏，长按显示 */
     .image-overlay {
-        opacity: 1;
-        transform: translateY(0);
+        opacity: 0;
+        transform: translateY(10px);
         padding: 12px;
         background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    }
+
+    .masonry-item.overlay-active .image-overlay {
+        opacity: 1;
+        transform: translateY(0);
     }
 
     .image-title,
@@ -1617,7 +1637,7 @@ body {
 
     /* FAB 按钮优化 */
     .fab-upload {
-        bottom: 20px;
+        bottom: calc(20px + env(safe-area-inset-bottom));
         right: 20px;
         width: 56px;
         height: 56px;
@@ -1717,13 +1737,15 @@ body {
 
     /* Toast 提示 */
     .toast {
-        top: auto;
-        bottom: 20px;
-        left: 16px;
-        right: 16px;
-        transform: none;
-        padding: 12px 16px;
-        font-size: 0.9rem;
+        top: 110px;
+        bottom: auto;
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        font-size: 0.875rem;
+        border-radius: 50px;
+        white-space: nowrap;
     }
 
     /* 空状态 */
@@ -1799,6 +1821,10 @@ body {
         font-size: 1.1rem;
     }
 
+    .gallery-logo {
+        font-size: 1.4rem;
+    }
+
     .category-bar {
         padding: 12px 16px;
         gap: 8px;
@@ -1814,7 +1840,7 @@ body {
     }
 
     .masonry-grid {
-        column-count: 2;
+        column-count: 3;
         column-gap: 14px;
     }
 
@@ -1837,8 +1863,12 @@ body {
 
 /* 触摸设备优化 */
 @media (hover: none) and (pointer: coarse) {
-    /* 触摸设备上按钮常驻显示 */
     .image-overlay {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    .masonry-item.overlay-active .image-overlay {
         opacity: 1;
         transform: translateY(0);
         background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
@@ -1916,13 +1946,13 @@ body {
         padding-right: max(24px, env(safe-area-inset-right));
     }
 
+    .category-bar {
+        top: max(48px, env(safe-area-inset-top) + 28px);
+    }
+
     .fab-upload {
         bottom: max(32px, env(safe-area-inset-bottom) + 16px);
         right: max(32px, env(safe-area-inset-right) + 16px);
-    }
-
-    .toast {
-        bottom: max(20px, env(safe-area-inset-bottom) + 8px);
     }
 
     @media (max-width: 480px) {
@@ -1930,6 +1960,10 @@ body {
             padding-top: max(12px, env(safe-area-inset-top));
             padding-left: max(16px, env(safe-area-inset-left));
             padding-right: max(16px, env(safe-area-inset-right));
+        }
+
+        .category-bar {
+            top: max(64px, env(safe-area-inset-top) + 44px);
         }
 
         .fab-upload {

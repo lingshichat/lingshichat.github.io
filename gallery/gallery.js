@@ -328,7 +328,11 @@ new Vue({
         loadingMore: false,
         paginationByCategory: {},
 
-        isMobileViewport: false
+        isMobileViewport: false,
+        lastScrollY: 0,
+        isCategoryHidden: false,
+        longPressTimer: null,
+        activeOverlayKey: null
     },
 
     async mounted() {
@@ -348,6 +352,7 @@ new Vue({
         document.removeEventListener('paste', this.handlePaste);
         window.removeEventListener('storage', this.handleStorageChange);
         window.removeEventListener('resize', this.handleResize);
+        window.removeEventListener('scroll', this.handleScroll);
         if (this.imageObserver) {
             this.imageObserver.disconnect();
             this.imageObserver = null;
@@ -1225,6 +1230,24 @@ new Vue({
             }
         },
 
+        onTouchStart(e, image) {
+            clearTimeout(this.longPressTimer);
+            this.longPressTimer = setTimeout(() => {
+                this.activeOverlayKey = image.key;
+                const el = e.currentTarget;
+                if (el) el.classList.add('overlay-active');
+            }, 300);
+        },
+
+        onTouchEnd(image) {
+            clearTimeout(this.longPressTimer);
+            setTimeout(() => {
+                const el = document.querySelector(`.masonry-item.overlay-active`);
+                if (el) el.classList.remove('overlay-active');
+                this.activeOverlayKey = null;
+            }, 2000);
+        },
+
         handleResize() {
             this.isMobileViewport = window.innerWidth <= 768;
         },
@@ -1232,6 +1255,25 @@ new Vue({
         initResizeListener() {
             this.handleResize();
             window.addEventListener('resize', this.handleResize);
+            this.initScrollListener();
+        },
+
+        initScrollListener() {
+            window.addEventListener('scroll', this.handleScroll, { passive: true });
+        },
+
+        handleScroll() {
+            const currentScrollY = window.scrollY;
+            const scrollDiff = currentScrollY - this.lastScrollY;
+            const threshold = 10;
+
+            if (scrollDiff > threshold && currentScrollY > 100) {
+                this.isCategoryHidden = true;
+            } else if (scrollDiff < -threshold) {
+                this.isCategoryHidden = false;
+            }
+
+            this.lastScrollY = currentScrollY;
         },
 
         // ============================================
