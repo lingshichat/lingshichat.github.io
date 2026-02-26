@@ -8,7 +8,7 @@
 // ============================================
 const CONFIG = {
     WORKER_URL: 'https://api-gallery.lingshichat.top',
-    S3_PUBLIC_URL: 'https://lingshichat.s3.bitiful.net',
+    S3_PUBLIC_URL: 'https://img.lingshichat.top',
     S3_BUCKET: 'lingshichat',
     S3_REGION: 'cn-east-1',
     IMAGE_BASE_PREFIX: 'img/gallery/',

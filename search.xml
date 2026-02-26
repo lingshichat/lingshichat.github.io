@@ -1,48 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>一月到二月的一些杂记</title>
-    <url>/2026/02/07/%E4%B8%80%E6%9C%88%E5%88%B0%E4%BA%8C%E6%9C%88%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9D%82%E8%AE%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="近况"><a href="#近况" class="headerlink" title="近况"></a>近况</h1><p>目前，泠诗的小窝已经集成了：blog主页、admin页面、editor页面、彩蛋页面<br>这些开发用时也就是一个星期，是在上个月，也就是一月份的月初搞定的<br>后来又去开坑了另一个项目——⌈纸语PaperWhisper⌋</p>
-<h1 id="⌈纸语PaperWhisper⌋"><a href="#⌈纸语PaperWhisper⌋" class="headerlink" title="⌈纸语PaperWhisper⌋"></a>⌈纸语PaperWhisper⌋</h1><p>其实早在很久之前就想开发一款属于自己的软件，于是目标就锁定在我跃跃欲试的日记软件，展示一下界面，采用拟物风格设计<br>目前分为两个主打功能：专注写作与随心记；<br><strong>特性：</strong></p>
-<ul>
-<li>数据本地化管理，将数据保存权利完全交给用户</li>
-<li>支持Android和Windows双端，后续可扩展至ios</li>
-<li>支持webdav和s3存储同步</li>
-<li>多种精美主题</li>
-<li>优雅的过渡动画</li>
-<li>支持密码锁和指纹解锁</li>
-</ul>
-<h2 id="专注写作"><a href="#专注写作" class="headerlink" title="专注写作"></a>专注写作</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/9a556e5915a6c3eb6e3a1133ed03c65b.jpg" alt="专注写作"></p>
-<p>专注写作主打长文沉浸式写作，数据保存为txt格式，用记事本也可打开</p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/923ad59406dceb5012f93aaf82cb3166.jpg" alt="撰写页面"></p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/fe83da2adb3e8e76453cca466dda889c.jpg" alt="月份目录"></p>
-<p>我们觉得，月份不单单是月份，更是一本书籍的目录，所以设计了以月份为单位的目录，以书籍为单位的年份</p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7320728fa8a86116e5e8eadc5a0fcc92.jpg" alt="年度书籍"></p>
-<h2 id="随心记"><a href="#随心记" class="headerlink" title="随心记"></a>随心记</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7ebe697640d9c1aed8869433f280506b.jpg" alt="随心记"></p>
-<p>随心记是我在完成专注写作的基本功能后第一时间冒出来的想法，因为我平日在很多时候，比如散步就突然想记一些碎片化的东西，借鉴一些卡片笔记的方式开发了随心记功能，主打轻量级无压输入，随心所欲的发散自己的想法，并整合了拍立得样式的图片分享，上方的日期刻度借鉴了相机镜头的光圈，让翻阅每一日的随心记都更有一种仪式感</p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/8a84a74ace66069b6ec9113c04ac8bc1.jpg" alt="随心记展示"></p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/4bd6d7a429c67b5b93cb49ca2f202937.jpg" alt="侧边栏"></p>
-<p>接入了一言的api，给你的写作带来一点点灵感💡</p>
-<h4 id="一些主题样式"><a href="#一些主题样式" class="headerlink" title="一些主题样式"></a>一些主题样式</h4><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/55d9df8dad6f04d5351ff87a2501251e.jpg" alt="海底花海"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/f30c0658b232f21543b787fc1925ef7f.jpg" alt="午夜星辰"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/0ef39b297886e2907309fea289f0dace.jpg" alt="琥珀光圈"></p>
-<h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><p>产品目前主要在小红书上进行发帖推广，已经吸引约三十多名用户使用，自然推流没有买推广，自觉不如很多大佬开发的app<br>目前进入了可用阶段，迭代速度稍微放缓，之前都是一天一更，欢迎来体验qaq<br>下载地址👉<a href="https://paperwhisper.lingshichat.top/">点击这里访问</a></p>
-<h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
-<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
-
-    <div id="aplayer-LpwhrgoX" class="aplayer aplayer-tag-marker meting-tag-marker"
-         data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
-    ></div>
-<p>晚安，好梦💤</p>
-]]></content>
-      <categories>
-        <category>随想</category>
-      </categories>
-      <tags>
-        <tag>随想</tag>
-        <tag>月记</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>今日焕新</title>
     <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
@@ -66,7 +24,7 @@
 </blockquote>
 <p>搭配音乐更佳~</p>
 
-    <div id="aplayer-AeTEOZdJ" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-MfOVvmCM" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 <p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
@@ -95,11 +53,53 @@
       </tags>
   </entry>
   <entry>
+    <title>一月到二月的一些杂记</title>
+    <url>/2026/02/07/%E4%B8%80%E6%9C%88%E5%88%B0%E4%BA%8C%E6%9C%88%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9D%82%E8%AE%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="近况"><a href="#近况" class="headerlink" title="近况"></a>近况</h1><p>目前，泠诗的小窝已经集成了：blog主页、admin页面、editor页面、彩蛋页面<br>这些开发用时也就是一个星期，是在上个月，也就是一月份的月初搞定的<br>后来又去开坑了另一个项目——⌈纸语PaperWhisper⌋</p>
+<h1 id="⌈纸语PaperWhisper⌋"><a href="#⌈纸语PaperWhisper⌋" class="headerlink" title="⌈纸语PaperWhisper⌋"></a>⌈纸语PaperWhisper⌋</h1><p>其实早在很久之前就想开发一款属于自己的软件，于是目标就锁定在我跃跃欲试的日记软件，展示一下界面，采用拟物风格设计<br>目前分为两个主打功能：专注写作与随心记；<br><strong>特性：</strong></p>
+<ul>
+<li>数据本地化管理，将数据保存权利完全交给用户</li>
+<li>支持Android和Windows双端，后续可扩展至ios</li>
+<li>支持webdav和s3存储同步</li>
+<li>多种精美主题</li>
+<li>优雅的过渡动画</li>
+<li>支持密码锁和指纹解锁</li>
+</ul>
+<h2 id="专注写作"><a href="#专注写作" class="headerlink" title="专注写作"></a>专注写作</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/9a556e5915a6c3eb6e3a1133ed03c65b.jpg" alt="专注写作"></p>
+<p>专注写作主打长文沉浸式写作，数据保存为txt格式，用记事本也可打开</p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/923ad59406dceb5012f93aaf82cb3166.jpg" alt="撰写页面"></p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/fe83da2adb3e8e76453cca466dda889c.jpg" alt="月份目录"></p>
+<p>我们觉得，月份不单单是月份，更是一本书籍的目录，所以设计了以月份为单位的目录，以书籍为单位的年份</p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7320728fa8a86116e5e8eadc5a0fcc92.jpg" alt="年度书籍"></p>
+<h2 id="随心记"><a href="#随心记" class="headerlink" title="随心记"></a>随心记</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7ebe697640d9c1aed8869433f280506b.jpg" alt="随心记"></p>
+<p>随心记是我在完成专注写作的基本功能后第一时间冒出来的想法，因为我平日在很多时候，比如散步就突然想记一些碎片化的东西，借鉴一些卡片笔记的方式开发了随心记功能，主打轻量级无压输入，随心所欲的发散自己的想法，并整合了拍立得样式的图片分享，上方的日期刻度借鉴了相机镜头的光圈，让翻阅每一日的随心记都更有一种仪式感</p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/8a84a74ace66069b6ec9113c04ac8bc1.jpg" alt="随心记展示"></p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/4bd6d7a429c67b5b93cb49ca2f202937.jpg" alt="侧边栏"></p>
+<p>接入了一言的api，给你的写作带来一点点灵感💡</p>
+<h4 id="一些主题样式"><a href="#一些主题样式" class="headerlink" title="一些主题样式"></a>一些主题样式</h4><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/55d9df8dad6f04d5351ff87a2501251e.jpg" alt="海底花海"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/f30c0658b232f21543b787fc1925ef7f.jpg" alt="午夜星辰"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/0ef39b297886e2907309fea289f0dace.jpg" alt="琥珀光圈"></p>
+<h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><p>产品目前主要在小红书上进行发帖推广，已经吸引约三十多名用户使用，自然推流没有买推广，自觉不如很多大佬开发的app<br>目前进入了可用阶段，迭代速度稍微放缓，之前都是一天一更，欢迎来体验qaq<br>下载地址👉<a href="https://paperwhisper.lingshichat.top/">点击这里访问</a></p>
+<h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
+
+    <div id="aplayer-NNSUNHDy" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+<p>晚安，好梦💤</p>
+]]></content>
+      <categories>
+        <category>随想</category>
+      </categories>
+      <tags>
+        <tag>随想</tag>
+        <tag>月记</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>笛月</title>
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-YSZhXOco" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-edgFvtnR" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
