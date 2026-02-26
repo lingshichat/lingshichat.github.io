@@ -1511,21 +1511,434 @@ body {
     letter-spacing: 1px;
 }
 
-@media (max-width: 600px) {
+/* =========================================
+   移动端适配 (Mobile Responsive)
+   ========================================= */
+
+/* 小屏幕手机 (<= 480px) */
+@media (max-width: 480px) {
+    /* 导航栏优化 */
+    .glass-nav {
+        padding: 12px 16px;
+    }
+
+    .logo-text {
+        font-size: 1rem;
+        letter-spacing: 1px;
+    }
+
+    .logo-text i {
+        margin-right: 4px;
+    }
+
+    .nav-right {
+        gap: 8px;
+    }
+
+    .nav-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+
+    .image-count {
+        display: none;
+    }
+
+    /* 分类栏优化 */
+    .category-bar {
+        padding: 10px 12px;
+        gap: 6px;
+        justify-content: flex-start;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        flex-wrap: nowrap;
+    }
+
+    .category-bar::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-btn {
+        padding: 8px 14px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .category-btn i {
+        font-size: 0.9rem;
+    }
+
+    /* 主内容区 */
+    .gallery-main {
+        padding: 12px;
+    }
+
+    /* 瀑布流单列 */
+    .masonry-grid {
+        column-count: 1;
+        column-gap: 12px;
+    }
+
+    .masonry-item {
+        margin-bottom: 12px;
+        border-radius: 12px;
+    }
+
+    /* 图片覆盖层常驻显示 */
+    .image-overlay {
+        opacity: 1;
+        transform: translateY(0);
+        padding: 12px;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    }
+
+    .image-title,
+    .image-name {
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+    }
+
+    .image-tags {
+        margin-bottom: 8px;
+    }
+
+    .image-tags .tag {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+    }
+
+    .action-btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    /* FAB 按钮优化 */
+    .fab-upload {
+        bottom: 20px;
+        right: 20px;
+        width: 56px;
+        height: 56px;
+        font-size: 1.25rem;
+    }
+
+    /* 弹窗全屏适配 */
+    .modal-content {
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        animation: none;
+    }
+
+    .modal-header {
+        padding: 16px 20px;
+    }
+
+    .modal-header h3 {
+        font-size: 1rem;
+    }
+
+    .modal-body {
+        padding: 16px 20px;
+        max-height: calc(100vh - 140px);
+    }
+
+    .modal-footer {
+        padding: 12px 20px;
+    }
+
+    /* 上传弹窗特殊处理 */
+    .file-drop-area {
+        padding: 30px 16px;
+    }
+
+    .file-drop-area > i {
+        font-size: 2.5rem;
+    }
+
+    .file-preview-item {
+        width: 70px;
+        height: 70px;
+    }
+
+    /* 表单优化 */
+    .form-group {
+        margin-bottom: 16px;
+    }
+
+    .form-group label {
+        font-size: 0.85rem;
+        margin-bottom: 8px;
+    }
+
+    .form-input {
+        padding: 10px 14px;
+        font-size: 16px; /* 防止 iOS 缩放 */
+    }
+
+    /* 分类选择 */
+    .category-select {
+        gap: 8px;
+    }
+
+    .category-option {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+
+    /* 标签输入 */
+    .tag-item {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    /* 按钮优化 */
+    .btn-primary,
+    .btn-secondary {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* 上传进度 */
+    .upload-modal {
+        padding: 30px 20px;
+        max-width: 90%;
+    }
+
+    .upload-icon i {
+        font-size: 3rem;
+    }
+
+    /* Toast 提示 */
+    .toast {
+        top: auto;
+        bottom: 20px;
+        left: 16px;
+        right: 16px;
+        transform: none;
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+
+    /* 空状态 */
+    .empty-state,
+    .loading-state {
+        min-height: 40vh;
+    }
+
+    .empty-state i,
+    .loading-state i {
+        font-size: 3rem;
+    }
+
+    /* 管理员面板 */
     .admin-panel {
         max-width: 100%;
     }
 
+    .admin-tabs button {
+        padding: 12px 16px;
+        font-size: 0.85rem;
+    }
+
+    .admin-panel-body {
+        max-height: calc(100vh - 180px);
+    }
+
     .admin-table {
-        font-size: 0.78rem;
+        font-size: 0.75rem;
     }
 
     .admin-table thead th,
     .admin-table tbody td {
-        padding: 10px 8px;
+        padding: 10px 6px;
+    }
+
+    .mini-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 0.75rem;
     }
 
     .invite-create {
         flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .invite-create label {
+        font-size: 0.8rem;
+    }
+
+    .invite-create .form-input {
+        width: 70px;
+    }
+
+    /* 拖拽提示 */
+    .drop-hint i {
+        font-size: 3.5rem;
+    }
+
+    .drop-hint p {
+        font-size: 1.1rem;
+    }
+}
+
+/* 中等屏幕手机 (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+    .glass-nav {
+        padding: 14px 20px;
+    }
+
+    .logo-text {
+        font-size: 1.1rem;
+    }
+
+    .category-bar {
+        padding: 12px 16px;
+        gap: 8px;
+    }
+
+    .category-btn {
+        padding: 10px 16px;
+        font-size: 0.88rem;
+    }
+
+    .gallery-main {
+        padding: 16px;
+    }
+
+    .masonry-grid {
+        column-count: 2;
+        column-gap: 14px;
+    }
+
+    .masonry-item {
+        margin-bottom: 14px;
+    }
+
+    .modal-content {
+        width: 95%;
+        max-height: 85vh;
+    }
+
+    .fab-upload {
+        bottom: 24px;
+        right: 24px;
+        width: 58px;
+        height: 58px;
+    }
+}
+
+/* 触摸设备优化 */
+@media (hover: none) and (pointer: coarse) {
+    /* 触摸设备上按钮常驻显示 */
+    .image-overlay {
+        opacity: 1;
+        transform: translateY(0);
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    }
+
+    /* 增大触摸目标 */
+    .action-btn {
+        min-height: 36px;
+        min-width: 36px;
+    }
+
+    .nav-btn {
+        min-height: 40px;
+        min-width: 40px;
+    }
+
+    .category-btn {
+        min-height: 40px;
+    }
+
+    /* 移除悬停效果 */
+    .masonry-item:hover {
+        transform: none;
+    }
+
+    .masonry-item:hover img {
+        transform: none;
+    }
+
+    .nav-btn:hover {
+        transform: none;
+    }
+
+    .category-btn:hover {
+        transform: none;
+    }
+
+    .fab-upload:hover {
+        transform: none;
+    }
+
+    .action-btn:hover {
+        transform: none;
+    }
+}
+
+/* 横屏模式优化 */
+@media (max-height: 500px) and (orientation: landscape) {
+    .modal-content {
+        max-height: 95vh;
+    }
+
+    .modal-body {
+        max-height: calc(100vh - 120px);
+    }
+
+    .admin-panel-body {
+        max-height: calc(100vh - 160px);
+    }
+
+    .upload-modal {
+        padding: 20px;
+    }
+
+    .upload-icon i {
+        font-size: 2.5rem;
+    }
+}
+
+/* 安全区域适配 (iPhone X+) */
+@supports (padding: max(0px)) {
+    .glass-nav {
+        padding-top: max(16px, env(safe-area-inset-top));
+        padding-left: max(24px, env(safe-area-inset-left));
+        padding-right: max(24px, env(safe-area-inset-right));
+    }
+
+    .fab-upload {
+        bottom: max(32px, env(safe-area-inset-bottom) + 16px);
+        right: max(32px, env(safe-area-inset-right) + 16px);
+    }
+
+    .toast {
+        bottom: max(20px, env(safe-area-inset-bottom) + 8px);
+    }
+
+    @media (max-width: 480px) {
+        .glass-nav {
+            padding-top: max(12px, env(safe-area-inset-top));
+            padding-left: max(16px, env(safe-area-inset-left));
+            padding-right: max(16px, env(safe-area-inset-right));
+        }
+
+        .fab-upload {
+            bottom: max(20px, env(safe-area-inset-bottom) + 12px);
+            right: max(20px, env(safe-area-inset-right) + 12px);
+        }
+
+        .gallery-main {
+            padding-bottom: max(12px, env(safe-area-inset-bottom));
+        }
     }
 }

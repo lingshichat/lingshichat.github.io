@@ -326,7 +326,9 @@ new Vue({
         imageObserver: null,
         loadMoreObserver: null,
         loadingMore: false,
-        paginationByCategory: {}
+        paginationByCategory: {},
+
+        isMobileViewport: false
     },
 
     async mounted() {
@@ -339,11 +341,13 @@ new Vue({
         document.addEventListener('paste', this.handlePaste);
         window.addEventListener('storage', this.handleStorageChange);
         this.initLazyLoader();
+        this.initResizeListener();
     },
 
     beforeDestroy() {
         document.removeEventListener('paste', this.handlePaste);
         window.removeEventListener('storage', this.handleStorageChange);
+        window.removeEventListener('resize', this.handleResize);
         if (this.imageObserver) {
             this.imageObserver.disconnect();
             this.imageObserver = null;
@@ -372,9 +376,9 @@ new Vue({
     },
 
     methods: {
-        // ============================================
-        // 认证相关
-        // ============================================
+        isMobile() {
+            return window.innerWidth <= 768 || ('ontouchstart' in window);
+        },
 
         restoreSession() {
             if (!this.sessionToken) return;
@@ -1219,6 +1223,15 @@ new Vue({
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
             }
+        },
+
+        handleResize() {
+            this.isMobileViewport = window.innerWidth <= 768;
+        },
+
+        initResizeListener() {
+            this.handleResize();
+            window.addEventListener('resize', this.handleResize);
         },
 
         // ============================================
