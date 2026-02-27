@@ -15,6 +15,10 @@
     --glass-bg-light: rgba(255, 255, 255, 0.08);
     --glass-border: 1px solid rgba(255, 255, 255, 0.18);
     --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --nav-control-bg: rgba(255, 255, 255, 0.08);
+    --nav-control-bg-hover: rgba(255, 255, 255, 0.13);
+    --nav-control-border: rgba(255, 255, 255, 0.12);
+    --nav-control-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 
     /* 文字 */
     --text-primary: #ffffff;
@@ -291,32 +295,146 @@ body {
 }
 
 .gallery-logo {
-    font-family: 'Dancing Script', cursive;
-    font-size: 1.5rem;
-    font-weight: 600;
-    letter-spacing: 1px;
-    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    user-select: none;
 }
 
-.gallery-logo i {
-    color: var(--primary-color);
-    margin-right: 8px;
+.gallery-logo-icon {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(59, 112, 252, 0.4) 0%, rgba(59, 112, 252, 0.1) 100%);
+    border: 1px solid rgba(106, 156, 255, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-size: 0.9rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-logo-icon::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    animation: logoShine 3s infinite;
+}
+
+@keyframes logoShine {
+    0% { left: -100%; }
+    20% { left: 100%; }
+    100% { left: 100%; }
+}
+
+.gallery-logo-main {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+}
+
+.gallery-logo-sub {
+    color: rgba(255, 255, 255, 0.45);
+    font-weight: 400;
+    font-size: 1.15rem;
+    letter-spacing: -0.02em;
+    margin-left: -4px;
+}
+
+.gallery-logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 22px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.08);
+    color: rgba(226, 232, 240, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    margin-left: 4px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+}
+
+.gallery-logo-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 8px currentColor;
+    opacity: 0.78;
+}
+
+.gallery-logo-badge.is-user {
+    background: rgba(59, 112, 252, 0.08);
+    color: #8fb1ff;
+    border-color: rgba(106, 156, 255, 0.44);
+}
+
+.gallery-logo-badge.is-admin {
+    background: rgba(251, 191, 36, 0.08);
+    color: #ffd67a;
+    border-color: rgba(251, 191, 36, 0.44);
+}
+
+.gallery-logo-badge.is-visitor {
+    background: rgba(148, 163, 184, 0.08);
+    color: rgba(226, 232, 240, 0.9);
+    border-color: rgba(148, 163, 184, 0.32);
 }
 
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: 12px;
 }
 
 .image-count {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 12px;
+    background: var(--nav-control-bg);
+    border: 1px solid var(--nav-control-border);
+    box-shadow: var(--nav-control-shadow);
     color: var(--text-secondary);
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
+    transition: all 0.3s var(--ease-out-expo);
 }
 
 .image-count i {
     margin-right: 6px;
     color: var(--primary-color);
+    transition: color 0.3s var(--ease-out-expo);
+}
+
+.image-count:hover {
+    background: var(--nav-control-bg-hover);
+    color: var(--text-primary);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.image-count:hover i {
+    color: #6a9cff;
 }
 
 .nav-btn {
@@ -325,19 +443,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--nav-control-bg);
+    border: 1px solid var(--nav-control-border);
+    box-shadow: var(--nav-control-shadow);
     border-radius: 10px;
     color: var(--text-secondary);
     font-size: 1rem;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.3s var(--ease-out-expo);
 }
 
 .nav-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
+    background: var(--nav-control-bg-hover);
     color: var(--text-primary);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
 }
 
 .nav-btn:disabled {
@@ -1563,12 +1682,19 @@ body {
         letter-spacing: 1px;
     }
 
-    .gallery-logo {
-        font-size: 1.25rem;
+    .gallery-logo-main, 
+    .gallery-logo-sub {
+        font-size: 1rem;
     }
 
-    .gallery-logo i {
-        margin-right: 4px;
+    .gallery-logo-badge {
+        display: none;
+    }
+
+    .gallery-logo-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.88rem;
     }
 
     .nav-right {

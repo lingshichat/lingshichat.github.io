@@ -12,7 +12,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="gallery.css">
     <script>
         // 在 DOM ready 后立即定位分类栏，避免 Vue 加载延迟导致跳动
@@ -41,10 +41,17 @@
             <!-- 顶部导航 -->
             <nav class="glass-nav">
                 <div class="nav-left">
-                    <span class="logo-text gallery-logo"><i class="fa-solid fa-images"></i> Lingshi's Gallery</span>
+                    <span class="logo-text gallery-logo">
+                        <span class="gallery-logo-icon">
+                            <i class="fa-solid fa-images"></i>
+                        </span>
+                        <span class="gallery-logo-main">Lingshi's</span>
+                        <span class="gallery-logo-sub">Gallery</span>
+                        <span class="gallery-logo-badge" :class="accountBadgeClass">{{ accountBadgeLabel }}</span>
+                    </span>
                 </div>
                 <div class="nav-right">
-                    <span class="image-count"><i class="fa-regular fa-image"></i> {{ images.length }} 张</span>
+                    <span class="image-count"><i class="fa-regular fa-image"></i> 全站图片数：{{ globalImageTotal }}张</span>
                     <button class="nav-btn" @click="loadImages" :disabled="loading" title="刷新">
                         <i class="fa-solid fa-rotate-right" :class="{'fa-spin': loading}"></i>
                     </button>

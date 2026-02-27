@@ -377,6 +377,25 @@ new Vue({
         hasMoreCurrentCategory() {
             const state = this.paginationByCategory[this.currentCategory];
             return !!(state && state.hasMore);
+        },
+
+        globalImageTotal() {
+            const allTotal = Number(this.categoryCounts.all);
+            return Number.isFinite(allTotal) && allTotal >= 0 ? allTotal : this.images.length;
+        },
+
+        accountBadgeLabel() {
+            if (!this.sessionToken) {
+                return 'Vistor';
+            }
+            return this.sessionRole === 'admin' ? 'Admin' : 'User';
+        },
+
+        accountBadgeClass() {
+            if (!this.sessionToken) {
+                return 'is-visitor';
+            }
+            return this.sessionRole === 'admin' ? 'is-admin' : 'is-user';
         }
     },
 
