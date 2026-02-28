@@ -3,7 +3,8 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Lingshi's Gallery</title>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
@@ -12,11 +13,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="gallery.css?v=1.0.1">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="gallery.css?v=1.1.0">
     <script>
         // 在 DOM ready 后立即定位分类栏，避免 Vue 加载延迟导致跳动
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             function positionCategoryBar() {
                 var nav = document.querySelector('.glass-nav');
                 var bar = document.querySelector('.category-bar');
@@ -51,7 +54,8 @@
                     </span>
                 </div>
                 <div class="nav-right">
-                    <span class="image-count"><i class="fa-regular fa-image"></i> 全站图片数：{{ globalImageTotal || categoryCounts.all || images.length || 0 }}张</span>
+                    <span class="image-count"><i class="fa-regular fa-image"></i> 全站图片数：{{ globalImageTotal ||
+                        categoryCounts.all || images.length || 0 }}张</span>
                     <button class="nav-btn" @click="loadImages" :disabled="loading" title="刷新">
                         <i class="fa-solid fa-rotate-right" :class="{'fa-spin': loading}"></i>
                     </button>
@@ -92,36 +96,45 @@
                     </div>
                 </div>
 
-                <!-- 图片网格 -->
-                <div class="masonry-grid" v-if="images.length > 0">
-                    <div class="masonry-item" v-for="image in images" :key="image.key"
-                        @touchstart="onTouchStart($event, image)" @touchend="onTouchEnd(image)" @touchcancel="onTouchEnd(image)">
-                        <a :href="image.url" data-fancybox="gallery" :data-caption="image.title || image.name">
-                            <img :src="lazyPlaceholder" :data-src="image.thumbnailUrl" :alt="image.title || image.name"
-                                class="lazy-image" @load="onLazyImageLoad">
-                        </a>
-                        <div class="image-overlay">
-                            <span class="image-title" v-if="image.title">{{ image.title }}</span>
-                            <span class="image-name" v-else>{{ image.name }}</span>
-                            <div class="image-tags" v-if="image.tags && image.tags.length">
-                                <span class="tag" v-for="tag in image.tags.slice(0, 3)" :key="tag">{{ tag }}</span>
-                                <span class="tag more" v-if="image.tags.length > 3">+{{ image.tags.length - 3 }}</span>
-                            </div>
-                            <div class="image-actions">
-                                <button class="action-btn" @click="copyMarkdown(image)" title="复制 Markdown"><i
-                                        class="fa-solid fa-code"></i></button>
-                                <button class="action-btn" @click="copyUrl(image)" title="复制链接"><i
-                                        class="fa-regular fa-copy"></i></button>
-                                <template v-if="sessionRole === 'admin'">
-                                    <button class="action-btn edit-btn" @click="openEditModal(image)" title="编辑"><i
-                                            class="fa-solid fa-pen"></i></button>
-                                    <button class="action-btn delete-btn" @click="confirmDelete(image)" title="删除"><i
-                                            class="fa-solid fa-trash"></i></button>
-                                </template>
+                <!-- 图片网格：JS 列式瀑布流，round-robin 分配到固定列，加载更多时已有图片不重排 -->
+                <div class="masonry-columns" v-if="images.length > 0">
+                    <div class="masonry-column" v-for="(col, colIdx) in imageColumns" :key="colIdx">
+                        <div class="masonry-item" v-for="image in col" :key="image.key"
+                            @touchstart="onTouchStart($event, image)" @touchmove="onTouchMove($event)"
+                            @touchend="onTouchEnd(image)" @touchcancel="onTouchEnd(image)">
+                            <a :href="image.url" data-fancybox="gallery" :data-caption="image.title || image.name">
+                                <!-- 用后端返回的极小模糊占位图，配合 CSS blur 实现进展式加载过渡 -->
+                                <img :src="image.placeholderUrl || lazyPlaceholder" :data-src="image.thumbnailUrl"
+                                    :alt="image.title || image.name" class="lazy-image" @load="onLazyImageLoad">
+                            </a>
+                            <div class="image-overlay">
+                                <span class="image-title" v-if="image.title">{{ image.title }}</span>
+                                <span class="image-name" v-else>{{ image.name }}</span>
+                                <div class="image-tags" v-if="image.tags && image.tags.length">
+                                    <span class="tag" v-for="tag in image.tags.slice(0, 3)" :key="tag">{{ tag }}</span>
+                                    <span class="tag more" v-if="image.tags.length > 3">+{{ image.tags.length - 3
+                                        }}</span>
+                                </div>
+                                <div class="image-actions">
+                                    <template v-if="sessionRole === 'admin' || image.isMine">
+                                        <button class="action-btn" @click="copyMarkdown(image)" title="复制 Markdown"><i
+                                                class="fa-solid fa-code"></i></button>
+                                        <button class="action-btn" @click="copyUrl(image)" title="复制链接"><i
+                                                class="fa-regular fa-copy"></i></button>
+                                    </template>
+                                    <template v-if="sessionRole === 'admin'">
+                                        <button class="action-btn edit-btn" @click="openEditModal(image)" title="编辑"><i
+                                                class="fa-solid fa-pen"></i></button>
+                                        <button class="action-btn delete-btn" @click="confirmDelete(image)"
+                                            title="删除"><i class="fa-solid fa-trash"></i></button>
+                                    </template>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
+
 
                 <div ref="loadMoreSentinel" class="loading-state"
                     v-if="images.length > 0 && (hasMoreCurrentCategory || loadingMore)">
@@ -144,7 +157,7 @@
 
             <!-- FAB 上传按钮 -->
             <button class="fab-upload" v-if="sessionToken && (sessionRole === 'user' || sessionRole === 'admin')"
-                @click="showUploadModal = true" title="上传图片"><i class="fa-solid fa-plus"></i></button>
+                @click="openUploadModal" title="上传图片"><i class="fa-solid fa-plus"></i></button>
             <input type="file" ref="fileInput" @change="handleFileSelect" accept="image/*" multiple hidden>
 
             <!-- 上传弹窗 -->
@@ -157,6 +170,19 @@
                                     class="fa-solid fa-xmark"></i></button>
                         </div>
                         <div class="modal-body">
+                            <!-- 每日额度提示（仅普通用户可见） -->
+                            <div class="upload-quota-hint" v-if="!isUploadUnlimited"
+                                :class="{ 'quota-exceeded': dailyUploadUsed >= dailyUploadLimit }">
+                                <i class="fa-solid"
+                                    :class="dailyUploadUsed >= dailyUploadLimit ? 'fa-triangle-exclamation' : 'fa-circle-info'"></i>
+                                今日已上传 <strong>{{ dailyUploadUsed }}</strong> / <strong>{{ dailyUploadLimit }}</strong> 张
+                                <span v-if="dailyUploadUsed >= dailyUploadLimit" class="quota-exceeded-text">
+                                    （已达上限，无法继续上传）
+                                </span>
+                                <span v-else-if="dailyUploadLimit - dailyUploadUsed <= 5" class="quota-warning">
+                                    （剩余额度不多）
+                                </span>
+                            </div>
                             <div class="file-drop-area" :class="{ 'has-file': uploadFiles.length > 0 }"
                                 @click="$refs.fileInput.click()" @dragover.prevent @drop.prevent="handleModalDrop">
                                 <template v-if="uploadFiles.length === 0">
@@ -168,7 +194,11 @@
                                     <div class="file-preview-list">
                                         <div class="file-preview-item" v-for="(file, idx) in uploadFiles" :key="idx">
                                             <img :src="file.preview" v-if="file.preview">
-                                            <span class="file-name">{{ file.name }}</span>
+                                            <div class="file-info">
+                                                <input type="text" v-model="file.title" class="file-title-input"
+                                                    placeholder="输入标题..." @click.stop>
+                                                <span class="file-name-hint">{{ file.name }}</span>
+                                            </div>
                                             <button class="remove-file" @click.stop="removeFile(idx)"><i
                                                     class="fa-solid fa-xmark"></i></button>
                                         </div>
@@ -178,19 +208,13 @@
                                 </template>
                             </div>
                             <div class="form-group">
-                                <label><i class="fa-solid fa-heading"></i> 图片标题（可选）</label>
-                                <input type="text" v-model="uploadTitle" placeholder="给图片起个名字..." class="form-input">
-                            </div>
-                            <div class="form-group">
                                 <label><i class="fa-solid fa-tags"></i> 标签（可选）</label>
-                                <div class="tags-input-area">
-                                    <div class="tags-list">
-                                        <span class="tag-item" v-for="(tag, idx) in uploadTags" :key="idx">{{ tag
-                                            }}<button @click="removeTag(idx)"><i
-                                                    class="fa-solid fa-xmark"></i></button></span>
-                                    </div>
-                                    <input type="text" v-model="newTag" @keyup.enter="addTag" placeholder="输入标签后按回车..."
-                                        class="form-input tag-input">
+                                <div class="tags-inline-input">
+                                    <span class="tag-pill" v-for="(tag, idx) in uploadTags" :key="tag">{{ tag
+                                        }}<button @click="removeTag(idx)"><i
+                                                class="fa-solid fa-xmark"></i></button></span>
+                                    <input type="text" v-model="newTag" @keyup.enter="addTag" placeholder="输入后按回车..."
+                                        class="tag-inline-field">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -235,7 +259,8 @@
                                 <label><i class="fa-solid fa-tags"></i> 标签</label>
                                 <div class="tags-input-area">
                                     <div class="tags-list">
-                                        <span class="tag-item" v-for="(tag, idx) in editTags" :key="idx">{{ tag
+                                        <!-- 使用 tag 内容本身作为 key -->
+                                        <span class="tag-item" v-for="(tag, idx) in editTags" :key="tag">{{ tag
                                             }}<button @click="removeEditTag(idx)"><i
                                                     class="fa-solid fa-xmark"></i></button></span>
                                     </div>
@@ -269,41 +294,41 @@
             <transition name="fade">
                 <div class="modal-overlay" v-if="showAuthModal" @click.self="showAuthModal = false">
                     <div class="modal-content" style="max-width: 420px;">
-                        <div class="modal-header">
-                            <h3>
-                                <i class="fa-solid"
-                                    :class="authMode === 'register' ? 'fa-user-plus' : 'fa-right-to-bracket'"></i>
-                                {{ authMode === 'register' ? '注册账号' : '账号登录' }}
-                            </h3>
+                        <div class="modal-header auth-tabs-header">
+                            <div class="auth-tabs" :class="`mode-${authMode}`">
+                                <div class="auth-tab-slider"></div>
+                                <button class="auth-tab-btn" :class="{active: authMode === 'login'}"
+                                    @click="authMode = 'login'">账号登录</button>
+                                <button class="auth-tab-btn" :class="{active: authMode === 'register'}"
+                                    @click="authMode = 'register'">注册账号</button>
+                            </div>
                             <button class="close-btn" @click="showAuthModal = false"><i
                                     class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <div class="modal-body">
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-envelope"></i> 邮箱</label>
-                                <input type="email" v-model="authEmail" @keyup.enter="submitAuth"
-                                    placeholder="name@example.com" class="form-input" autofocus>
-                            </div>
-                            <div class="form-group">
-                                <label><i class="fa-solid fa-key"></i> 密码</label>
-                                <input type="password" v-model="authPassword" @keyup.enter="submitAuth"
-                                    placeholder="请输入密码" class="form-input">
-                            </div>
-                            <div class="form-group" v-if="authMode === 'register'">
-                                <label><i class="fa-solid fa-ticket"></i> 邀请码</label>
-                                <input type="text" v-model="inviteCode" @keyup.enter="submitAuth" placeholder="请输入邀请码"
-                                    class="form-input" style="text-transform: uppercase;">
-                            </div>
+                        <div class="modal-body relative-body">
+                            <transition name="slide-fade" mode="out-in">
+                                <div :key="authMode">
+                                    <div class="form-group">
+                                        <label><i class="fa-solid fa-envelope"></i> 邮箱</label>
+                                        <input type="email" v-model="authEmail" @keyup.enter="submitAuth"
+                                            placeholder="name@example.com" class="form-input" autofocus>
+                                    </div>
+                                    <div class="form-group">
+                                        <label><i class="fa-solid fa-key"></i> 密码</label>
+                                        <input type="password" v-model="authPassword" @keyup.enter="submitAuth"
+                                            placeholder="请输入密码" class="form-input">
+                                    </div>
+                                    <div class="form-group" v-if="authMode === 'register'">
+                                        <label><i class="fa-solid fa-ticket"></i> 邀请码</label>
+                                        <input type="text" v-model="inviteCode" @keyup.enter="submitAuth"
+                                            placeholder="请输入邀请码" class="form-input" style="text-transform: uppercase;">
+                                    </div>
+                                </div>
+                            </transition>
                             <transition name="fade">
                                 <p class="error-text" v-if="authError">{{ authError }}</p>
                             </transition>
-                            <p class="admin-hint" style="margin-top: 8px;">
-                                {{ authMode === 'register' ? '已有账号？' : '没有账号？' }}
-                                <a href="javascript:void(0)"
-                                    @click="authMode = authMode === 'register' ? 'login' : 'register'">
-                                    {{ authMode === 'register' ? '去登录' : '去注册' }}
-                                </a>
-                            </p>
+
                         </div>
                         <div class="modal-footer">
                             <button class="btn-secondary" @click="showAuthModal = false">取消</button>
@@ -443,12 +468,15 @@
                 </div>
             </transition>
 
-            <transition name="slide-down">
-                <div class="toast" v-if="toast.show" :class="toast.type"><i class="fa-solid" :class="toast.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'"></i> {{ toast.message }}</div>
-            </transition>
+
         </template>
     </div>
-    <script src="gallery.js?v=1.0.1"></script>
+    <script type="module">
+        import { Toast } from '../../js/toast-module.js';
+        window.Toast = Toast;
+    </script>
+    <!-- 使用 defer 确保在 module 后执行，或者其实可以直接改用动态 import -->
+    <script src="gallery.js?v=1.1.0"></script>
 </body>
 
 </html>

@@ -250,6 +250,20 @@ const GalleryService = {
             throw err;
         }
         return data.data;
+    },
+
+    // 查询当前用户今日上传额度
+    async getUploadQuota(token) {
+        const response = await fetch(`${CONFIG.WORKER_URL}?action=uploadQuota`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (data.code !== 200) {
+            const err = new Error(data.message || '查询额度失败');
+            err.code = data.code;
+            throw err;
+        }
+        return data;
     }
 };
 
@@ -281,6 +295,11 @@ new Vue({
         uploading: false,
         uploadProgress: 0,
         uploadFileName: '',
+
+        // 每日上传额度（打开弹窗时从后端查询）
+        dailyUploadUsed: 0,
+        dailyUploadLimit: 30,
+        isUploadUnlimited: false,
 
         // 认证与权限
         showAuthModal: false,
@@ -315,12 +334,6 @@ new Vue({
         adminLoading: false,
         newInviteMaxUses: 1,
 
-        toast: {
-            show: false,
-            message: '',
-            type: 'success'
-        },
-
         // 1x1 透明 GIF 占位符，避免浏览器提前加载 placeholderUrl
         lazyPlaceholder: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
         imageObserver: null,
@@ -332,7 +345,11 @@ new Vue({
         lastScrollY: 0,
         isCategoryHidden: false,
         longPressTimer: null,
-        activeOverlayKey: null
+        activeOverlayKey: null,
+        // 触摸滑动识别：记录按下时的坐标
+        touchStartPos: { x: 0, y: 0 },
+        // JS 瀑布流列数（随窗口尺寸动态计算，代替 CSS column-count）
+        masonryColumnCount: 4
     },
 
     async mounted() {
@@ -396,6 +413,17 @@ new Vue({
                 return 'is-visitor';
             }
             return this.sessionRole === 'admin' ? 'is-admin' : 'is-user';
+        },
+
+        // JS 列式瀑布流：round-robin 分配图片到固定列
+        // 加载更多时，已有图片的列归属不变，新图片追加到列尾
+        imageColumns() {
+            const numCols = this.masonryColumnCount;
+            const cols = Array.from({ length: numCols }, () => []);
+            this.images.forEach((img, i) => {
+                cols[i % numCols].push(img);
+            });
+            return cols;
         }
     },
 
@@ -747,7 +775,8 @@ new Vue({
                 });
             }, {
                 root: null,
-                rootMargin: '260px 0px',
+                // 提前 800px 触发加载，用户看不到底部时就开始预请求下一批
+                rootMargin: '800px 0px',
                 threshold: 0.01
             });
 
@@ -763,6 +792,23 @@ new Vue({
         // ============================================
         // 上传相关
         // ============================================
+
+        async openUploadModal() {
+            if (!this.ensureSession()) {
+                this.openAuthModal('login', '登录后可上传图片');
+                return;
+            }
+            // 查询今日上传额度
+            try {
+                const quota = await GalleryService.getUploadQuota(this.sessionToken);
+                this.dailyUploadUsed = quota.dailyUsed || 0;
+                this.dailyUploadLimit = quota.dailyLimit || 30;
+                this.isUploadUnlimited = !!quota.isUnlimited;
+            } catch (e) {
+                console.warn('查询上传额度失败:', e);
+            }
+            this.showUploadModal = true;
+        },
 
         triggerFileInput() {
             this.$refs.fileInput.click();
@@ -815,19 +861,53 @@ new Vue({
 
             if (files.length > 0) {
                 this.addFiles(files);
-                this.showUploadModal = true;
+                this.openUploadModal();
             }
         },
 
         addFiles(files) {
-            files.forEach(file => {
-                if (!file.type.startsWith('image/')) return;
+            // 管理员不限制单次多选数量，普通用户限制 30 张
+            const isAdmin = this.sessionRole === 'admin';
+            const MAX_UPLOAD_COUNT = isAdmin ? Infinity : 30;
+            // 只保留图片类型
+            const imageFiles = files.filter(f => f.type.startsWith('image/'));
 
+            // 计算当前已有的文件数量
+            const remaining = MAX_UPLOAD_COUNT - this.uploadFiles.length;
+            if (remaining <= 0) {
+                if (!isAdmin) {
+                    this.showToast(`单次最多支持上传 ${MAX_UPLOAD_COUNT} 张图片，已无法继续添加`, 'error');
+                }
+                return;
+            }
+
+            // 普通用户还需要考虑每日剩余额度
+            let effectiveRemaining = remaining;
+            if (!isAdmin && !this.isUploadUnlimited) {
+                const dailyRemaining = Math.max(0, this.dailyUploadLimit - this.dailyUploadUsed - this.uploadFiles.length);
+                effectiveRemaining = Math.min(remaining, dailyRemaining);
+                if (effectiveRemaining <= 0) {
+                    this.showToast('今日上传额度已用完，请明天再试', 'error');
+                    return;
+                }
+            }
+
+            let filesToAdd = imageFiles;
+            if (imageFiles.length > effectiveRemaining) {
+                filesToAdd = imageFiles.slice(0, effectiveRemaining);
+                if (!isAdmin) {
+                    this.showToast(`已截断为前 ${effectiveRemaining} 张（受每日限额约束）`, 'error');
+                }
+            }
+
+            filesToAdd.forEach(file => {
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.uploadFiles.push({
                         file: file,
                         name: file.name,
+                        // 默认标题 = 文件名去扩展名
+                        title: file.name.replace(/\.[^.]+$/, ''),
                         preview: e.target.result
                     });
                 };
@@ -867,16 +947,19 @@ new Vue({
             const categoryPrefix = category ? category.prefix : '';
 
             let successCount = 0;
+            // 每个文件占的进度比重（每个文件内部 XHR 进度再细分）
+            const perFileWeight = 100 / uploadFileCount;
 
             for (let i = 0; i < this.uploadFiles.length; i++) {
                 const fileData = this.uploadFiles[i];
                 const file = fileData.file;
 
-                this.uploadFileName = file.name;
-                this.uploadProgress = Math.round((i / uploadFileCount) * 100);
+                this.uploadFileName = fileData.title || file.name;
+                // 当前文件开始时进度置为已完成文件数的比重
+                this.uploadProgress = Math.round(i * perFileWeight);
 
                 try {
-                    await this.uploadFile(file, categoryPrefix, i, uploadFileCount);
+                    await this.uploadFile(fileData, categoryPrefix, i, uploadFileCount, perFileWeight);
                     successCount++;
                 } catch (error) {
                     console.error('上传失败:', error);
@@ -891,11 +974,14 @@ new Vue({
                         this.showToast('当前身份无上传权限，请重新登录', 'error');
                         break;
                     }
+                    // 普通失败（网络/格式/限速）：提示后继续上传剩余图片
                     if (error?.code === 429) {
                         this.showToast(`上传 ${file.name} 失败: 请求过于频繁，请稍后重试`, 'error');
                     } else {
                         this.showToast(`上传 ${file.name} 失败: ${error.message}`, 'error');
                     }
+                    // 继续下一张，不中断整个队列
+                    continue;
                 }
             }
 
@@ -906,12 +992,16 @@ new Vue({
             this.uploadTags = [];
 
             if (successCount > 0) {
+                // 本地同步每日已用额度，避免重新打开弹窗时显示旧数据
+                this.dailyUploadUsed += successCount;
                 this.showToast(`成功上传 ${successCount} 张图片！`, 'success');
                 await this.loadImages();
             }
         },
 
-        async uploadFile(file, categoryPrefix, fileIndex = 0, totalFiles = 1) {
+        async uploadFile(fileData, categoryPrefix, fileIndex = 0, totalFiles = 1, perFileWeight = 100) {
+            const file = fileData.file;
+            const fileTitle = (fileData.title || '').trim();
             const timestamp = Date.now();
             const randomStr = Math.random().toString(36).substring(2, 8);
             const ext = file.name.split('.').pop() || 'jpg';
@@ -949,14 +1039,10 @@ new Vue({
 
             const effectiveKey = signData.key || key;
 
-            // 保存元数据（如果有标题或标签）
-            if (this.uploadTitle || this.uploadTags.length > 0) {
+            // 保存元数据：每张图片使用各自的标题
+            const metadataTitle = fileTitle || file.name;
+            if (metadataTitle || this.uploadTags.length > 0) {
                 try {
-                    const baseTitle = this.uploadTitle ? this.uploadTitle.trim() : '';
-                    const metadataTitle = baseTitle
-                        ? (totalFiles > 1 ? `${baseTitle} #${fileIndex + 1}` : baseTitle)
-                        : file.name;
-
                     await GalleryService.updateMetadata(
                         effectiveKey,
                         metadataTitle,
@@ -975,8 +1061,10 @@ new Vue({
 
                 xhr.upload.addEventListener('progress', (e) => {
                     if (e.lengthComputable) {
-                        const progress = Math.round((e.loaded / e.total) * 70) + 20;
-                        this.uploadProgress = Math.min(progress, 90);
+                        // 全局进度 = 已完成文件权重 + 当前文件 XHR 进度在本文件权重内的占比
+                        const fileBaseProgress = fileIndex * perFileWeight;
+                        const fileXhrProgress = (e.loaded / e.total) * perFileWeight;
+                        this.uploadProgress = Math.min(Math.round(fileBaseProgress + fileXhrProgress), 99);
                     }
                 });
 
@@ -1205,16 +1293,20 @@ new Vue({
             if (!img || img.dataset.loaded === 'true') return;
             const realSrc = img.dataset.src;
             if (!realSrc) return;
+            // 设置标记：下一个 load 事件才是真实缩略图加载完成
+            // 避免 placeholderUrl（极小图）加载完后就提前清除模糊效果
+            img.dataset.readyForLoaded = 'true';
             img.src = realSrc;
         },
 
         onLazyImageLoad(event) {
             const img = event.target;
             if (!img || !img.dataset) return;
-            // 只要 src 已被替换为真实缩略图（不再是占位图），即视为加载完成
-            if (img.src && !img.src.startsWith("data:")) {
-                img.dataset.loaded = "true";
-                img.classList.add("is-loaded");
+            // 只有在 promoteLazyImage 设置了真实缩略图 src 后（标记存在），才移除模糊效果
+            // 占位图（placeholderUrl）加载完时标记还不存在，因此不会误触发
+            if (img.dataset.readyForLoaded === 'true') {
+                img.dataset.loaded = 'true';
+                img.classList.add('is-loaded');
             }
         },
 
@@ -1251,11 +1343,25 @@ new Vue({
 
         onTouchStart(e, image) {
             clearTimeout(this.longPressTimer);
+            // 记录按下时的初始坐标，用于判断是滚动还是长按
+            const touch = e.touches[0];
+            this.touchStartPos = { x: touch.clientX, y: touch.clientY };
+
             this.longPressTimer = setTimeout(() => {
                 this.activeOverlayKey = image.key;
                 const el = e.currentTarget;
                 if (el) el.classList.add('overlay-active');
-            }, 300);
+            }, 550); // 阈值从 300ms 提高到 550ms，避免误触
+        },
+
+        onTouchMove(e) {
+            // 如果手指移动超过 8px，则判定为滚动，取消长按定时器
+            const touch = e.touches[0];
+            const dx = Math.abs(touch.clientX - this.touchStartPos.x);
+            const dy = Math.abs(touch.clientY - this.touchStartPos.y);
+            if (dx > 8 || dy > 8) {
+                clearTimeout(this.longPressTimer);
+            }
         },
 
         onTouchEnd(image) {
@@ -1269,6 +1375,17 @@ new Vue({
 
         handleResize() {
             this.isMobileViewport = window.innerWidth <= 768;
+            // 更新瀑布流列数，与 CSS 媒体查询断点保持一致
+            const w = window.innerWidth;
+            if (w <= 600) {
+                this.masonryColumnCount = 1;
+            } else if (w <= 900) {
+                this.masonryColumnCount = 2;
+            } else if (w <= 1200) {
+                this.masonryColumnCount = 3;
+            } else {
+                this.masonryColumnCount = 4;
+            }
         },
 
         initResizeListener() {
@@ -1389,15 +1506,11 @@ new Vue({
         // ============================================
 
         showToast(message, type = 'success') {
-            this.toast = {
-                show: true,
-                message,
-                type
-            };
-
-            setTimeout(() => {
-                this.toast.show = false;
-            }, 3000);
+            if (window.Toast && typeof window.Toast.show === 'function') {
+                window.Toast.show(message, type);
+            } else {
+                console.log(`[Toast ${type}] ${message}`);
+            }
         }
     }
 });

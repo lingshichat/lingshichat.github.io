@@ -330,9 +330,17 @@ body {
 }
 
 @keyframes logoShine {
-    0% { left: -100%; }
-    20% { left: 100%; }
-    100% { left: 100%; }
+    0% {
+        left: -100%;
+    }
+
+    20% {
+        left: 100%;
+    }
+
+    100% {
+        left: 100%;
+    }
 }
 
 .gallery-logo-main {
@@ -532,38 +540,30 @@ body {
 }
 
 /* =========================================
-   瀑布流布局
+   瀑布流布局（JS 列式 + Flexbox，列数由 JS 动态控制）
    ========================================= */
-.masonry-grid {
-    column-count: 4;
-    column-gap: 16px;
+.masonry-columns {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
 }
 
-@media (max-width: 1200px) {
-    .masonry-grid {
-        column-count: 3;
-    }
-}
-
-@media (max-width: 900px) {
-    .masonry-grid {
-        column-count: 2;
-    }
+.masonry-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    /* 防止列宽溢出 */
+    min-width: 0;
 }
 
 @media (max-width: 600px) {
-    .masonry-grid {
-        column-count: 1;
-    }
-
     .gallery-main {
         padding: 16px;
     }
 }
 
 .masonry-item {
-    break-inside: avoid;
-    margin-bottom: 16px;
     border-radius: 16px;
     overflow: hidden;
     position: relative;
@@ -591,11 +591,32 @@ body {
     filter: blur(14px);
     transform: scale(1.03);
     transition: filter 0.35s ease, transform 0.35s ease;
+    /* 骨架屏：在占位图 + 缩略图加载期间显示 shimmer，避免空白闪烁 */
+    min-height: 80px;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0.04) 0%,
+            rgba(255, 255, 255, 0.10) 40%,
+            rgba(255, 255, 255, 0.04) 80%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 .masonry-item img.lazy-image.is-loaded {
     filter: blur(0);
     transform: scale(1);
+    /* 允许加载完成后停止 shimmer 动画 */
+    animation: none;
+    background: none;
 }
 
 .image-overlay {
@@ -796,70 +817,253 @@ body {
 }
 
 /* =========================================
-   Toast 提示
+   上传额度提示
    ========================================= */
-.toast {
-    position: fixed;
-    top: 110px;
-    left: 50%;
-    transform: translateX(-50%);
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 20px;
-    background: var(--glass-bg);
-    backdrop-filter: blur(20px);
-    border: var(--glass-border);
-    border-radius: 50px;
-    color: var(--text-primary);
-    font-size: 0.875rem;
-    z-index: 3000;
-    box-shadow: var(--glass-shadow);
+.upload-quota-hint {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+    background: rgba(59, 112, 252, 0.1);
+    border: 1px solid rgba(59, 112, 252, 0.25);
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.5;
 }
 
-.toast i {
+.upload-quota-hint i {
+    color: var(--primary-color);
     flex-shrink: 0;
+    position: relative;
+    top: 1px;
 }
 
-.toast.success {
-    border-color: rgba(16, 185, 129, 0.3);
+.upload-quota-hint strong {
+    color: var(--text-primary);
+    font-weight: 600;
 }
 
-.toast.success i {
-    color: var(--success);
+.upload-quota-hint .quota-warning {
+    color: var(--warning);
+    font-weight: 500;
 }
 
-.toast.error {
-    border-color: rgba(239, 68, 68, 0.3);
+.upload-quota-hint.quota-exceeded {
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.35);
 }
 
-.toast.error i {
-    color: var(--danger);
+.upload-quota-hint.quota-exceeded i {
+    color: #ef4444;
+}
+
+.upload-quota-hint .quota-exceeded-text {
+    color: #ef4444;
+    font-weight: 600;
 }
 
 /* =========================================
-   动画过渡
+   文件预览 - 每张图片独立标题编辑
    ========================================= */
-.fade-enter-active,
-.fade-leave-active {
-    transition: opacity 0.3s;
+.file-preview-item .file-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.fade-enter,
-.fade-leave-to {
+.file-title-input {
+    width: 100%;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.file-title-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(59, 112, 252, 0.2);
+}
+
+.file-title-input::placeholder {
+    color: var(--text-muted);
+}
+
+.file-name-hint {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* =========================================
+   内联标签输入框
+   ========================================= */
+.tags-inline-input {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    min-height: 42px;
+    transition: border-color 0.2s;
+}
+
+.tags-inline-input:focus-within {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(59, 112, 252, 0.2);
+}
+
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.tag-pill button {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    cursor: pointer;
+    padding: 0;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.tag-pill button:hover {
+    color: white;
+}
+
+.tag-inline-field {
+    flex: 1;
+    min-width: 120px;
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    padding: 4px 0;
+}
+
+.tag-inline-field::placeholder {
+    color: var(--text-muted);
+}
+
+
+
+/* =========================================
+   Toast 提示 (toast-module.js 组件需要)
+   ========================================= */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    background: var(--glass-bg, rgba(40, 44, 52, 0.85));
+    backdrop-filter: blur(20px);
+    border: var(--glass-border, 1px solid rgba(255, 255, 255, 0.1));
+    border-radius: 8px;
+    color: white;
+    font-size: 0.95rem;
+    z-index: 9999;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    pointer-events: auto;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transform: translateX(0);
+    opacity: 1;
+    animation: toastEnter 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.toast.toast-exit {
+    transform: translateX(120%);
     opacity: 0;
 }
 
-.slide-down-enter-active,
-.slide-down-leave-active {
-    transition: opacity 0.3s var(--ease-out-expo), margin-top 0.3s var(--ease-out-expo);
+.toast-icon {
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.slide-down-enter,
-.slide-down-leave-to {
-    opacity: 0;
-    margin-top: -16px;
+.toast.success .toast-icon {
+    color: #10b981;
+}
+
+.toast.error .toast-icon {
+    color: #ef4444;
+}
+
+.toast.warning .toast-icon {
+    color: #f59e0b;
+}
+
+.toast.info .toast-icon {
+    color: #3b82f6;
+}
+
+.toast-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.toast-message {
+    font-weight: 500;
+}
+
+.toast-close {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: color 0.2s;
+    margin-left: 8px;
+}
+
+.toast-close:hover {
+    color: white;
+}
+
+@keyframes toastEnter {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 /* =========================================
@@ -1672,6 +1876,7 @@ body {
 
 /* 小屏幕手机 (<= 480px) */
 @media (max-width: 480px) {
+
     /* 导航栏优化 */
     .glass-nav {
         padding: 12px 16px;
@@ -1682,7 +1887,7 @@ body {
         letter-spacing: 1px;
     }
 
-    .gallery-logo-main, 
+    .gallery-logo-main,
     .gallery-logo-sub {
         font-size: 1rem;
     }
@@ -1717,14 +1922,16 @@ body {
         padding-bottom: calc(12px + env(safe-area-inset-bottom));
     }
 
-    /* 瀑布流单列 */
-    .masonry-grid {
-        column-count: 2;
-        column-gap: 12px;
+    /* 瀑布流间距调整 */
+    .masonry-columns {
+        gap: 12px;
+    }
+
+    .masonry-column {
+        gap: 12px;
     }
 
     .masonry-item {
-        margin-bottom: 12px;
         border-radius: 12px;
     }
 
@@ -1802,7 +2009,7 @@ body {
         padding: 30px 16px;
     }
 
-    .file-drop-area > i {
+    .file-drop-area>i {
         font-size: 2.5rem;
     }
 
@@ -1823,7 +2030,8 @@ body {
 
     .form-input {
         padding: 10px 14px;
-        font-size: 16px; /* 防止 iOS 缩放 */
+        font-size: 16px;
+        /* 防止 iOS 缩放 */
     }
 
     /* 分类选择 */
@@ -1965,13 +2173,12 @@ body {
         padding: 16px;
     }
 
-    .masonry-grid {
-        column-count: 3;
-        column-gap: 14px;
+    .masonry-columns {
+        gap: 14px;
     }
 
-    .masonry-item {
-        margin-bottom: 14px;
+    .masonry-column {
+        gap: 14px;
     }
 
     .modal-content {
@@ -2039,6 +2246,122 @@ body {
     .action-btn:hover {
         transform: none;
     }
+}
+
+/* =========================================
+   Auth Tabs (Skeuomorphic Segmented Control)
+   ========================================= */
+.auth-tabs-header {
+    justify-content: center;
+    position: relative;
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.auth-tabs-header .close-btn {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    width: 32px;
+    height: 32px;
+}
+
+.auth-tabs {
+    display: inline-flex;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 6px;
+    border-radius: 50px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    position: relative;
+    /* 新增，为了给内部的滑块定位 */
+    isolation: isolate;
+}
+
+.auth-tab-slider {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    width: calc(50% - 6px);
+    border-radius: 50px;
+    background: rgba(59, 112, 252, 0.25);
+    border: 1px solid rgba(59, 112, 252, 0.3);
+    box-shadow: 0 2px 10px rgba(59, 112, 252, 0.15);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    z-index: 0;
+}
+
+/* 动态控制滑块位置 */
+.auth-tabs.mode-login .auth-tab-slider {
+    transform: translateX(0);
+}
+
+.auth-tabs.mode-register .auth-tab-slider {
+    transform: translateX(100%);
+}
+
+.auth-tab-btn {
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    padding: 8px 32px;
+    font-size: 1rem;
+    font-weight: 500;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+    width: 130px;
+    /* 增加宽度，防止换行 */
+    text-align: center;
+    white-space: nowrap;
+    /* 强制不换行 */
+}
+
+.auth-tab-btn.active {
+    color: white;
+    /* 去掉原本写在 .active 里的背景和边框，交由 slider 来表现 */
+}
+
+.auth-tab-btn:hover:not(.active) {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* 登录/注册表单区域的新增动画过渡 */
+/* 此处的 slide-fade 会配合 VDOM 切换工作 */
+.slide-fade-enter-active {
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.slide-fade-leave-active {
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    position: absolute;
+    /* 让当前元素脱离文档流，高度立刻塌陷至新元素所需高度 */
+    /* 避免 100% 碰到 padding 撑大 */
+    left: 24px;
+    right: 24px;
+}
+
+.slide-fade-enter-from {
+    opacity: 0;
+    transform: translateX(10px);
+}
+
+.slide-fade-leave-to {
+    opacity: 0;
+    transform: translateX(-10px);
+}
+
+/* 给 modal-body 加相对定位以包裹 absolute 的 leave-active 元素 */
+.modal-body.relative-body {
+    position: relative;
+    /* 直接固定最小高度，以容纳带邀请码的注册表单高度。
+       假设三个 input 每个高度加 padding 约 80px，3个+报错预留 = ~250px 足够 */
+    min-height: 250px;
+    overflow: hidden;
+    /* 防止内容滑动时出现滚动条 */
 }
 
 /* 横屏模式优化 */
