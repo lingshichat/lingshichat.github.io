@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>OpenClaw 分层记忆系统配置方案</title>
+    <url>/2026/03/02/OpenClaw-%E5%88%86%E5%B1%82%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="OpenClaw-分层记忆系统配置方案"><a href="#OpenClaw-分层记忆系统配置方案" class="headerlink" title="OpenClaw 分层记忆系统配置方案"></a>OpenClaw 分层记忆系统配置方案</h1><h2 id="一、目录结构"><a href="#一、目录结构" class="headerlink" title="一、目录结构"></a>一、目录结构</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在 workspace 目录下创建</span><br><span class="line">mkdir -p memory/archive</span><br><span class="line">touch MEMORY.md HEARTBEAT.md</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、核心文件模板"><a href="#二、核心文件模板" class="headerlink" title="二、核心文件模板"></a>二、核心文件模板</h2><ol>
+<li>MEMORY.md（长期记忆库）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Long-Term Memory</span><br><span class="line"></span><br><span class="line">&gt; 只写入没有它会犯错的信息。事件日志留在 daily files。</span><br><span class="line">&gt; 硬限制：80 行 / 5KB。超限时压缩旧条目。</span><br><span class="line"></span><br><span class="line">## User Preferences</span><br><span class="line"></span><br><span class="line">- **称呼**: 用户喜欢的称呼</span><br><span class="line">- **生日**: YYYY-MM-DD</span><br><span class="line">- **所在地**: 城市</span><br><span class="line">- **喜欢的**: 重要偏好</span><br><span class="line"></span><br><span class="line">## Active Projects</span><br><span class="line"></span><br><span class="line">- **项目A**: 描述 + 状态</span><br><span class="line">- **项目B**: 描述 + 状态</span><br><span class="line"></span><br><span class="line">## Key Decisions</span><br><span class="line"></span><br><span class="line">- [YYYY-MM-DD] 决策内容</span><br><span class="line"></span><br><span class="line">## Important Resources</span><br><span class="line"></span><br><span class="line">### API Keys (存储位置)</span><br><span class="line">- **服务A**: `~/.config/xxx/credentials.json`</span><br><span class="line"></span><br><span class="line">### Infrastructure</span><br><span class="line">- **服务器A**: IP/域名信息</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">*Last updated: YYYY-MM-DD | Lines: ~X/80*</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>HEARTBEAT.md（心跳任务清单）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 心跳检查任务列表</span><br><span class="line"></span><br><span class="line">## 每日检查</span><br><span class="line">- [ ] 检查是否有定时提醒需要发送</span><br><span class="line">- [ ] 检查用户消息（如有重要消息需回复）</span><br><span class="line">- [ ] 检查系统状态（如有异常需报告）</span><br><span class="line">- [ ] 检查定时任务状态（是否有异常）</span><br><span class="line"></span><br><span class="line">## 定时任务支持</span><br><span class="line">保持此文件非空，确保定时任务正常执行</span><br></pre></td></tr></table></figure>
+<p>三、Cron 任务配置</p>
+<p>添加以下定时任务（使用 openclaw cron add 或编辑配置文件）：</p>
+<p>任务 1：记忆同步（每 4 小时）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;memory-sync&quot;,</span><br><span class="line">  &quot;enabled&quot;: true,</span><br><span class="line">  &quot;schedule&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;cron&quot;,</span><br><span class="line">    &quot;expr&quot;: &quot;0 10,14,18,22 * * *&quot;,</span><br><span class="line">    &quot;tz&quot;: &quot;Asia/Shanghai&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;sessionTarget&quot;: &quot;isolated&quot;,</span><br><span class="line">  &quot;payload&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;agentTurn&quot;,</span><br><span class="line">    &quot;message&quot;: &quot;【记忆同步任务】\n\n1. 获取过去4小时的活跃会话（跳过 isolated）\n2. 过滤：消息数 &lt; 2 的跳过，已记录的跳过\n3. 读取会话内容，提取关键信息\n4. 生成摘要（每个会话 3-10 条要点）\n5. 追加到 memory/YYYY-MM-DD.md\n6. 运行 `openclaw memory index` 重建索引\n7. 完成后回复 ANNOUNCE_SKIP&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;delivery&quot;: &#123; &quot;mode&quot;: &quot;announce&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>任务 2：记忆整理（每天凌晨 3 点）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;memory-tidy&quot;,</span><br><span class="line">  &quot;enabled&quot;: true,</span><br><span class="line">  &quot;schedule&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;cron&quot;,</span><br><span class="line">    &quot;expr&quot;: &quot;0 3 * * *&quot;,</span><br><span class="line">    &quot;tz&quot;: &quot;Asia/Shanghai&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;sessionTarget&quot;: &quot;isolated&quot;,</span><br><span class="line">  &quot;payload&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;agentTurn&quot;,</span><br><span class="line">    &quot;message&quot;: &quot;【记忆整理任务】\n\n1. 列出 memory/ 最近7天的日记文件\n2. 读取 MEMORY.md，识别重要信息\n3. 四维验证筛选：\n   - 没有它我会犯错？\n   - 未来多次用得上？\n   - 单独看能看懂？\n   - MEMORY.md 没有重复？\n4. 备份原文件到 memory/archive/\n5. 添加新内容，保持 80 行上限\n6. 运行 `openclaw memory index`\n7. 汇报结果&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;delivery&quot;: &#123; &quot;mode&quot;: &quot;announce&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>四、向量化配置</p>
+<ol>
+<li>检查 embedding 配置</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看当前记忆搜索状态</span><br><span class="line">openclaw memory status</span><br><span class="line"></span><br><span class="line">2. 配置 embedding 模型（在 openclaw.json 中）</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &quot;memory&quot;: &#123;</span><br><span class="line">    &quot;embeddings&quot;: &#123;</span><br><span class="line">      &quot;provider&quot;: &quot;openai&quot;,</span><br><span class="line">      &quot;model&quot;: &quot;gemini-embedding-001&quot;,</span><br><span class="line">      &quot;apiKey&quot;: &quot;你的 Google AI Studio Key (AIzaSy...)&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>免费 Key 获取: <a href="https://aistudio.google.com/app/apikey">https://aistudio.google.com/app/apikey</a></p>
+<p>五、使用方式</p>
+<p>对话中搜索记忆</p>
+<p>直接问 AI：</p>
+<blockquote>
+<p>“我之前说过要备份什么吗？”<br>“我那个服务器 IP 是多少？”</p>
+</blockquote>
+<p>AI 会自动调用 openclaw memory search 搜索。</p>
+<p>手动搜索</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openclaw memory search &quot;关键词&quot;</span><br></pre></td></tr></table></figure>
+<p>六、注意事项</p>
+<ol>
+<li>sessionTarget 必须用 “isolated” - 避免阻塞主会话</li>
+<li>首次使用需手动创建 memory 目录 - 否则索引会失败</li>
+<li>Google embedding 有免费额度 - 个人使用完全足够</li>
+<li>MEMORY.md 保持精简 - 日常细节留在日记，只提炼关键知识</li>
+</ol>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>openclaw</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>一月到二月的一些杂记</title>
     <url>/2026/02/07/%E4%B8%80%E6%9C%88%E5%88%B0%E4%BA%8C%E6%9C%88%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9D%82%E8%AE%B0/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="近况"><a href="#近况" class="headerlink" title="近况"></a>近况</h1><p>目前，泠诗的小窝已经集成了：blog主页、admin页面、editor页面、彩蛋页面<br>这些开发用时也就是一个星期，是在上个月，也就是一月份的月初搞定的<br>后来又去开坑了另一个项目——⌈纸语PaperWhisper⌋</p>
@@ -29,7 +79,7 @@
 <h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
 <h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
 
-    <div id="aplayer-eErdLizJ" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-ThsqpTKZ" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 <p>晚安，好梦💤</p>
@@ -66,12 +116,6 @@
       </tags>
   </entry>
   <entry>
-    <title>初次见面</title>
-    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
-]]></content>
-  </entry>
-  <entry>
     <title>稍微怀旧一下~</title>
     <url>/2026/02/24/%E7%A8%8D%E5%BE%AE%E6%80%80%E6%97%A7%E4%B8%80%E4%B8%8B~/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
@@ -79,7 +123,7 @@
 </blockquote>
 <p>搭配音乐更佳~</p>
 
-    <div id="aplayer-FQfcuHLD" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-dTHxKIQF" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 <p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
@@ -95,11 +139,17 @@
       </tags>
   </entry>
   <entry>
+    <title>初次见面</title>
+    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
+]]></content>
+  </entry>
+  <entry>
     <title>笛月</title>
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-vjqyoAax" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-xaspgMuX" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
