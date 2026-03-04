@@ -54,7 +54,7 @@
     <title>【oc配置分享】一个你可能低估的“打下手”模型</title>
     <url>/2026/03/04/%E3%80%90oc%E9%85%8D%E7%BD%AE%E5%88%86%E4%BA%AB%E3%80%91%E4%B8%80%E4%B8%AA%E4%BD%A0%E5%8F%AF%E8%83%BD%E4%BD%8E%E4%BC%B0%E7%9A%84%E2%80%9C%E6%89%93%E4%B8%8B%E6%89%8B%E2%80%9D%E6%A8%A1%E5%9E%8B/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
-<p>本文首发于Linux.do和我的blog~<a href="https://lingshichat.top/">泠诗的小窝</a></p>
+<p>本文首发于Linux.do和我的blog~<a href="https://lingshichat.top/">泠诗的小窝</a>，严禁转载</p>
 </blockquote>
 <h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>大家好呀，这是我来L站的第一个帖子~<br>其实在用邀请码写小作文的时候就写了想看社区里的佬们如何各种折腾ai的，然后也想结合自己的实践经验分享一下给各位佬友们<br>可能有些许不妥之处，还望大家批评指正QAQ，毕竟我只是个小趴菜<br>以下分享是根据我个人使用经验来配置的</p>
 <h1 id="一、opencode模型配置"><a href="#一、opencode模型配置" class="headerlink" title="一、opencode模型配置"></a>一、opencode模型配置</h1><p>其实看佬友们都在分享cc和cx比较多，那我蛮钟爱oc的其实，因为穷用不起claude呜呜呜呜cc只能稍微用用，codex觉得现阶段刚出不太完善<br>更主要的原因是，oc是可以<strong>自由配置自己手头上已有的模型</strong>！不局限于claude和codex<br>众所周知，oc有一个特性：sub-agent，也就是子代理，这个sub-agent可以用来<strong>检索外网数据、检索代码库、调研方案、编写一些不痛不痒的文档，为main-agent（也就是主代理，比如oc用的比较多的Sisyphus）分担工作压力，同时也降低对应main-agent的token消耗</strong>，以下是一些针对oc的模型配置：</p>
@@ -143,6 +143,16 @@
 ]]></content>
   </entry>
   <entry>
+    <title>今日焕新</title>
+    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
+<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
+]]></content>
+      <categories>
+        <category>测试</category>
+      </categories>
+  </entry>
+  <entry>
     <title>一月到二月的一些杂记</title>
     <url>/2026/02/07/%E4%B8%80%E6%9C%88%E5%88%B0%E4%BA%8C%E6%9C%88%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9D%82%E8%AE%B0/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="近况"><a href="#近况" class="headerlink" title="近况"></a>近况</h1><p>目前，泠诗的小窝已经集成了：blog主页、admin页面、editor页面、彩蛋页面<br>这些开发用时也就是一个星期，是在上个月，也就是一月份的月初搞定的<br>后来又去开坑了另一个项目——⌈纸语PaperWhisper⌋</p>
@@ -171,7 +181,7 @@
 <h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
 <h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
 
-    <div id="aplayer-xXECXJDJ" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-NLNLVfER" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 <p>晚安，好梦💤</p>
@@ -185,27 +195,10 @@
       </tags>
   </entry>
   <entry>
-    <title>今日焕新</title>
-    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
-<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
+    <title>初次见面</title>
+    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
 ]]></content>
-      <categories>
-        <category>测试</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>深夜更新</title>
-    <url>/2026/01/07/%E6%B7%B1%E5%A4%9C%E6%9B%B4%E6%96%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>太折腾了，折腾了一个晚上也没折腾啥东西<br>撰写页面的卡片背景一直弄不了高斯模糊的玻璃卡片，现在看着好丑好丑<br>就酱紫，第一篇在在线blog的editor上写文章<br>晚安<br>测试一下修改功能</p>
-]]></content>
-      <categories>
-        <category>博客更新</category>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>测试</tag>
-      </tags>
   </entry>
   <entry>
     <title>稍微怀旧一下~</title>
@@ -215,7 +208,7 @@
 </blockquote>
 <p>搭配音乐更佳~</p>
 
-    <div id="aplayer-FoSAYykr" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-DsopXDed" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 <p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
@@ -235,7 +228,7 @@
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-AlJAbjLe" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-ikwKUDzx" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
@@ -376,12 +369,6 @@
       </tags>
   </entry>
   <entry>
-    <title>初次见面</title>
-    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
-]]></content>
-  </entry>
-  <entry>
     <title>音乐使用说明</title>
     <url>/2026/01/03/%E9%9F%B3%E4%B9%90%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="🎵-音乐播放器使用说明"><a href="#🎵-音乐播放器使用说明" class="headerlink" title="🎵 音乐播放器使用说明"></a>🎵 音乐播放器使用说明</h1><h2 id="快速插入"><a href="#快速插入" class="headerlink" title="快速插入"></a>快速插入</h2><p>在 Obsidian 中：</p>
@@ -451,6 +438,19 @@
       </categories>
       <tags>
         <tag>APlayer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>深夜更新</title>
+    <url>/2026/01/07/%E6%B7%B1%E5%A4%9C%E6%9B%B4%E6%96%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>太折腾了，折腾了一个晚上也没折腾啥东西<br>撰写页面的卡片背景一直弄不了高斯模糊的玻璃卡片，现在看着好丑好丑<br>就酱紫，第一篇在在线blog的editor上写文章<br>晚安<br>测试一下修改功能</p>
+]]></content>
+      <categories>
+        <category>博客更新</category>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>测试</tag>
       </tags>
   </entry>
 </search>
