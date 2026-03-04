@@ -1,100 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>一月到二月的一些杂记</title>
-    <url>/2026/02/07/%E4%B8%80%E6%9C%88%E5%88%B0%E4%BA%8C%E6%9C%88%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9D%82%E8%AE%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="近况"><a href="#近况" class="headerlink" title="近况"></a>近况</h1><p>目前，泠诗的小窝已经集成了：blog主页、admin页面、editor页面、彩蛋页面<br>这些开发用时也就是一个星期，是在上个月，也就是一月份的月初搞定的<br>后来又去开坑了另一个项目——⌈纸语PaperWhisper⌋</p>
-<h1 id="⌈纸语PaperWhisper⌋"><a href="#⌈纸语PaperWhisper⌋" class="headerlink" title="⌈纸语PaperWhisper⌋"></a>⌈纸语PaperWhisper⌋</h1><p>其实早在很久之前就想开发一款属于自己的软件，于是目标就锁定在我跃跃欲试的日记软件，展示一下界面，采用拟物风格设计<br>目前分为两个主打功能：专注写作与随心记；<br><strong>特性：</strong></p>
-<ul>
-<li>数据本地化管理，将数据保存权利完全交给用户</li>
-<li>支持Android和Windows双端，后续可扩展至ios</li>
-<li>支持webdav和s3存储同步</li>
-<li>多种精美主题</li>
-<li>优雅的过渡动画</li>
-<li>支持密码锁和指纹解锁</li>
-</ul>
-<h2 id="专注写作"><a href="#专注写作" class="headerlink" title="专注写作"></a>专注写作</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/9a556e5915a6c3eb6e3a1133ed03c65b.jpg" alt="专注写作"></p>
-<p>专注写作主打长文沉浸式写作，数据保存为txt格式，用记事本也可打开</p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/923ad59406dceb5012f93aaf82cb3166.jpg" alt="撰写页面"></p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/fe83da2adb3e8e76453cca466dda889c.jpg" alt="月份目录"></p>
-<p>我们觉得，月份不单单是月份，更是一本书籍的目录，所以设计了以月份为单位的目录，以书籍为单位的年份</p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7320728fa8a86116e5e8eadc5a0fcc92.jpg" alt="年度书籍"></p>
-<h2 id="随心记"><a href="#随心记" class="headerlink" title="随心记"></a>随心记</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7ebe697640d9c1aed8869433f280506b.jpg" alt="随心记"></p>
-<p>随心记是我在完成专注写作的基本功能后第一时间冒出来的想法，因为我平日在很多时候，比如散步就突然想记一些碎片化的东西，借鉴一些卡片笔记的方式开发了随心记功能，主打轻量级无压输入，随心所欲的发散自己的想法，并整合了拍立得样式的图片分享，上方的日期刻度借鉴了相机镜头的光圈，让翻阅每一日的随心记都更有一种仪式感</p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/8a84a74ace66069b6ec9113c04ac8bc1.jpg" alt="随心记展示"></p>
-<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/4bd6d7a429c67b5b93cb49ca2f202937.jpg" alt="侧边栏"></p>
-<p>接入了一言的api，给你的写作带来一点点灵感💡</p>
-<h4 id="一些主题样式"><a href="#一些主题样式" class="headerlink" title="一些主题样式"></a>一些主题样式</h4><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/55d9df8dad6f04d5351ff87a2501251e.jpg" alt="海底花海"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/f30c0658b232f21543b787fc1925ef7f.jpg" alt="午夜星辰"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/0ef39b297886e2907309fea289f0dace.jpg" alt="琥珀光圈"></p>
-<h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><p>产品目前主要在小红书上进行发帖推广，已经吸引约三十多名用户使用，自然推流没有买推广，自觉不如很多大佬开发的app<br>目前进入了可用阶段，迭代速度稍微放缓，之前都是一天一更，欢迎来体验qaq<br>下载地址👉<a href="https://paperwhisper.lingshichat.top/">点击这里访问</a></p>
-<h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
-<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
-
-    <div id="aplayer-zfZXdBgO" class="aplayer aplayer-tag-marker meting-tag-marker"
-         data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
-    ></div>
-<p>晚安，好梦💤</p>
-]]></content>
-      <categories>
-        <category>随想</category>
-      </categories>
-      <tags>
-        <tag>随想</tag>
-        <tag>月记</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>今日焕新</title>
-    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
-<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
-]]></content>
-      <categories>
-        <category>测试</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>深夜更新</title>
-    <url>/2026/01/07/%E6%B7%B1%E5%A4%9C%E6%9B%B4%E6%96%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>太折腾了，折腾了一个晚上也没折腾啥东西<br>撰写页面的卡片背景一直弄不了高斯模糊的玻璃卡片，现在看着好丑好丑<br>就酱紫，第一篇在在线blog的editor上写文章<br>晚安<br>测试一下修改功能</p>
-]]></content>
-      <categories>
-        <category>博客更新</category>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>初次见面</title>
-    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
-]]></content>
-  </entry>
-  <entry>
-    <title>稍微怀旧一下~</title>
-    <url>/2026/02/24/%E7%A8%8D%E5%BE%AE%E6%80%80%E6%97%A7%E4%B8%80%E4%B8%8B~/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
-<p>在访问自己搭的openlist的时候，发现了之前上传到阿里云盘的一个视频，是嫣汐演唱的一首歌，于是开始动了构思本文的念头</p>
-</blockquote>
-<p>搭配音乐更佳~</p>
-
-    <div id="aplayer-aKFHWzmf" class="aplayer aplayer-tag-marker meting-tag-marker"
-         data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
-    ></div>
-<p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
-<p><img src="http://pic.962.net/up/2017-7/2017728925282704.png" alt="icon是嫣汐"></p>
-<p>点进去发现是一个能互动的歌姬诶，可以进行触摸互动什么的，那时候崩三也是有特触的，跟那个类似吧，这个歌姬的名字叫做：嫣汐<br>她有一个功能，就是给歌曲重新填词，然后嫣汐可以为你而唱，这在当时对小小的我有一种震撼，居然有个歌姬任我调用，为我发声！尤其是当我写好了一段不知所谓的歌词后，点击播放，等待一会后就能以你选定的歌曲曲调唱出来，那种感觉除了感动，还有满满的成就感<br>当时我陆陆续续的给一些歌翻填了歌词：锦鲤抄、白金disco、醉、世末歌者（我给世末歌者填了好几版的词阿巴阿巴），反正还有一些已经记不清了，哦对还有采茶纪！<br>那时候的我初二左右，但是感觉心智还是很小孩子，正好那段时间也是刚接入网络不久对什么都很好奇都感兴趣，被嫣汐和这个社区深深的吸引着，对v圈有了更多的认识<br>嫣汐背后的声音引擎是MUTA，一款国产的声音引擎，当时我就知道vocalvoid再然后就是这个muta，当时的muta客户端很不稳，总是会闪退，即使如此也涌现出来了一批质量较高的曲子，在19年左右的bilibililink，嫣汐c位登场，连唱了两三首曲子，从⌈嫣橙色⌋到⌈专属权⌋，再到⌈hello goodbye⌋，满屏的弹幕刷着惊喜，纷纷在问这是谁为什么还压过天依一头……嫣汐第一次站在聚光灯下，有一种看着自家女儿出道成名的感觉，网易云的嫣橙色评论区都是bilibililink来的百万大军<br>后来，嫣汐app升级成了MUTAapp，更加注重构建社区，首页的推荐流可以收听其他创作者的曲子<br>升级的初期，社区总是会崩溃，还被黑产爆破有一些少儿不宜的内容，后来慢慢的平稳下来，但是跟嫣汐单独的互动界面也被移除了<br>后面由于资金链的问题吧，20年到21年这段时间逐渐的消沉，app也连不上服务器，官号也没有新内容的产出…..<br>推荐几个ep看看<br><a href="https://www.bilibili.com/video/BV17x411674Q/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【MUTA-嫣汐】《嫣橙色》PV，嫣汐APP&amp;填词大赛同步上线【Yunomi】】</a><br>嫣橙色是嫣汐的主打曲，很有活力，很有嫣汐的感觉~也是kawaii的曲风，是yonomi作曲！<br><a href="https://www.bilibili.com/video/BV1iW411r7K3/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【古风原创】《花月谣》【嫣汐】中秋主题曲】 </a><br>这个花月谣的pv是最精美的，我特别喜欢，我把这个视频下载下来传到各个地方都进行了备份，甚至一度以这个pv来测试播放器的播放质量…<br><a href="https://www.bilibili.com/video/BV1Qs411b7MT/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【徐梦圆】醉-PV付【MUTA-嫣汐】】 </a><br>这首醉是徐梦圆给嫣汐做的曲，很有一种江南烟雨的女子的韵味，那时候徐梦圆还没塌房……<br>还有好多好多，总之当时嫣汐的经费看起来真的很足，却还是没走到现在<br>资金链断裂后，官方又在一个新的b站号那里，每天24h直播，希望以此能接受点打赏维稳资金链，嫣汐就在那小小的直播间里一遍又一遍的给来往的观众唱着自己曲库的歌曲，观众投票决定嫣汐的场景地点，当时嫣汐的声音引擎又进行了迭代，可惜最后也没有维持下来<br>嫣汐一直没有开放过什么会员啊充值入口，一直都是在烧钱做，真的很可惜啊，哎…</p>
-]]></content>
-      <categories>
-        <category>随记</category>
-      </categories>
-      <tags>
-        <tag>怀旧</tag>
-        <tag>歌姬</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>OpenClaw 分层记忆系统配置方案</title>
     <url>/2026/03/02/OpenClaw-%E5%88%86%E5%B1%82%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="OpenClaw-分层记忆系统配置方案"><a href="#OpenClaw-分层记忆系统配置方案" class="headerlink" title="OpenClaw 分层记忆系统配置方案"></a>OpenClaw 分层记忆系统配置方案</h1><h2 id="一、目录结构"><a href="#一、目录结构" class="headerlink" title="一、目录结构"></a>一、目录结构</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在 workspace 目录下创建</span><br><span class="line">mkdir -p memory/archive</span><br><span class="line">touch MEMORY.md HEARTBEAT.md</span><br></pre></td></tr></table></figure>
@@ -145,75 +51,183 @@
       </tags>
   </entry>
   <entry>
-    <title>音乐使用说明</title>
-    <url>/2026/01/03/%E9%9F%B3%E4%B9%90%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="🎵-音乐播放器使用说明"><a href="#🎵-音乐播放器使用说明" class="headerlink" title="🎵 音乐播放器使用说明"></a>🎵 音乐播放器使用说明</h1><h2 id="快速插入"><a href="#快速插入" class="headerlink" title="快速插入"></a>快速插入</h2><p>在 Obsidian 中：</p>
-<ol>
-<li>按 <code>Ctrl+P</code> 打开命令面板</li>
-<li>搜索 “模板” （Templates: Insert template）</li>
-<li>选择对应的音乐模板</li>
-<li>替换其中的 ID 即可</li>
-</ol>
-<h2 id="模板列表"><a href="#模板列表" class="headerlink" title="模板列表"></a>模板列表</h2><h3 id="📀-单曲播放器"><a href="#📀-单曲播放器" class="headerlink" title="📀 单曲播放器"></a>📀 单曲播放器</h3><ul>
-<li><strong>模板</strong>：<code>音乐-单曲</code></li>
-<li><strong>格式</strong>：<code>&#123;% meting "歌曲ID" "netease" "song" %&#125;</code></li>
-<li><strong>使用</strong>：只需替换 <code>歌曲ID</code> 为实际的歌曲ID</li>
-</ul>
-<h3 id="📁-歌单播放器（红色主题）"><a href="#📁-歌单播放器（红色主题）" class="headerlink" title="📁 歌单播放器（红色主题）"></a>📁 歌单播放器（红色主题）</h3><ul>
-<li><strong>模板</strong>：<code>音乐-歌单</code></li>
-<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#C20C0C" "mutex:true" %&#125;</code></li>
-<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
-</ul>
-<h3 id="📁-歌单播放器（紫色主题）"><a href="#📁-歌单播放器（紫色主题）" class="headerlink" title="📁 歌单播放器（紫色主题）"></a>📁 歌单播放器（紫色主题）</h3><ul>
-<li><strong>模板</strong>：<code>音乐-歌单-紫色</code></li>
-<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
-<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
-</ul>
-<h2 id="如何获取音乐ID？"><a href="#如何获取音乐ID？" class="headerlink" title="如何获取音乐ID？"></a>如何获取音乐ID？</h2><h3 id="网易云音乐"><a href="#网易云音乐" class="headerlink" title="网易云音乐"></a>网易云音乐</h3><ol>
-<li>打开网易云音乐网页版：<a href="https://music.163.com/">https://music.163.com</a></li>
-<li>搜索并打开你想要的歌曲或歌单</li>
-<li>查看浏览器地址栏：<ul>
-<li><strong>歌曲</strong>：<code>https://music.163.com/#/song?id=123456</code> → ID是 <code>123456</code></li>
-<li><strong>歌单</strong>：<code>https://music.163.com/#/playlist?id=789012</code> → ID是 <code>789012</code></li>
-</ul>
-</li>
-</ol>
-<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><strong>单曲示例</strong>：</p>
+    <title>【oc配置分享】一个你可能低估的“打下手”模型</title>
+    <url>/2026/03/04/%E3%80%90oc%E9%85%8D%E7%BD%AE%E5%88%86%E4%BA%AB%E3%80%91%E4%B8%80%E4%B8%AA%E4%BD%A0%E5%8F%AF%E8%83%BD%E4%BD%8E%E4%BC%B0%E7%9A%84%E2%80%9C%E6%89%93%E4%B8%8B%E6%89%8B%E2%80%9D%E6%A8%A1%E5%9E%8B/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
+<p>本文首发于Linux.do和我的blog~<a href="https://lingshichat.top/">泠诗的小窝</a></p>
+</blockquote>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>大家好呀，这是我来L站的第一个帖子~<br>其实在用邀请码写小作文的时候就写了想看社区里的佬们如何各种折腾ai的，然后也想结合自己的实践经验分享一下给各位佬友们<br>可能有些许不妥之处，还望大家批评指正QAQ，毕竟我只是个小趴菜<br>以下分享是根据我个人使用经验来配置的</p>
+<h1 id="一、opencode模型配置"><a href="#一、opencode模型配置" class="headerlink" title="一、opencode模型配置"></a>一、opencode模型配置</h1><p>其实看佬友们都在分享cc和cx比较多，那我蛮钟爱oc的其实，因为穷用不起claude呜呜呜呜cc只能稍微用用，codex觉得现阶段刚出不太完善<br>更主要的原因是，oc是可以<strong>自由配置自己手头上已有的模型</strong>！不局限于claude和codex<br>众所周知，oc有一个特性：sub-agent，也就是子代理，这个sub-agent可以用来<strong>检索外网数据、检索代码库、调研方案、编写一些不痛不痒的文档，为main-agent（也就是主代理，比如oc用的比较多的Sisyphus）分担工作压力，同时也降低对应main-agent的token消耗</strong>，以下是一些针对oc的模型配置：</p>
+<table>
+<thead>
+<tr>
+<th>Agent（角色）</th>
+<th>使用模型</th>
+<th>选择理由</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>atlas（总调度）</td>
+<td>Claude Opus 4.6</td>
+<td>顶级推理，处理复杂多代理编排</td>
+</tr>
+<tr>
+<td>metis（方案预审）</td>
+<td>Gemini 3.1 Pro</td>
+<td>多模态推理，挖掘隐藏需求</td>
+</tr>
+<tr>
+<td>prometheus（设计评审）</td>
+<td>Gemini 3.1 Pro</td>
+<td>视觉&#x2F;架构&#x2F;安全审查能力强</td>
+</tr>
+<tr>
+<td>hephaestus（建造者）</td>
+<td>GPT-5.3 Codex</td>
+<td>代码专用，确定性输出（temperature: false）</td>
+</tr>
+<tr>
+<td>sisyphus（主力）</td>
+<td>GPT-5.3 Codex</td>
+<td>与建造者一致，使用 Responses API 变体</td>
+</tr>
+<tr>
+<td>sisyphus-junior（辅助）</td>
+<td>Step 3.5 Flash</td>
+<td>低成本处理简单重复任务</td>
+</tr>
+<tr>
+<td>explore（代码探索）</td>
+<td>Step 3.5 Flash</td>
+<td>快速、便宜，用于文件结构&#x2F;模式搜索</td>
+</tr>
+<tr>
+<td>librarian（外部检索）</td>
+<td>Step 3.5 Flash</td>
+<td>高频查询成本优化</td>
+</tr>
+<tr>
+<td>oracle（咨询）</td>
+<td>Step 3.5 Flash</td>
+<td>快速技术问答，低延迟</td>
+</tr>
+<tr>
+<td>frontend-ui-ux-engineer（前端）</td>
+<td>Gemini 3.1 Pro</td>
+<td>原生多模态（图片&#x2F;设计稿理解）</td>
+</tr>
+<tr>
+<td>multimodal-looker（媒体分析）</td>
+<td>Gemini 3 Flash</td>
+<td>轻量级图像&#x2F;视频&#x2F;PDF 分析</td>
+</tr>
+<tr>
+<td>document-writer（文档）</td>
+<td>MiniMax M2.5</td>
+<td>100 万 token 上下文，长文档生成</td>
+</tr>
+<tr>
+<td>momus（计划评审）</td>
+<td>Kimi K2.5</td>
+<td>性价比高，评估计划完整性</td>
+</tr>
+<tr>
+<td>但是我日常使用最多的，还是Sisyphus的codex以及一堆sub-agent调用的step-3.5-flash</td>
+<td></td>
+<td></td>
+</tr>
+</tbody></table>
+<h1 id="二、sub-agent为何选择step-3-5-flash？"><a href="#二、sub-agent为何选择step-3-5-flash？" class="headerlink" title="二、sub-agent为何选择step-3.5-flash？"></a>二、sub-agent为何选择step-3.5-flash？</h1><p>有人说，明明现在codex基本人人都有，价格低廉甚至可以白嫖，为什么不直接把codex设为各种sub-agent呢？<br>那看下面这个gif你就知道缘由了：<br><img src="https://lingshichat.s3.bitiful.net/1772637413182_step-3.5-flash.gif" alt="step-3.5-flash.gif"><br>怎么样，是不是被这个吐字速度震惊啦，我知道站内有佬友们对step-3.5-flash这个模型的评测，可大部分都没有真正正视这个模型<br>step-3.5-flash是阶跃星辰推出的一款推理模型，专为对复杂任务的分解、计划，可快速可靠地调用工具执行任务，胜任逻辑推理、数学、软件工程、深度研究等各种复杂任务。上下文长度为256K，官方定价为百万token 2.1r，定价参考链接：<a href="https://platform.stepfun.com/docs/zh/pricing/details">https://platform.stepfun.com/docs/zh/pricing/details</a><br>而且目前在openrouter是可以免费调用的：<a href="https://openrouter.ai/stepfun/step-3.5-flash:free">https://openrouter.ai/stepfun/step-3.5-flash:free</a><br>而且对小龙虾的支持也不错<del>有小龙虾的佬友们也可以去试试</del></p>
+<h1 id="三、oc缓存命中率低？"><a href="#三、oc缓存命中率低？" class="headerlink" title="三、oc缓存命中率低？"></a>三、oc缓存命中率低？</h1><p>这里分享一下对应的配置文件和插件~是在之前南风大佬rc站的opencode说明文档的基础上配置的：<a href="https://lingshichat.s3.bitiful.net/oc%E9%85%8D%E7%BD%AE%E4%B8%8E%E6%8F%92%E4%BB%B6.zip?no-wait=on">戳此下载</a></p>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>佬友们如果有更多的问题欢迎在下面交流QAQ，我也只是个小趴菜，如果有错误请不吝指正<br>后续还有openclaw飞书插件相关技能分享、openclaw原版webui替换计划也在开坑ing——</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>一月到二月的一些杂记</title>
+    <url>/2026/02/07/%E4%B8%80%E6%9C%88%E5%88%B0%E4%BA%8C%E6%9C%88%E7%9A%84%E4%B8%80%E4%BA%9B%E6%9D%82%E8%AE%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="近况"><a href="#近况" class="headerlink" title="近况"></a>近况</h1><p>目前，泠诗的小窝已经集成了：blog主页、admin页面、editor页面、彩蛋页面<br>这些开发用时也就是一个星期，是在上个月，也就是一月份的月初搞定的<br>后来又去开坑了另一个项目——⌈纸语PaperWhisper⌋</p>
+<h1 id="⌈纸语PaperWhisper⌋"><a href="#⌈纸语PaperWhisper⌋" class="headerlink" title="⌈纸语PaperWhisper⌋"></a>⌈纸语PaperWhisper⌋</h1><p>其实早在很久之前就想开发一款属于自己的软件，于是目标就锁定在我跃跃欲试的日记软件，展示一下界面，采用拟物风格设计<br>目前分为两个主打功能：专注写作与随心记；<br><strong>特性：</strong></p>
 <ul>
-<li>歌曲：袁娅维 - 说散就散</li>
-<li>链接：<code>https://music.163.com/#/song?id=500224267</code></li>
-<li>ID：<code>500224267</code></li>
-<li>代码：<code>&#123;% meting "500224267" "netease" "song" %&#125;</code></li>
+<li>数据本地化管理，将数据保存权利完全交给用户</li>
+<li>支持Android和Windows双端，后续可扩展至ios</li>
+<li>支持webdav和s3存储同步</li>
+<li>多种精美主题</li>
+<li>优雅的过渡动画</li>
+<li>支持密码锁和指纹解锁</li>
 </ul>
-<p><strong>歌单示例</strong>：</p>
-<ul>
-<li>歌单：我喜欢的音乐</li>
-<li>链接：<code>https://music.163.com/#/playlist?id=17400710741</code></li>
-<li>ID：<code>17400710741</code></li>
-<li>代码：<code>&#123;% meting "17400710741" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
-</ul>
-<h2 id="快捷键设置（可选）"><a href="#快捷键设置（可选）" class="headerlink" title="快捷键设置（可选）"></a>快捷键设置（可选）</h2><p>你可以在 Obsidian 设置中为常用模板设置快捷键：</p>
-<ol>
-<li>打开设置 → 快捷键</li>
-<li>搜索 “Templates”</li>
-<li>为 “Insert template” 设置快捷键（比如 <code>Ctrl+Shift+T</code>）</li>
-</ol>
-<p>这样就可以：</p>
-<ol>
-<li>按快捷键</li>
-<li>选择音乐模板</li>
-<li>填入ID</li>
-<li>完成！</li>
-</ol>
-<hr>
-<p>💡 <strong>提示</strong>：如果你经常使用某个歌单，可以直接复制完整的代码保存在你的笔记中作为参考。</p>
-<p>测试一下修改</p>
+<h2 id="专注写作"><a href="#专注写作" class="headerlink" title="专注写作"></a>专注写作</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/9a556e5915a6c3eb6e3a1133ed03c65b.jpg" alt="专注写作"></p>
+<p>专注写作主打长文沉浸式写作，数据保存为txt格式，用记事本也可打开</p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/923ad59406dceb5012f93aaf82cb3166.jpg" alt="撰写页面"></p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/fe83da2adb3e8e76453cca466dda889c.jpg" alt="月份目录"></p>
+<p>我们觉得，月份不单单是月份，更是一本书籍的目录，所以设计了以月份为单位的目录，以书籍为单位的年份</p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7320728fa8a86116e5e8eadc5a0fcc92.jpg" alt="年度书籍"></p>
+<h2 id="随心记"><a href="#随心记" class="headerlink" title="随心记"></a>随心记</h2><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/7ebe697640d9c1aed8869433f280506b.jpg" alt="随心记"></p>
+<p>随心记是我在完成专注写作的基本功能后第一时间冒出来的想法，因为我平日在很多时候，比如散步就突然想记一些碎片化的东西，借鉴一些卡片笔记的方式开发了随心记功能，主打轻量级无压输入，随心所欲的发散自己的想法，并整合了拍立得样式的图片分享，上方的日期刻度借鉴了相机镜头的光圈，让翻阅每一日的随心记都更有一种仪式感</p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/8a84a74ace66069b6ec9113c04ac8bc1.jpg" alt="随心记展示"></p>
+<p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/4bd6d7a429c67b5b93cb49ca2f202937.jpg" alt="侧边栏"></p>
+<p>接入了一言的api，给你的写作带来一点点灵感💡</p>
+<h4 id="一些主题样式"><a href="#一些主题样式" class="headerlink" title="一些主题样式"></a>一些主题样式</h4><p><img src="https://lingshichat.s3.bitiful.net/img/2026/02/55d9df8dad6f04d5351ff87a2501251e.jpg" alt="海底花海"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/f30c0658b232f21543b787fc1925ef7f.jpg" alt="午夜星辰"><br><img src="https://lingshichat.s3.bitiful.net/img/2026/02/0ef39b297886e2907309fea289f0dace.jpg" alt="琥珀光圈"></p>
+<h2 id="现状"><a href="#现状" class="headerlink" title="现状"></a>现状</h2><p>产品目前主要在小红书上进行发帖推广，已经吸引约三十多名用户使用，自然推流没有买推广，自觉不如很多大佬开发的app<br>目前进入了可用阶段，迭代速度稍微放缓，之前都是一天一更，欢迎来体验qaq<br>下载地址👉<a href="https://paperwhisper.lingshichat.top/">点击这里访问</a></p>
+<h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
+<h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
+
+    <div id="aplayer-xXECXJDJ" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+<p>晚安，好梦💤</p>
+]]></content>
+      <categories>
+        <category>随想</category>
+      </categories>
+      <tags>
+        <tag>随想</tag>
+        <tag>月记</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>今日焕新</title>
+    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
+<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
 ]]></content>
       <categories>
         <category>测试</category>
       </categories>
+  </entry>
+  <entry>
+    <title>深夜更新</title>
+    <url>/2026/01/07/%E6%B7%B1%E5%A4%9C%E6%9B%B4%E6%96%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>太折腾了，折腾了一个晚上也没折腾啥东西<br>撰写页面的卡片背景一直弄不了高斯模糊的玻璃卡片，现在看着好丑好丑<br>就酱紫，第一篇在在线blog的editor上写文章<br>晚安<br>测试一下修改功能</p>
+]]></content>
+      <categories>
+        <category>博客更新</category>
+        <category>技术</category>
+      </categories>
       <tags>
-        <tag>APlayer</tag>
+        <tag>测试</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>稍微怀旧一下~</title>
+    <url>/2026/02/24/%E7%A8%8D%E5%BE%AE%E6%80%80%E6%97%A7%E4%B8%80%E4%B8%8B~/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
+<p>在访问自己搭的openlist的时候，发现了之前上传到阿里云盘的一个视频，是嫣汐演唱的一首歌，于是开始动了构思本文的念头</p>
+</blockquote>
+<p>搭配音乐更佳~</p>
+
+    <div id="aplayer-FoSAYykr" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+<p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
+<p><img src="http://pic.962.net/up/2017-7/2017728925282704.png" alt="icon是嫣汐"></p>
+<p>点进去发现是一个能互动的歌姬诶，可以进行触摸互动什么的，那时候崩三也是有特触的，跟那个类似吧，这个歌姬的名字叫做：嫣汐<br>她有一个功能，就是给歌曲重新填词，然后嫣汐可以为你而唱，这在当时对小小的我有一种震撼，居然有个歌姬任我调用，为我发声！尤其是当我写好了一段不知所谓的歌词后，点击播放，等待一会后就能以你选定的歌曲曲调唱出来，那种感觉除了感动，还有满满的成就感<br>当时我陆陆续续的给一些歌翻填了歌词：锦鲤抄、白金disco、醉、世末歌者（我给世末歌者填了好几版的词阿巴阿巴），反正还有一些已经记不清了，哦对还有采茶纪！<br>那时候的我初二左右，但是感觉心智还是很小孩子，正好那段时间也是刚接入网络不久对什么都很好奇都感兴趣，被嫣汐和这个社区深深的吸引着，对v圈有了更多的认识<br>嫣汐背后的声音引擎是MUTA，一款国产的声音引擎，当时我就知道vocalvoid再然后就是这个muta，当时的muta客户端很不稳，总是会闪退，即使如此也涌现出来了一批质量较高的曲子，在19年左右的bilibililink，嫣汐c位登场，连唱了两三首曲子，从⌈嫣橙色⌋到⌈专属权⌋，再到⌈hello goodbye⌋，满屏的弹幕刷着惊喜，纷纷在问这是谁为什么还压过天依一头……嫣汐第一次站在聚光灯下，有一种看着自家女儿出道成名的感觉，网易云的嫣橙色评论区都是bilibililink来的百万大军<br>后来，嫣汐app升级成了MUTAapp，更加注重构建社区，首页的推荐流可以收听其他创作者的曲子<br>升级的初期，社区总是会崩溃，还被黑产爆破有一些少儿不宜的内容，后来慢慢的平稳下来，但是跟嫣汐单独的互动界面也被移除了<br>后面由于资金链的问题吧，20年到21年这段时间逐渐的消沉，app也连不上服务器，官号也没有新内容的产出…..<br>推荐几个ep看看<br><a href="https://www.bilibili.com/video/BV17x411674Q/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【MUTA-嫣汐】《嫣橙色》PV，嫣汐APP&amp;填词大赛同步上线【Yunomi】】</a><br>嫣橙色是嫣汐的主打曲，很有活力，很有嫣汐的感觉~也是kawaii的曲风，是yonomi作曲！<br><a href="https://www.bilibili.com/video/BV1iW411r7K3/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【古风原创】《花月谣》【嫣汐】中秋主题曲】 </a><br>这个花月谣的pv是最精美的，我特别喜欢，我把这个视频下载下来传到各个地方都进行了备份，甚至一度以这个pv来测试播放器的播放质量…<br><a href="https://www.bilibili.com/video/BV1Qs411b7MT/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【徐梦圆】醉-PV付【MUTA-嫣汐】】 </a><br>这首醉是徐梦圆给嫣汐做的曲，很有一种江南烟雨的女子的韵味，那时候徐梦圆还没塌房……<br>还有好多好多，总之当时嫣汐的经费看起来真的很足，却还是没走到现在<br>资金链断裂后，官方又在一个新的b站号那里，每天24h直播，希望以此能接受点打赏维稳资金链，嫣汐就在那小小的直播间里一遍又一遍的给来往的观众唱着自己曲库的歌曲，观众投票决定嫣汐的场景地点，当时嫣汐的声音引擎又进行了迭代，可惜最后也没有维持下来<br>嫣汐一直没有开放过什么会员啊充值入口，一直都是在烧钱做，真的很可惜啊，哎…</p>
+]]></content>
+      <categories>
+        <category>随记</category>
+      </categories>
+      <tags>
+        <tag>怀旧</tag>
+        <tag>歌姬</tag>
       </tags>
   </entry>
   <entry>
@@ -221,7 +235,7 @@
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-bfVgpWPy" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-AlJAbjLe" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
@@ -359,6 +373,84 @@
       <tags>
         <tag>歌词</tag>
         <tag>摘抄</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>初次见面</title>
+    <url>/2026/01/01/%E5%88%9D%E6%AC%A1%E8%A7%81%E9%9D%A2/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>见字如面，这是我的第一篇博客。<br>做一个<strong>自己的博客页面</strong>其实好早之前就想过，应该在初高中的时候就有想过，那时候借助WordPress但是也不是很成功。<br>在今日给纸语设计好icon传到github之后，突然就想起来可以借助github搭建一个自己练手的博客。<br>于是这篇文章便呈现在你眼前~<br>请多多指教~<br>还有，元旦快乐~  </p>
+]]></content>
+  </entry>
+  <entry>
+    <title>音乐使用说明</title>
+    <url>/2026/01/03/%E9%9F%B3%E4%B9%90%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="🎵-音乐播放器使用说明"><a href="#🎵-音乐播放器使用说明" class="headerlink" title="🎵 音乐播放器使用说明"></a>🎵 音乐播放器使用说明</h1><h2 id="快速插入"><a href="#快速插入" class="headerlink" title="快速插入"></a>快速插入</h2><p>在 Obsidian 中：</p>
+<ol>
+<li>按 <code>Ctrl+P</code> 打开命令面板</li>
+<li>搜索 “模板” （Templates: Insert template）</li>
+<li>选择对应的音乐模板</li>
+<li>替换其中的 ID 即可</li>
+</ol>
+<h2 id="模板列表"><a href="#模板列表" class="headerlink" title="模板列表"></a>模板列表</h2><h3 id="📀-单曲播放器"><a href="#📀-单曲播放器" class="headerlink" title="📀 单曲播放器"></a>📀 单曲播放器</h3><ul>
+<li><strong>模板</strong>：<code>音乐-单曲</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌曲ID" "netease" "song" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌曲ID</code> 为实际的歌曲ID</li>
+</ul>
+<h3 id="📁-歌单播放器（红色主题）"><a href="#📁-歌单播放器（红色主题）" class="headerlink" title="📁 歌单播放器（红色主题）"></a>📁 歌单播放器（红色主题）</h3><ul>
+<li><strong>模板</strong>：<code>音乐-歌单</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#C20C0C" "mutex:true" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
+</ul>
+<h3 id="📁-歌单播放器（紫色主题）"><a href="#📁-歌单播放器（紫色主题）" class="headerlink" title="📁 歌单播放器（紫色主题）"></a>📁 歌单播放器（紫色主题）</h3><ul>
+<li><strong>模板</strong>：<code>音乐-歌单-紫色</code></li>
+<li><strong>格式</strong>：<code>&#123;% meting "歌单ID" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
+<li><strong>使用</strong>：只需替换 <code>歌单ID</code> 为实际的歌单ID</li>
+</ul>
+<h2 id="如何获取音乐ID？"><a href="#如何获取音乐ID？" class="headerlink" title="如何获取音乐ID？"></a>如何获取音乐ID？</h2><h3 id="网易云音乐"><a href="#网易云音乐" class="headerlink" title="网易云音乐"></a>网易云音乐</h3><ol>
+<li>打开网易云音乐网页版：<a href="https://music.163.com/">https://music.163.com</a></li>
+<li>搜索并打开你想要的歌曲或歌单</li>
+<li>查看浏览器地址栏：<ul>
+<li><strong>歌曲</strong>：<code>https://music.163.com/#/song?id=123456</code> → ID是 <code>123456</code></li>
+<li><strong>歌单</strong>：<code>https://music.163.com/#/playlist?id=789012</code> → ID是 <code>789012</code></li>
+</ul>
+</li>
+</ol>
+<h3 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h3><p><strong>单曲示例</strong>：</p>
+<ul>
+<li>歌曲：袁娅维 - 说散就散</li>
+<li>链接：<code>https://music.163.com/#/song?id=500224267</code></li>
+<li>ID：<code>500224267</code></li>
+<li>代码：<code>&#123;% meting "500224267" "netease" "song" %&#125;</code></li>
+</ul>
+<p><strong>歌单示例</strong>：</p>
+<ul>
+<li>歌单：我喜欢的音乐</li>
+<li>链接：<code>https://music.163.com/#/playlist?id=17400710741</code></li>
+<li>ID：<code>17400710741</code></li>
+<li>代码：<code>&#123;% meting "17400710741" "netease" "playlist" "theme:#667eea" "mutex:true" %&#125;</code></li>
+</ul>
+<h2 id="快捷键设置（可选）"><a href="#快捷键设置（可选）" class="headerlink" title="快捷键设置（可选）"></a>快捷键设置（可选）</h2><p>你可以在 Obsidian 设置中为常用模板设置快捷键：</p>
+<ol>
+<li>打开设置 → 快捷键</li>
+<li>搜索 “Templates”</li>
+<li>为 “Insert template” 设置快捷键（比如 <code>Ctrl+Shift+T</code>）</li>
+</ol>
+<p>这样就可以：</p>
+<ol>
+<li>按快捷键</li>
+<li>选择音乐模板</li>
+<li>填入ID</li>
+<li>完成！</li>
+</ol>
+<hr>
+<p>💡 <strong>提示</strong>：如果你经常使用某个歌单，可以直接复制完整的代码保存在你的笔记中作为参考。</p>
+<p>测试一下修改</p>
+]]></content>
+      <categories>
+        <category>测试</category>
+      </categories>
+      <tags>
+        <tag>APlayer</tag>
       </tags>
   </entry>
 </search>
