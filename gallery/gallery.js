@@ -7,8 +7,8 @@
 // 配置区
 // ============================================
 const CONFIG = {
-    WORKER_URL: 'https://api-gallery.lingshichat.top',
-    S3_PUBLIC_URL: 'https://img.lingshichat.top',
+    WORKER_URL: 'https://api-gallery.lingshichat.cn',
+    S3_PUBLIC_URL: 'https://img.lingshichat.cn',
     S3_BUCKET: 'lingshichat',
     S3_REGION: 'cn-east-1',
     IMAGE_BASE_PREFIX: 'img/gallery/',
@@ -31,6 +31,20 @@ const CATEGORIES = [
 ];
 
 const UPLOAD_CATEGORIES = CATEGORIES.filter(c => c.key !== 'all' && c.key !== 'mine');
+
+function createUploadQueueId() {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    return `upload_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function parseTagInput(value) {
+    return String(value || '')
+        .split(/[,\n，]+/)
+        .map((tag) => tag.trim())
+        .filter((tag, index, list) => tag && list.indexOf(tag) === index);
+}
 
 // ============================================
 // 图片列表服务
@@ -55,6 +69,9 @@ const GalleryService = {
         if (cursor) {
             params.set('cursor', cursor);
         }
+        if (options.bustCache) {
+            params.set('_t', String(Date.now()));
+        }
 
         const response = await fetch(`${CONFIG.WORKER_URL}?${params.toString()}`, { headers });
         const data = await response.json();
@@ -74,6 +91,17 @@ const GalleryService = {
                 total: 0
             }
         };
+    },
+
+    async getCounts(bustCache = false, token = '') {
+        const url = bustCache
+            ? `${CONFIG.WORKER_URL}?action=counts&_t=${Date.now()}`
+            : `${CONFIG.WORKER_URL}?action=counts`;
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+        const response = await fetch(url, { headers });
+        const data = await response.json();
+        if (data.code !== 200) throw new Error(data.message || '获取计数失败');
+        return data.counts;
     },
 
     async login(email, password) {
@@ -136,11 +164,11 @@ const GalleryService = {
         return data.data || [];
     },
 
-    async adminCreateInvite(token, maxUses = 1) {
+    async adminCreateInvite(token, maxUses = 1, customCode = '') {
         const res = await fetch(`${CONFIG.WORKER_URL}?action=adminCreateInvite`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-            body: JSON.stringify({ maxUses })
+            body: JSON.stringify({ maxUses, ...(customCode ? { customCode } : {}) })
         });
         const data = await res.json();
         if (data.code !== 200) throw new Error(data.message || '创建邀请码失败');
@@ -308,6 +336,7 @@ new Vue({
         authPassword: '',
         authError: '',
         authSubmitting: false,
+        modalMouseDownOnOverlay: false,
         sessionToken: localStorage.getItem(CONFIG.SESSION_TOKEN_KEY) || '',
         sessionRole: localStorage.getItem(CONFIG.SESSION_ROLE_KEY) || '',
         sessionUserId: localStorage.getItem(CONFIG.SESSION_USER_KEY) || '',
@@ -333,6 +362,7 @@ new Vue({
         adminInvites: [],
         adminLoading: false,
         newInviteMaxUses: 1,
+        newInviteCustomCode: '',
 
         // 1x1 透明 GIF 占位符，避免浏览器提前加载 placeholderUrl
         lazyPlaceholder: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
@@ -354,8 +384,9 @@ new Vue({
 
     async mounted() {
         this.restoreSession();
-        await this.syncSessionOnBoot();
-        await this.loadImages();
+        const bootPromise = this.syncSessionOnBoot();
+        const loadPromise = this.loadImages();
+        await Promise.all([bootPromise, loadPromise]);
         this.$nextTick(() => {
             this.initFancybox();
         });
@@ -536,9 +567,22 @@ new Vue({
             this.restoreSession();
         },
 
+        // 防止拖拽穿透误关闭弹窗：mousedown + mouseup 都在 overlay 上才关闭
+        overlayMouseDown(e) {
+            this.modalMouseDownOnOverlay = (e.target === e.currentTarget);
+        },
+        overlayMouseUp(e, modalFlag) {
+            if (this.modalMouseDownOnOverlay && e.target === e.currentTarget) {
+                this[modalFlag] = false;
+            }
+            this.modalMouseDownOnOverlay = false;
+        },
+
         openAuthModal(mode = 'login', message = '') {
             this.authMode = mode;
+            this.authEmail = '';
             this.authPassword = '';
+            this.inviteCode = '';
             this.authError = message;
             this.showAuthModal = true;
         },
@@ -559,7 +603,7 @@ new Vue({
                 const session = await GalleryService.login(this.authEmail, this.authPassword);
                 this.setSession(session);
                 this.showAuthModal = false;
-                await this.loadImages();
+                await this.loadImages(true);
                 this.showToast(this.authMode === 'register' ? '注册并登录成功' : '登录成功', 'success');
             } catch (error) {
                 this.authError = error.message || '认证失败';
@@ -579,7 +623,7 @@ new Vue({
             }
             this.clearSession();
             this.showAdminPanel = false;
-            await this.loadImages();
+            await this.loadImages(true);
             this.showToast('已退出登录', 'success');
         },
 
@@ -624,7 +668,10 @@ new Vue({
                 nextCursor: pagination.nextCursor || '',
                 total
             });
-            this.$set(this.categoryCounts, categoryKey, total);
+            // categoryCounts 仅由 counts API 写入，mine 除外（不在 counts API 中）
+            if (categoryKey === 'mine') {
+                this.$set(this.categoryCounts, 'mine', total);
+            }
         },
 
         async fetchCategoryPage(categoryKey, options = {}) {
@@ -632,22 +679,36 @@ new Vue({
             return GalleryService.listImages(prefix, token, owner, options);
         },
 
-        async loadAllCategories() {
+        async loadAllCategories(bustCache = false) {
             this.loading = true;
 
             try {
-                const allPage = await this.fetchCategoryPage('all', { limit: 60 });
-                this.saveCategoryPageState('all', allPage);
+                const fetchOpts = bustCache ? { limit: 60, bustCache: true } : { limit: 60 };
 
+                // Three-way parallel: all + mine (if logged in) + counts
+                const allPromise = this.fetchCategoryPage('all', fetchOpts);
+                const listToken = this.getReadableSessionToken();
+                const minePromise = listToken
+                    ? this.fetchCategoryPage('mine', fetchOpts).catch(e => {
+                        console.warn('加载"我的图片"失败:', e);
+                        return null;
+                    })
+                    : Promise.resolve(null);
+                const countsPromise = GalleryService.getCounts(bustCache, listToken).catch(e => {
+                    console.warn('加载分类计数失败:', e);
+                    return null;
+                });
+
+                const [allPage, minePage, counts] = await Promise.all([allPromise, minePromise, countsPromise]);
+
+                this.saveCategoryPageState('all', allPage);
                 if (this.currentCategory === 'all') {
                     this.images = this.allImages['all'];
                 }
 
-                const listToken = this.getReadableSessionToken();
-                if (listToken) {
-                    const minePage = await this.fetchCategoryPage('mine', { limit: 60 });
+                if (listToken && minePage) {
                     this.saveCategoryPageState('mine', minePage);
-                } else {
+                } else if (!listToken) {
                     this.$set(this.allImages, 'mine', []);
                     this.$set(this.paginationByCategory, 'mine', {
                         hasMore: false,
@@ -661,7 +722,11 @@ new Vue({
                     }
                 }
 
-                await this.loadCategoryCounts();
+                if (counts) {
+                    for (const key of Object.keys(counts)) {
+                        this.$set(this.categoryCounts, key, counts[key]);
+                    }
+                }
 
             } catch (error) {
                 console.error('加载图片失败:', error);
@@ -671,18 +736,17 @@ new Vue({
             }
         },
 
-        async loadCategoryCounts() {
-            for (const cat of UPLOAD_CATEGORIES) {
-                try {
-                    const page = await this.fetchCategoryPage(cat.key, { limit: 1 });
-                    const pagination = page?.pagination || {};
-                    const total = Number.isFinite(pagination.total)
-                        ? pagination.total
-                        : (Array.isArray(page?.images) ? page.images.length : 0);
-                    this.$set(this.categoryCounts, cat.key, total);
-                } catch (e) {
-                    console.warn(`加载分类 ${cat.name} 失败:`, e);
+        async loadCategoryCounts(bustCache = false) {
+            try {
+                const token = this.getReadableSessionToken();
+                const counts = await GalleryService.getCounts(bustCache, token);
+                if (counts) {
+                    for (const key of Object.keys(counts)) {
+                        this.$set(this.categoryCounts, key, counts[key]);
+                    }
                 }
+            } catch (e) {
+                console.warn('加载分类计数失败:', e);
             }
         },
 
@@ -744,7 +808,10 @@ new Vue({
                     nextCursor: pagination.nextCursor || '',
                     total
                 });
-                this.$set(this.categoryCounts, this.currentCategory, total);
+                // categoryCounts 仅由 counts API 写入，mine 除外
+                if (this.currentCategory === 'mine') {
+                    this.$set(this.categoryCounts, 'mine', total);
+                }
             } catch (error) {
                 console.error('加载更多失败:', error);
                 this.showToast('加载更多失败: ' + error.message, 'error');
@@ -783,10 +850,10 @@ new Vue({
             this.loadMoreObserver.observe(sentinel);
         },
 
-        async loadImages() {
+        async loadImages(bustCache = false) {
             this.allImages = {};
             this.paginationByCategory = {};
-            await this.loadAllCategories();
+            await this.loadAllCategories(bustCache);
         },
 
         // ============================================
@@ -904,11 +971,18 @@ new Vue({
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     this.uploadFiles.push({
+                        id: createUploadQueueId(),
                         file: file,
                         name: file.name,
-                        // 默认标题 = 文件名去扩展名
-                        title: file.name.replace(/\.[^.]+$/, ''),
-                        preview: e.target.result
+                        // 默认不预填标题，避免与文件名提示重复；上传时回退到建议标题
+                        title: '',
+                        suggestedTitle: file.name.replace(/\.[^.]+$/, ''),
+                        preview: e.target.result,
+                        settingsExpanded: false,
+                        customCategoryEnabled: false,
+                        customCategory: '',
+                        customTagsEnabled: false,
+                        customTagsText: ''
                     });
                 };
                 reader.readAsDataURL(file);
@@ -931,6 +1005,65 @@ new Vue({
             this.uploadTags.splice(index, 1);
         },
 
+        getUploadCategoryName(categoryKey) {
+            const category = UPLOAD_CATEGORIES.find((item) => item.key === categoryKey);
+            return category ? category.name : '未选择';
+        },
+
+        getUploadTagsSummary(tags) {
+            if (!Array.isArray(tags) || tags.length === 0) {
+                return '未设置批量标签';
+            }
+            if (tags.length <= 3) {
+                return tags.join(' / ');
+            }
+            return `${tags.slice(0, 3).join(' / ')} 等 ${tags.length} 个标签`;
+        },
+
+        getFileCategorySummary(file) {
+            if (!file || !file.customCategoryEnabled) {
+                return `批量 · ${this.getUploadCategoryName(this.uploadCategory)}`;
+            }
+            return `单独 · ${this.getUploadCategoryName(file.customCategory || this.uploadCategory)}`;
+        },
+
+        getFileTagsSummary(file) {
+            if (!file || !file.customTagsEnabled) {
+                return `批量 · ${this.getUploadTagsSummary(this.uploadTags)}`;
+            }
+            const customTags = parseTagInput(file.customTagsText);
+            if (customTags.length === 0) {
+                return '单独 · 未填写';
+            }
+            return `单独 · ${this.getUploadTagsSummary(customTags)}`;
+        },
+
+        toggleFileSettings(file) {
+            file.settingsExpanded = !file.settingsExpanded;
+        },
+
+        enableFileCustomCategory(file) {
+            file.customCategoryEnabled = true;
+            if (!file.customCategory) {
+                file.customCategory = this.uploadCategory;
+            }
+        },
+
+        disableFileCustomCategory(file) {
+            file.customCategoryEnabled = false;
+        },
+
+        enableFileCustomTags(file) {
+            file.customTagsEnabled = true;
+            if (!String(file.customTagsText || '').trim() && this.uploadTags.length > 0) {
+                file.customTagsText = this.uploadTags.join(', ');
+            }
+        },
+
+        disableFileCustomTags(file) {
+            file.customTagsEnabled = false;
+        },
+
         async startUpload() {
             if (this.uploadFiles.length === 0) return;
             if (!this.ensureSession()) {
@@ -938,29 +1071,58 @@ new Vue({
                 return;
             }
 
-            const uploadFileCount = this.uploadFiles.length;
+            const globalCategoryKey = this.uploadCategory;
+            const uploadTagsSnapshot = [...this.uploadTags];
+            const uploadQueue = this.uploadFiles.map((item) => ({
+                id: item.id || createUploadQueueId(),
+                file: item.file,
+                name: item.name,
+                title: typeof item.title === 'string' ? item.title : '',
+                suggestedTitle: typeof item.suggestedTitle === 'string' ? item.suggestedTitle : '',
+                preview: item.preview,
+                settingsExpanded: !!item.settingsExpanded,
+                customCategoryEnabled: !!item.customCategoryEnabled,
+                customCategory: typeof item.customCategory === 'string' ? item.customCategory : '',
+                customTagsEnabled: !!item.customTagsEnabled,
+                customTagsText: typeof item.customTagsText === 'string' ? item.customTagsText : ''
+            }));
+            const uploadFileCount = uploadQueue.length;
             this.showUploadModal = false;
             this.uploading = true;
             this.uploadProgress = 0;
 
-            const category = UPLOAD_CATEGORIES.find(c => c.key === this.uploadCategory);
-            const categoryPrefix = category ? category.prefix : '';
-
-            let successCount = 0;
+            let uploadedCount = 0;
+            let createdCount = 0;
             // 每个文件占的进度比重（每个文件内部 XHR 进度再细分）
             const perFileWeight = 100 / uploadFileCount;
 
-            for (let i = 0; i < this.uploadFiles.length; i++) {
-                const fileData = this.uploadFiles[i];
+            for (let i = 0; i < uploadQueue.length; i++) {
+                const fileData = uploadQueue[i];
                 const file = fileData.file;
+                const displayTitle = (fileData.title || '').trim() || fileData.suggestedTitle || file.name;
+                const resolvedCategoryKey = fileData.customCategoryEnabled
+                    ? (fileData.customCategory || globalCategoryKey)
+                    : globalCategoryKey;
+                const resolvedCategory = UPLOAD_CATEGORIES.find((item) => item.key === resolvedCategoryKey);
+                const resolvedTags = fileData.customTagsEnabled
+                    ? parseTagInput(fileData.customTagsText)
+                    : uploadTagsSnapshot;
 
-                this.uploadFileName = fileData.title || file.name;
+                this.uploadFileName = displayTitle;
                 // 当前文件开始时进度置为已完成文件数的比重
                 this.uploadProgress = Math.round(i * perFileWeight);
 
                 try {
-                    await this.uploadFile(fileData, categoryPrefix, i, uploadFileCount, perFileWeight);
-                    successCount++;
+                    const uploadResult = await this.uploadFile(fileData, {
+                        categoryPrefix: resolvedCategory ? resolvedCategory.prefix : '',
+                        tags: resolvedTags
+                    }, i, uploadFileCount, perFileWeight);
+                    if (uploadResult === 'uploaded') {
+                        uploadedCount++;
+                        createdCount++;
+                    } else if (uploadResult === 'referenced') {
+                        createdCount++;
+                    }
                 } catch (error) {
                     console.error('上传失败:', error);
                     if (error?.code === 401) {
@@ -991,22 +1153,34 @@ new Vue({
             this.uploadTitle = '';
             this.uploadTags = [];
 
-            if (successCount > 0) {
+            if (createdCount > 0) {
                 // 本地同步每日已用额度，避免重新打开弹窗时显示旧数据
-                this.dailyUploadUsed += successCount;
-                this.showToast(`成功上传 ${successCount} 张图片！`, 'success');
-                await this.loadImages();
+                this.dailyUploadUsed += createdCount;
+                await this.loadImages(true);
+            }
+
+            if (uploadedCount > 0) {
+                this.showToast(`成功上传 ${uploadedCount} 张图片！`, 'success');
             }
         },
 
-        async uploadFile(fileData, categoryPrefix, fileIndex = 0, totalFiles = 1, perFileWeight = 100) {
+        async uploadFile(fileData, uploadConfig, fileIndex = 0, totalFiles = 1, perFileWeight = 100) {
             const file = fileData.file;
             const fileTitle = (fileData.title || '').trim();
+            const fallbackTitle = fileData.suggestedTitle || file.name.replace(/\.[^.]+$/, '') || file.name;
+            const normalizedTags = Array.isArray(uploadConfig?.tags) ? uploadConfig.tags : [];
+            const categoryPrefix = uploadConfig?.categoryPrefix || '';
             const timestamp = Date.now();
             const randomStr = Math.random().toString(36).substring(2, 8);
             const ext = file.name.split('.').pop() || 'jpg';
             const filename = `${timestamp}_${randomStr}.${ext}`;
             const key = `${CONFIG.IMAGE_BASE_PREFIX}${categoryPrefix}${filename}`;
+
+            // Compute SHA-256 hash for deduplication
+            const arrayBuffer = await file.arrayBuffer();
+            const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const contentHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
             // 获取上传签名
             if (!this.ensureSession()) {
@@ -1023,10 +1197,53 @@ new Vue({
                 body: JSON.stringify({
                     key,
                     contentType: file.type,
-                    sizeBytes: file.size
+                    sizeBytes: file.size,
+                    contentHash
                 })
             });
             const signData = await signResponse.json();
+
+            // Handle duplicate detection
+            if (signData.duplicate) {
+                const displayTitle = fileTitle || fallbackTitle;
+                if (signData.own) {
+                    // User's own duplicate — skip
+                    this.showToast(`跳过「${displayTitle}」: ${signData.message}`, 'info');
+                    return 'skipped';
+                } else {
+                    // Another user's image — create reference without S3 upload
+                    const refConfirm = await fetch(`${CONFIG.WORKER_URL}?action=confirm-upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${this.sessionToken}`
+                        },
+                        body: JSON.stringify({
+                            key,
+                            contentHash,
+                            fileSize: file.size,
+                            storageKey: signData.storageKey
+                        })
+                    });
+                    const refData = await refConfirm.json();
+                    if (refData.code !== 200) {
+                        throw new Error(refData.message || '创建引用失败');
+                    }
+
+                    // Save metadata
+                    const metadataTitle = fileTitle || fallbackTitle;
+                    if (metadataTitle || normalizedTags.length > 0) {
+                        try {
+                            await GalleryService.updateMetadata(key, metadataTitle, normalizedTags, this.sessionToken);
+                        } catch (e) {
+                            console.warn('保存元数据失败:', e);
+                            throw new Error(`引用已创建，但标题/标签保存失败: ${e.message || '未知错误'}`);
+                        }
+                    }
+                    this.showToast(`已添加引用「${displayTitle}」`, 'success');
+                    return 'referenced';
+                }
+            }
 
             if (signData.code !== 200) {
                 const signError = new Error(signData.message || '获取签名失败');
@@ -1035,27 +1252,44 @@ new Vue({
             }
 
             // 上传到 S3
-            await this.uploadToS3(signData.url, signData.headers, file);
+            await this.uploadToS3(signData.url, signData.headers, file, fileIndex, perFileWeight);
 
             const effectiveKey = signData.key || key;
 
+            // 上传成功后确认，写入 DB 记录
+            await fetch(`${CONFIG.WORKER_URL}?action=confirm-upload`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.sessionToken}`
+                },
+                body: JSON.stringify({
+                    key: effectiveKey,
+                    contentHash,
+                    fileSize: file.size
+                })
+            });
+
             // 保存元数据：每张图片使用各自的标题
-            const metadataTitle = fileTitle || file.name;
-            if (metadataTitle || this.uploadTags.length > 0) {
+            const metadataTitle = fileTitle || fallbackTitle;
+            if (metadataTitle || normalizedTags.length > 0) {
                 try {
                     await GalleryService.updateMetadata(
                         effectiveKey,
                         metadataTitle,
-                        this.uploadTags,
+                        normalizedTags,
                         this.sessionToken
                     );
                 } catch (e) {
                     console.warn('保存元数据失败:', e);
+                    throw new Error(`图片已上传，但标题/标签保存失败: ${e.message || '未知错误'}`);
                 }
             }
+
+            return 'uploaded';
         },
 
-        uploadToS3(url, headers, file) {
+        uploadToS3(url, headers, file, fileIndex, perFileWeight) {
             return new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
 
@@ -1077,11 +1311,16 @@ new Vue({
                 });
 
                 xhr.addEventListener('error', () => reject(new Error('网络错误')));
+                xhr.addEventListener('abort', () => reject(new Error('上传已取消')));
 
                 xhr.open('PUT', url, true);
 
+                // 过滤浏览器禁止手动设置的 header
+                const UNSAFE_HEADERS = ['content-length', 'host'];
                 for (const [key, value] of Object.entries(headers)) {
-                    xhr.setRequestHeader(key, value);
+                    if (!UNSAFE_HEADERS.includes(key.toLowerCase())) {
+                        xhr.setRequestHeader(key, value);
+                    }
                 }
 
                 xhr.send(file);
@@ -1164,14 +1403,14 @@ new Vue({
                 }
 
                 this.showEditModal = false;
-                await this.loadImages();
+                await this.loadImages(true);
 
             } catch (error) {
                 console.error('保存失败:', error);
                 if (error?.code === 409) {
                     this.showToast('保存冲突：图片元数据已被其他会话修改，已为你刷新列表', 'error');
                     this.showEditModal = false;
-                    await this.loadImages();
+                    await this.loadImages(true);
                 } else if (error?.code === 401) {
                     this.clearSession();
                     this.openAuthModal('login', '登录已失效，请重新登录');
@@ -1182,7 +1421,7 @@ new Vue({
                 } else if (error?.code === 404) {
                     this.showToast('图片不存在或已被删除，已为你刷新列表', 'error');
                     this.showEditModal = false;
-                    await this.loadImages();
+                    await this.loadImages(true);
                 } else if (error?.code === 429) {
                     this.showToast('操作过于频繁，请稍后重试', 'error');
                 } else {
@@ -1216,7 +1455,7 @@ new Vue({
                 }
                 await GalleryService.deleteImage(image.key, this.sessionToken);
                 this.showToast('图片已删除', 'success');
-                await this.loadImages();
+                await this.loadImages(true);
             } catch (error) {
                 console.error('删除失败:', error);
                 if (error?.code === 401) {
@@ -1228,7 +1467,7 @@ new Vue({
                     this.showToast('无管理员权限，无法删除图片', 'error');
                 } else if (error?.code === 404) {
                     this.showToast('图片不存在或已被删除，正在刷新列表', 'error');
-                    await this.loadImages();
+                    await this.loadImages(true);
                 } else if (error?.code === 429) {
                     this.showToast('请求过于频繁，请稍后再试', 'error');
                 } else {
@@ -1278,7 +1517,7 @@ new Vue({
                 });
             }, {
                 root: null,
-                rootMargin: '200px 0px',
+                rootMargin: '400px 0px',
                 threshold: 0.01
             });
 
@@ -1377,9 +1616,7 @@ new Vue({
             this.isMobileViewport = window.innerWidth <= 768;
             // 更新瀑布流列数，与 CSS 媒体查询断点保持一致
             const w = window.innerWidth;
-            if (w <= 600) {
-                this.masonryColumnCount = 1;
-            } else if (w <= 900) {
+            if (w <= 900) {
                 this.masonryColumnCount = 2;
             } else if (w <= 1200) {
                 this.masonryColumnCount = 3;
@@ -1475,7 +1712,8 @@ new Vue({
         async adminCreateInvite() {
             try {
                 const token = this.getReadableSessionToken();
-                const result = await GalleryService.adminCreateInvite(token, this.newInviteMaxUses);
+                const result = await GalleryService.adminCreateInvite(token, this.newInviteMaxUses, this.newInviteCustomCode);
+                this.newInviteCustomCode = '';
                 this.showToast(`邀请码 ${result.code} 已生成`, "success");
                 await this.loadAdminData();
             } catch (error) {

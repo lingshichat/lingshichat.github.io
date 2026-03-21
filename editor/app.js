@@ -863,7 +863,7 @@ categories: ${catsStr}
         // 打开图床模态框
         async openImageGallery() {
             if (!CONFIG.S3_CONFIG.accessKeyId || !CONFIG.S3_CONFIG.secretAccessKey) {
-                this.showAlert('S3 图床未配置，请先配置 config.js 中的 S3_CONFIG');
+                this.showAlert('S3 图床未配置，请先配置 config.local.js 中的 S3_CONFIG');
                 return;
             }
             

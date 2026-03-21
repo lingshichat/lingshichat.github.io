@@ -226,7 +226,7 @@
                             <i class="fa-solid fa-cloud-bolt"
                                 style="font-size: 3rem; color: var(--text-muted); margin-bottom: 20px;"></i>
                             <h3>未配置 Cloudflare</h3>
-                            <p style="color: var(--text-muted); margin-bottom: 20px;">请在 config.js 中配置 Token 并刷新页面</p>
+                            <p style="color: var(--text-muted); margin-bottom: 20px;">请在 config.local.js 中配置 Token 并刷新页面</p>
                             <a href="/tools/token-generator.html" target="_blank" class="btn-primary">
                                 去生成加密 Token <i class="fa-solid fa-arrow-right"></i>
                             </a>
@@ -878,7 +878,7 @@
                 style="margin-top: 15px; padding: 10px; background: rgba(255,193,7,0.1); border-radius: 8px; border: 1px solid rgba(255,193,7,0.3);">
                 <p style="color: #ffc107; font-size: 0.85rem; margin: 0;">
                     <i class="fa-solid fa-triangle-exclamation"></i>
-                    保存后将自动更新 <code>config.js</code> 文件并提交到 GitHub。注意：Token 不会在此处显示或修改。
+                    保存后将自动更新 <code>config.js</code> 中的公开配置并提交到 GitHub。敏感 Token 请保存在 <code>config.local.js</code>，不会在此处显示或修改。
                 </p>
             </div>
         </div>
@@ -932,6 +932,10 @@
 
     <!-- Scripts -->
     <!-- Force reload with version query -->
+    <script>
+        window.__ADMIN_CONFIG_OVERRIDE__ = window.__ADMIN_CONFIG_OVERRIDE__ || {};
+    </script>
+    <script src="config.local.js"></script>
     <script type="module" src="admin.js?v=1.7"></script>
 </body>
 

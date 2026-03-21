@@ -12,6 +12,7 @@ export const Toast = {
             container.id = 'toast-container';
             document.body.appendChild(container);
         }
+        container.classList.add('toast-container');
 
         const icons = {
             success: 'fa-solid fa-check',

@@ -1465,7 +1465,6 @@ new Vue({
                 // 1. 读取现有 config.js 文件获取 SHA
                 const configPath = 'source/admin/config.js';
                 let existingSha = null;
-                let existingContent = '';
 
                 try {
                     const { data: file } = await this.octokit.rest.repos.getContent({
@@ -1474,42 +1473,68 @@ new Vue({
                         path: configPath
                     });
                     existingSha = file.sha;
-                    existingContent = decodeURIComponent(escape(atob(file.content)));
                 } catch (e) {
                     // 文件不存在，稍后创建
                     console.warn("config.js 不存在，将创建新文件");
                 }
 
                 // 2. 构造新的 config.js 内容
-                // 保留原有的 Token 加密字符串
-                const githubTokenMatch = existingContent.match(/GITHUB_TOKEN:\s*"([^"]*)"/);
-                const cfTokenMatch = existingContent.match(/CF_TOKEN:\s*"([^"]*)"/);
-
-                const githubToken = githubTokenMatch ? githubTokenMatch[1] : '';
-                const cfToken = cfTokenMatch ? cfTokenMatch[1] : '';
-
                 const newConfigContent = `// 🔐 管理后台配置
-// 警告：不要直接在此处填入明文 Token！
+// 仓库中仅保留非敏感默认值；敏感配置请写入同目录下被忽略的 config.local.js
 
-export const CONFIG = {
+const DEFAULT_CONFIG = {
     // GitHub Token (加密) - 用于博客文章管理
-    // 请使用 tools/token-generator.html 生成
-    GITHUB_TOKEN: "${githubToken}",
+    GITHUB_TOKEN: "",
 
     // Cloudflare API Token (加密) - 用于域名/缓存/KV管理
-    // 权限要求: Zone.Cache Purge, Zone.DNS, Workers KV, Zone.Page Rules, Zone.Settings
-    CF_TOKEN: "${cfToken}",
+    CF_TOKEN: "",
+
+    // API 代理服务 (Worker) - 解决移动端连接问题
+    CF_API_PROXY: "https://api.lingshichat.top/_api",
 
     // 博客配置
     OWNER: "${this.settingsForm.OWNER}",
     REPO: "${this.settingsForm.REPO}",
     BRANCH: "${this.settingsForm.BRANCH}",
 
+    // 路径配置
+    POSTS_PATH: "source/_posts",
+    TRASH_PATH: "source/_trash",
+
     // Cloudflare 配置
     CF_ZONE_ID: "${this.settingsForm.CF_ZONE_ID}",
     CF_ACCOUNT_ID: "${this.settingsForm.CF_ACCOUNT_ID}",
-    CF_KV_ID: "${this.settingsForm.CF_KV_ID}",
+    CF_KV_ID: "${this.settingsForm.CF_KV_ID}"
 };
+
+function isPlainObject(value) {
+    return Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function mergeConfig(base, override) {
+    if (!isPlainObject(override)) {
+        return { ...base };
+    }
+
+    const result = { ...base };
+
+    Object.entries(override).forEach(([key, value]) => {
+        if (isPlainObject(value) && isPlainObject(base[key])) {
+            result[key] = mergeConfig(base[key], value);
+            return;
+        }
+
+        result[key] = value;
+    });
+
+    return result;
+}
+
+const localOverride = typeof window !== "undefined" && isPlainObject(window.__ADMIN_CONFIG_OVERRIDE__)
+    ? window.__ADMIN_CONFIG_OVERRIDE__
+    : {};
+
+export const CONFIG = mergeConfig(DEFAULT_CONFIG, localOverride);
 `;
 
                 // 3. 提交更新到 GitHub

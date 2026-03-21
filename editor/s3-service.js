@@ -167,7 +167,7 @@ export class S3Service {
     async listImages(maxKeys = 100) {
         // 如果未配置 S3，返回空数组
         if (!this.config.accessKeyId || !this.config.secretAccessKey) {
-            console.warn('S3 未配置，请检查 config.js 中的 S3_CONFIG');
+            console.warn('S3 未配置，请检查 config.local.js 中的 S3_CONFIG');
             return [];
         }
 
@@ -273,7 +273,7 @@ export class S3Service {
     async uploadFile(file, onProgress = null) {
         // 如果未配置 S3，抛出错误
         if (!this.config.accessKeyId || !this.config.secretAccessKey) {
-            throw new Error('S3 未配置，请检查 config.js 中的 S3_CONFIG');
+            throw new Error('S3 未配置，请检查 config.local.js 中的 S3_CONFIG');
         }
 
         const key = `${Date.now()}_${file.name}`;

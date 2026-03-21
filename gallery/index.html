@@ -6,17 +6,21 @@
     <meta name="viewport"
         content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Lingshi's Gallery</title>
-    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.min.js"></script>
+    <link rel="preconnect" href="https://img.lingshichat.cn" crossorigin>
+    <link rel="dns-prefetch" href="https://img.lingshichat.cn">
+    <link rel="preconnect" href="https://api-gallery.lingshichat.cn">
+    <link rel="dns-prefetch" href="https://api-gallery.lingshichat.cn">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="gallery.css?v=1.1.0">
+    <link rel="stylesheet" href="gallery.css?v=1.4.6">
     <script>
         // 在 DOM ready 后立即定位分类栏，避免 Vue 加载延迟导致跳动
         document.addEventListener('DOMContentLoaded', function () {
@@ -121,8 +125,6 @@
                                                 class="fa-solid fa-code"></i></button>
                                         <button class="action-btn" @click="copyUrl(image)" title="复制链接"><i
                                                 class="fa-regular fa-copy"></i></button>
-                                    </template>
-                                    <template v-if="sessionRole === 'admin'">
                                         <button class="action-btn edit-btn" @click="openEditModal(image)" title="编辑"><i
                                                 class="fa-solid fa-pen"></i></button>
                                         <button class="action-btn delete-btn" @click="confirmDelete(image)"
@@ -162,14 +164,14 @@
 
             <!-- 上传弹窗 -->
             <transition name="fade">
-                <div class="modal-overlay" v-if="showUploadModal" @click.self="showUploadModal = false">
-                    <div class="modal-content">
-                        <div class="modal-header">
+                <div class="modal-overlay" v-if="showUploadModal" @mousedown="overlayMouseDown" @mouseup="overlayMouseUp($event, 'showUploadModal')">
+                    <div class="modal-content upload-modal-shell">
+                        <div class="modal-header upload-modal-header-refined">
                             <h3><i class="fa-solid fa-cloud-arrow-up"></i> 上传图片</h3>
                             <button class="close-btn" @click="showUploadModal = false"><i
                                     class="fa-solid fa-xmark"></i></button>
                         </div>
-                        <div class="modal-body">
+                        <div class="modal-body upload-modal-body-refined">
                             <!-- 每日额度提示（仅普通用户可见） -->
                             <div class="upload-quota-hint" v-if="!isUploadUnlimited"
                                 :class="{ 'quota-exceeded': dailyUploadUsed >= dailyUploadLimit }">
@@ -192,12 +194,80 @@
                                 </template>
                                 <template v-else>
                                     <div class="file-preview-list">
-                                        <div class="file-preview-item" v-for="(file, idx) in uploadFiles" :key="idx">
+                                        <p class="file-preview-tip"><i class="fa-solid fa-pen"></i> 标题可单独填写，分类和标签默认跟随批量，需要时再展开覆盖</p>
+                                        <div class="file-preview-item" v-for="(file, idx) in uploadFiles" :key="file.id || idx">
                                             <img :src="file.preview" v-if="file.preview">
                                             <div class="file-info">
                                                 <input type="text" v-model="file.title" class="file-title-input"
-                                                    placeholder="输入标题..." @click.stop>
+                                                    :placeholder="file.suggestedTitle || '留空则使用推荐标题'" @click.stop>
                                                 <span class="file-name-hint">{{ file.name }}</span>
+                                                <div class="file-summary-row">
+                                                    <div class="file-settings-summary">
+                                                        <span class="file-summary-chip"><i class="fa-solid fa-folder-tree"></i> {{ getFileCategorySummary(file) }}</span>
+                                                        <span class="file-summary-chip"><i class="fa-solid fa-tags"></i> {{ getFileTagsSummary(file) }}</span>
+                                                    </div>
+                                                    <button type="button" class="file-settings-toggle" @click.stop="toggleFileSettings(file)">
+                                                        <span>{{ file.settingsExpanded ? '收起单图配置' : '展开单图配置' }}</span>
+                                                        <i class="fa-solid" :class="file.settingsExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                                    </button>
+                                                </div>
+                                                <div class="file-override-grid" v-if="file.settingsExpanded">
+                                                    <div class="file-override-card">
+                                                        <div class="file-override-header">
+                                                            <span class="file-override-label"><i class="fa-solid fa-folder-tree"></i> 分类</span>
+                                                            <div class="file-mode-switch">
+                                                                <button type="button" class="file-mode-btn"
+                                                                    :class="{ 'active': !file.customCategoryEnabled }"
+                                                                    @click.stop="disableFileCustomCategory(file)">
+                                                                    跟随批量
+                                                                </button>
+                                                                <button type="button" class="file-mode-btn"
+                                                                    :class="{ 'active': file.customCategoryEnabled }"
+                                                                    @click.stop="enableFileCustomCategory(file)">
+                                                                    单独设置
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="file-option-fallback file-option-fallback-rich" v-if="!file.customCategoryEnabled">
+                                                            当前默认：{{ getUploadCategoryName(uploadCategory) }}
+                                                        </div>
+                                                        <div class="file-category-chip-group" v-else>
+                                                            <button type="button" class="file-category-chip"
+                                                                v-for="cat in uploadCategories" :key="cat.key"
+                                                                :class="{ 'selected': file.customCategory === cat.key }"
+                                                                @click.stop="file.customCategory = cat.key">
+                                                                <i :class="cat.icon"></i>
+                                                                <span>{{ cat.name }}</span>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="file-override-card">
+                                                        <div class="file-override-header">
+                                                            <span class="file-override-label"><i class="fa-solid fa-tags"></i> 标签</span>
+                                                            <div class="file-mode-switch">
+                                                                <button type="button" class="file-mode-btn"
+                                                                    :class="{ 'active': !file.customTagsEnabled }"
+                                                                    @click.stop="disableFileCustomTags(file)">
+                                                                    跟随批量
+                                                                </button>
+                                                                <button type="button" class="file-mode-btn"
+                                                                    :class="{ 'active': file.customTagsEnabled }"
+                                                                    @click.stop="enableFileCustomTags(file)">
+                                                                    单独设置
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                        <div class="file-option-fallback file-option-fallback-rich" v-if="!file.customTagsEnabled">
+                                                            当前默认：{{ getUploadTagsSummary(uploadTags) }}
+                                                        </div>
+                                                        <div class="file-tags-editor" v-else>
+                                                            <input type="text" v-model="file.customTagsText"
+                                                                class="file-tags-input" placeholder="逗号分隔多个标签"
+                                                                @click.stop>
+                                                            <span class="file-tags-helper">例如：miku, 初音未来, live</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
                                             </div>
                                             <button class="remove-file" @click.stop="removeFile(idx)"><i
                                                     class="fa-solid fa-xmark"></i></button>
@@ -242,7 +312,7 @@
 
             <!-- 编辑弹窗 -->
             <transition name="fade">
-                <div class="modal-overlay" v-if="showEditModal" @click.self="showEditModal = false">
+                <div class="modal-overlay" v-if="showEditModal" @mousedown="overlayMouseDown" @mouseup="overlayMouseUp($event, 'showEditModal')">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3><i class="fa-solid fa-pen"></i> 编辑图片</h3>
@@ -292,7 +362,7 @@
 
             <!-- 登录/注册弹窗 -->
             <transition name="fade">
-                <div class="modal-overlay" v-if="showAuthModal" @click.self="showAuthModal = false">
+                <div class="modal-overlay" v-if="showAuthModal" @mousedown="overlayMouseDown" @mouseup="overlayMouseUp($event, 'showAuthModal')">
                     <div class="modal-content" style="max-width: 420px;">
                         <div class="modal-header auth-tabs-header">
                             <div class="auth-tabs" :class="`mode-${authMode}`">
@@ -345,7 +415,7 @@
 
             <!-- 管理员控制中心 -->
             <transition name="fade">
-                <div class="modal-overlay" v-if="showAdminPanel" @click.self="showAdminPanel = false">
+                <div class="modal-overlay" v-if="showAdminPanel" @mousedown="overlayMouseDown" @mouseup="overlayMouseUp($event, 'showAdminPanel')">
                     <div class="modal-content admin-panel">
                         <div class="modal-header">
                             <h3><i class="fa-solid fa-shield-halved"></i> 管理员控制中心</h3>
@@ -403,6 +473,9 @@
                             <template v-if="!adminLoading && adminPanelTab === 'invites'">
                                 <div class="invite-toolbar">
                                     <div class="invite-create">
+                                        <label>自定义码</label>
+                                        <input type="text" v-model="newInviteCustomCode" class="form-input"
+                                            placeholder="留空则随机" style="width:120px; text-transform:uppercase;">
                                         <label>使用次数</label>
                                         <input type="number" v-model.number="newInviteMaxUses" min="1" max="100"
                                             class="form-input" style="width:80px;">
@@ -476,7 +549,7 @@
         window.Toast = Toast;
     </script>
     <!-- 使用 defer 确保在 module 后执行，或者其实可以直接改用动态 import -->
-    <script src="gallery.js?v=1.1.0"></script>
+    <script src="gallery.js?v=1.4.6"></script>
 </body>
 
 </html>
