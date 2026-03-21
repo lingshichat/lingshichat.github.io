@@ -666,11 +666,11 @@ new Vue({
                     report += `   - 无法获取区域列表 ❌ (权限不足?)\n`;
                 }
 
-                alert(report);
+                Toast.show(report.replace(/\n/g, '<br>'), 'info', 10000);
 
             } catch (e) {
                 console.error(e);
-                alert("诊断运行出错: " + (e?.message || String(e)));
+                Toast.show("诊断运行出错: " + (e?.message || String(e)), 'error');
             }
         },
 
@@ -1412,7 +1412,7 @@ new Vue({
                 this.filteredPosts = [...this.allPosts];
             } catch (e) {
                 console.error("加载文章失败", e);
-                alert("加载文章列表失败: " + e.message);
+                Toast.show("加载文章列表失败: " + e.message, 'error');
             } finally {
                 this.postsLoading = false;
             }
@@ -1455,7 +1455,7 @@ new Vue({
 
         async saveSettings() {
             if (!this.octokit) {
-                alert("GitHub 未连接，无法保存");
+                Toast.show("GitHub 未连接，无法保存", 'error');
                 return;
             }
 
@@ -1548,12 +1548,12 @@ export const CONFIG = mergeConfig(DEFAULT_CONFIG, localOverride);
                     branch: CONFIG.BRANCH
                 });
 
-                alert("✅ 配置已保存！\n\n注意：部分配置需重新部署后生效。");
+                Toast.show("配置已保存！部分配置需重新部署后生效。", 'success', 5000);
                 this.settingsEditing = false;
 
             } catch (e) {
                 console.error("保存配置失败", e);
-                alert("保存失败: " + e.message);
+                Toast.show("保存失败: " + e.message, 'error');
             } finally {
                 this.settingsSaving = false;
             }

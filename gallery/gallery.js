@@ -1436,14 +1436,21 @@ new Vue({
         // 删除功能
         // ============================================
 
-        confirmDelete(image) {
+        async confirmDelete(image) {
             if (!this.ensureSession('admin')) {
                 this.showToast('仅管理员可删除图片', 'error');
                 this.openAuthModal('login', '请使用管理员账号登录');
                 return;
             }
 
-            if (confirm(`确定要删除 "${image.title || image.name}" 吗？此操作不可恢复。`)) {
+            const confirmed = await ConfirmModal.show({
+                title: '删除确认',
+                message: `确定要删除 "${image.title || image.name}" 吗？此操作不可恢复。`,
+                confirmText: '删除',
+                cancelText: '取消',
+                type: 'danger'
+            });
+            if (confirmed) {
                 this.deleteImage(image);
             }
         },
@@ -1684,7 +1691,14 @@ new Vue({
         async adminToggleRole(user) {
             const newRole = user.role === "admin" ? "user" : "admin";
             const label = newRole === "admin" ? "管理员" : "普通用户";
-            if (!confirm(`确定将 ${user.email} 的角色改为「${label}」吗？`)) return;
+            const confirmed = await ConfirmModal.show({
+                title: '角色变更',
+                message: `确定将 ${user.email} 的角色改为「${label}」吗？`,
+                confirmText: '确定',
+                cancelText: '取消',
+                type: 'warning'
+            });
+            if (!confirmed) return;
             try {
                 const token = this.getReadableSessionToken();
                 await GalleryService.adminUpdateUser(token, user.id, { role: newRole });
@@ -1698,7 +1712,14 @@ new Vue({
         async adminToggleStatus(user) {
             const newStatus = user.status === "active" ? "disabled" : "active";
             const label = newStatus === "active" ? "启用" : "禁用";
-            if (!confirm(`确定${label}用户 ${user.email} 吗？`)) return;
+            const confirmed = await ConfirmModal.show({
+                title: '用户状态变更',
+                message: `确定${label}用户 ${user.email} 吗？`,
+                confirmText: '确定',
+                cancelText: '取消',
+                type: 'warning'
+            });
+            if (!confirmed) return;
             try {
                 const token = this.getReadableSessionToken();
                 await GalleryService.adminUpdateUser(token, user.id, { status: newStatus });

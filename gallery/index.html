@@ -546,7 +546,9 @@
     </div>
     <script type="module">
         import { Toast } from '../../js/toast-module.js';
+        import { ConfirmModal } from '../../js/confirm-modal.js';
         window.Toast = Toast;
+        window.ConfirmModal = ConfirmModal;
     </script>
     <!-- 使用 defer 确保在 module 后执行，或者其实可以直接改用动态 import -->
     <script src="gallery.js?v=1.4.6"></script>
