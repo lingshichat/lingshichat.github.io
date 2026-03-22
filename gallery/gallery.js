@@ -434,7 +434,7 @@ new Vue({
 
         accountBadgeLabel() {
             if (!this.sessionToken) {
-                return 'Vistor';
+                return 'Visitor';
             }
             return this.sessionRole === 'admin' ? 'Admin' : 'User';
         },

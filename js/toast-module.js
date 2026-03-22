@@ -23,16 +23,33 @@ export const Toast = {
 
         const toast = document.createElement('div');
         toast.className = `toast ${type}`;
-        toast.innerHTML = `
-            <div class="toast-icon"><i class="${icons[type] || icons.info}"></i></div>
-            <div class="toast-content">
-                <div class="toast-message">${message}</div>
-            </div>
-            <button class="toast-close"><i class="fa-solid fa-xmark"></i></button>
-        `;
+
+        // 使用 DOM API 构建，避免 innerHTML XSS 风险
+        const iconDiv = document.createElement('div');
+        iconDiv.className = 'toast-icon';
+        const iconEl = document.createElement('i');
+        iconEl.className = icons[type] || icons.info;
+        iconDiv.appendChild(iconEl);
+
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'toast-content';
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'toast-message';
+        msgDiv.textContent = message;
+        contentDiv.appendChild(msgDiv);
+
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'toast-close';
+        const closeIcon = document.createElement('i');
+        closeIcon.className = 'fa-solid fa-xmark';
+        closeBtn.appendChild(closeIcon);
+
+        toast.appendChild(iconDiv);
+        toast.appendChild(contentDiv);
+        toast.appendChild(closeBtn);
 
         // Close button logic
-        toast.querySelector('.toast-close').onclick = () => {
+        closeBtn.onclick = () => {
             toast.classList.add('toast-exit');
             setTimeout(() => toast.remove(), 300);
         };

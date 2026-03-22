@@ -1,5 +1,7 @@
-// 🔐 管理后台配置
+// 管理后台配置
 // 仓库中仅保留非敏感默认值；敏感配置请写入同目录下被忽略的 config.local.js
+
+import { isPlainObject, mergeConfig } from '../js/utils.js';
 
 const DEFAULT_CONFIG = {
     // GitHub Token (加密) - 用于博客文章管理
@@ -20,34 +22,11 @@ const DEFAULT_CONFIG = {
     POSTS_PATH: "source/_posts",
     TRASH_PATH: "source/_trash",
 
-    // Cloudflare 配置
-    CF_ZONE_ID: "7931b7dab6b4f52709a6d7e1bf4924a2",
+    // Cloudflare 配置（敏感 ID 请配置在 config.local.js）
+    CF_ZONE_ID: "",
     CF_ACCOUNT_ID: "",
     CF_KV_ID: ""
 };
-
-function isPlainObject(value) {
-    return Object.prototype.toString.call(value) === "[object Object]";
-}
-
-function mergeConfig(base, override) {
-    if (!isPlainObject(override)) {
-        return { ...base };
-    }
-
-    const result = { ...base };
-
-    Object.entries(override).forEach(([key, value]) => {
-        if (isPlainObject(value) && isPlainObject(base[key])) {
-            result[key] = mergeConfig(base[key], value);
-            return;
-        }
-
-        result[key] = value;
-    });
-
-    return result;
-}
 
 const localOverride = typeof window !== "undefined" && isPlainObject(window.__ADMIN_CONFIG_OVERRIDE__)
     ? window.__ADMIN_CONFIG_OVERRIDE__

@@ -4,6 +4,7 @@ import { CONFIG } from './config.js';
 import { Octokit } from "https://esm.sh/@octokit/rest";
 import { Toast } from '../js/toast-module.js';
 import { ConfirmModal } from '../js/confirm-modal.js';
+import { formatFileSize } from '../js/utils.js';
 
 new Vue({
     el: '#app',
@@ -63,7 +64,6 @@ new Vue({
             requests: '-',
             bandwidth: '-',
             threats: '-',
-            uniques: '-',
             uniques: '-',
             period: '24h',
             charts: {
@@ -298,9 +298,9 @@ new Vue({
                 return;
             }
 
+            const prevStatus = this.healthCheck.github.status;
             const startTime = Date.now();
             try {
-                // 使用轻量级 API：获取用户信息（不消耗大量配额）
                 await this.octokit.rest.users.getAuthenticated();
 
                 const latency = Date.now() - startTime;
@@ -309,8 +309,10 @@ new Vue({
                 this.healthCheck.github.lastCheck = new Date();
                 this.healthCheck.github.message = '连接正常';
 
-                // Toast提示：成功
-                this.showToast(`GitHub API 连接成功 (${latency}ms)`, 'success', 2000);
+                // 仅在状态变化时提示（从非连接变为连接）
+                if (prevStatus !== 'connected') {
+                    this.showToast(`GitHub API 连接成功 (${latency}ms)`, 'success', 2000);
+                }
             } catch (e) {
                 this.healthCheck.github.status = 'error';
                 this.healthCheck.github.lastCheck = new Date();
@@ -331,7 +333,6 @@ new Vue({
                     errorMsg = e.message || '未知错误';
                 }
 
-                // Toast提示：失败
                 this.showToast(`GitHub API 检测失败: ${errorMsg}`, 'error', 4000);
                 console.warn('[Health Check] GitHub:', e.message);
             }
@@ -344,9 +345,9 @@ new Vue({
                 return;
             }
 
+            const prevStatus = this.healthCheck.cloudflare.status;
             const startTime = Date.now();
             try {
-                // 使用Zone API检测（比verifyToken更可靠）
                 const zoneData = await Cloudflare.healthCheck(this.cfToken);
 
                 const latency = Date.now() - startTime;
@@ -357,14 +358,15 @@ new Vue({
                     this.healthCheck.cloudflare.lastCheck = new Date();
                     this.healthCheck.cloudflare.message = '连接正常';
 
-                    // Toast提示：成功
-                    this.showToast(`Cloudflare API 连接成功 (${latency}ms)`, 'success', 2000);
+                    // 仅在状态变化时提示
+                    if (prevStatus !== 'connected') {
+                        this.showToast(`Cloudflare API 连接成功 (${latency}ms)`, 'success', 2000);
+                    }
                 } else {
                     this.healthCheck.cloudflare.status = 'error';
                     this.healthCheck.cloudflare.lastCheck = new Date();
                     this.healthCheck.cloudflare.message = 'API异常';
 
-                    // Toast提示：失败
                     this.showToast('Cloudflare API 检测失败: API返回异常', 'error', 4000);
                 }
             } catch (e) {
@@ -373,7 +375,6 @@ new Vue({
                 this.healthCheck.cloudflare.latency = null;
 
                 let errorMsg = '连接失败';
-                // 解析具体错误
                 if (e.message.includes('Missing Cloudflare Zone ID')) {
                     this.healthCheck.cloudflare.message = '未配置Zone ID';
                     errorMsg = '请在设置中配置 CF_ZONE_ID';
@@ -391,7 +392,6 @@ new Vue({
                     errorMsg = e.message || '未知错误';
                 }
 
-                // Toast提示：失败
                 this.showToast(`Cloudflare API 检测失败: ${errorMsg}`, 'error', 4000);
                 console.warn('[Health Check] Cloudflare:', e);
             }
@@ -568,12 +568,48 @@ new Vue({
                             date: info.date || new Date().toISOString()
                         };
                     });
-                }
 
-                // Mock 数据
-                this.stats.tags = '12';
-                this.stats.categories = '4';
-                // this.stats.portals = '2'; // Moved to fetchCloudflareStatus
+                    // 从所有文章中解析标签和分类（利用已获取的详情）
+                    const allTags = new Set();
+                    const allCategories = new Set();
+
+                    // 并行获取所有文章内容以解析 tags/categories
+                    const allDetailsPromises = mdPosts.map(file =>
+                        this.octokit.rest.repos.getContent({
+                            owner: CONFIG.OWNER,
+                            repo: CONFIG.REPO,
+                            path: file.path
+                        }).catch(() => null)
+                    );
+
+                    const allDetails = await Promise.all(allDetailsPromises);
+                    allDetails.forEach(res => {
+                        if (!res) return;
+                        const content = decodeURIComponent(escape(atob(res.data.content)));
+                        const fmRegex = /^---\n([\s\S]*?)\n---/;
+                        const match = content.match(fmRegex);
+                        if (match) {
+                            const yaml = match[1];
+                            // 解析 tags
+                            const tagsMatch = yaml.match(/^tags:\s*(.*)$/m);
+                            if (tagsMatch) {
+                                let val = tagsMatch[1].trim();
+                                if (val.startsWith('[') && val.endsWith(']')) val = val.slice(1, -1);
+                                val.split(',').map(s => s.trim()).filter(Boolean).forEach(t => allTags.add(t));
+                            }
+                            // 解析 categories
+                            const catsMatch = yaml.match(/^categories:\s*(.*)$/m);
+                            if (catsMatch) {
+                                let val = catsMatch[1].trim();
+                                if (val.startsWith('[') && val.endsWith(']')) val = val.slice(1, -1);
+                                val.split(',').map(s => s.trim()).filter(Boolean).forEach(c => allCategories.add(c));
+                            }
+                        }
+                    });
+
+                    this.stats.tags = allTags.size;
+                    this.stats.categories = allCategories.size;
+                }
 
             } catch (e) {
                 console.error("加载统计数据失败", e);
@@ -618,10 +654,6 @@ new Vue({
             window.open('/editor/', '_blank');
         },
 
-        navigateToPost() {
-            window.open('/editor/', '_blank');
-        },
-
         purgeCache() {
             this.togglePurgeCache();
         },
@@ -631,7 +663,13 @@ new Vue({
         },
 
         async runDiagnostics() {
-            const confirmDiag = confirm("⚠️ 鉴权失败 (Unauthorized)。\n\n可能是 Token 权限不足或 Zone ID 不匹配。\n是否运行自动诊断以检查 Token 状态？");
+            const confirmDiag = await ConfirmModal.show({
+                title: '运行诊断',
+                message: '鉴权失败 (Unauthorized)。\n\n可能是 Token 权限不足或 Zone ID 不匹配。\n是否运行自动诊断以检查 Token 状态？',
+                type: 'warning',
+                confirmText: '开始诊断',
+                cancelText: '取消'
+            });
             if (!confirmDiag) return;
 
             let report = "🕵️‍♂️ 诊断报告:\n";
@@ -666,7 +704,7 @@ new Vue({
                     report += `   - 无法获取区域列表 ❌ (权限不足?)\n`;
                 }
 
-                Toast.show(report.replace(/\n/g, '<br>'), 'info', 10000);
+                Toast.show(report, 'info', 10000);
 
             } catch (e) {
                 console.error(e);
@@ -915,7 +953,7 @@ new Vue({
                 // 1. Update Totals
                 const totals = data.totals;
                 this.monitor.requests = totals.requests.all;
-                this.monitor.bandwidth = this.formatBytes(totals.bandwidth.all);
+                this.monitor.bandwidth = formatFileSize(totals.bandwidth.all);
                 this.monitor.threats = totals.threats.all;
                 this.monitor.uniques = totals.uniques.all;
 
@@ -929,14 +967,6 @@ new Vue({
             } finally {
                 this.monitor.loading = false;
             }
-        },
-
-        formatBytes(bytes) {
-            if (!bytes || bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         },
 
         renderMonitorCharts(seriesData) {
@@ -1479,8 +1509,10 @@ new Vue({
                 }
 
                 // 2. 构造新的 config.js 内容
-                const newConfigContent = `// 🔐 管理后台配置
+                const newConfigContent = `// 管理后台配置
 // 仓库中仅保留非敏感默认值；敏感配置请写入同目录下被忽略的 config.local.js
+
+import { isPlainObject, mergeConfig } from '../js/utils.js';
 
 const DEFAULT_CONFIG = {
     // GitHub Token (加密) - 用于博客文章管理
@@ -1501,34 +1533,11 @@ const DEFAULT_CONFIG = {
     POSTS_PATH: "source/_posts",
     TRASH_PATH: "source/_trash",
 
-    // Cloudflare 配置
+    // Cloudflare 配置（敏感 ID 请配置在 config.local.js）
     CF_ZONE_ID: "${this.settingsForm.CF_ZONE_ID}",
     CF_ACCOUNT_ID: "${this.settingsForm.CF_ACCOUNT_ID}",
     CF_KV_ID: "${this.settingsForm.CF_KV_ID}"
 };
-
-function isPlainObject(value) {
-    return Object.prototype.toString.call(value) === "[object Object]";
-}
-
-function mergeConfig(base, override) {
-    if (!isPlainObject(override)) {
-        return { ...base };
-    }
-
-    const result = { ...base };
-
-    Object.entries(override).forEach(([key, value]) => {
-        if (isPlainObject(value) && isPlainObject(base[key])) {
-            result[key] = mergeConfig(base[key], value);
-            return;
-        }
-
-        result[key] = value;
-    });
-
-    return result;
-}
 
 const localOverride = typeof window !== "undefined" && isPlainObject(window.__ADMIN_CONFIG_OVERRIDE__)
     ? window.__ADMIN_CONFIG_OVERRIDE__

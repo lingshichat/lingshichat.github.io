@@ -18,21 +18,6 @@ export const Auth = {
         return AuthModule.decryptGitHubToken(password);
     },
 
-    /**
-     * 验证 Token 是否有效 (调用 GitHub API)
-     * @param {string} token 
-     */
-    async verifyToken(token) {
-        const octokit = new Octokit({ auth: token });
-        try {
-            const { data } = await octokit.rest.users.getAuthenticated();
-            console.log("登录成功:", data.login);
-            return data;
-        } catch (e) {
-            throw new Error("Token 无效或已过期");
-        }
-    },
-
     // 透传公共模块的方法
     saveSession: AuthModule.saveSession.bind(AuthModule),
     getSession: AuthModule.getSession.bind(AuthModule),

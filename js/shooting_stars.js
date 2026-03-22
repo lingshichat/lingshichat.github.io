@@ -1,9 +1,9 @@
 /**
- * 🌠 拟物化流星雨特效 + 彩蛋触发器
- * 核心功能：
- * 1. 仅在首页显示
- * 2. 绘制拟物化流星（黄色发光五角星头部 + 白色渐变拖尾）
- * 3. 随机生成“特别流星”，点击可跳转至彩蛋页面
+ * 拟物化流星雨特效 + 彩蛋触发器 (Canvas 版，仅首页)
+ *
+ * 注意：本文件仅在首页 (/) 运行，使用 Canvas 绘制五角星流星。
+ * 非首页的彩蛋触发由 admin-portal.js 中的 CSS 流星系统负责。
+ * 两者职责互斥，不会同时运行。
  */
 
 (function () {
@@ -206,8 +206,12 @@
         stars.push(new Star());
     }
 
-    // 动画循环
+    // 动画循环（页面不可见时自动暂停，节省资源）
+    let isPageVisible = true;
+
     function animate() {
+        if (!isPageVisible) return;
+
         ctx.clearRect(0, 0, width, height);
 
         stars.forEach(star => {
@@ -217,6 +221,19 @@
 
         animationFrameId = requestAnimationFrame(animate);
     }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            isPageVisible = false;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
+            }
+        } else {
+            isPageVisible = true;
+            animate();
+        }
+    });
 
     animate();
 

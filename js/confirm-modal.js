@@ -33,6 +33,7 @@ export const ConfirmModal = {
     // 模态框容器
     container: null,
     currentResolve: null,
+    _escHandler: null,
 
     /**
      * 初始化模态框 DOM
@@ -78,19 +79,19 @@ export const ConfirmModal = {
         confirmBtn.addEventListener('click', () => this.close(true));
         cancelBtn.addEventListener('click', () => this.close(false));
 
-        // 点击背景关闭（可选）
+        // 点击背景关闭
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
                 this.close(false);
             }
         });
 
-        // ESC 键关闭
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.container.style.display !== 'none') {
+        // ESC 处理函数保存引用，供 show/close 动态绑定/解绑
+        this._escHandler = (e) => {
+            if (e.key === 'Escape') {
                 this.close(false);
             }
-        });
+        };
     },
 
     /**
@@ -307,6 +308,9 @@ export const ConfirmModal = {
         // 显示弹窗
         this.container.style.display = 'flex';
 
+        // 绑定 ESC 监听
+        document.addEventListener('keydown', this._escHandler);
+
         // 返回 Promise
         return new Promise((resolve) => {
             this.currentResolve = resolve;
@@ -344,6 +348,11 @@ export const ConfirmModal = {
      * @param {boolean} result - 确认结果
      */
     close(result) {
+        // 解绑 ESC 监听
+        if (this._escHandler) {
+            document.removeEventListener('keydown', this._escHandler);
+        }
+
         if (this.currentResolve) {
             // 短暂延迟，避免样式闪烁
             setTimeout(() => {

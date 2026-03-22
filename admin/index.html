@@ -172,7 +172,7 @@
                         <!-- 快捷操作 -->
                         <h3 style="margin-bottom: 20px;">快捷操作</h3>
                         <div class="actions-grid">
-                            <div class="action-btn" @click="navigateToPost">
+                            <div class="action-btn" @click="navigateToEditor">
                                 <i class="fa-solid fa-pen-nib"></i>
                                 <span>写文章</span>
                             </div>
@@ -336,8 +336,6 @@
 
 
                         </div>
-                    </section>
-
                     </section>
 
                     <!-- 4. 🚪 任意门视图 (Portal Manager) -->
@@ -730,7 +728,7 @@
         <!-- 操作栏 -->
         <div class="posts-toolbar glass-panel"
             style="display: flex; gap: 15px; align-items: center; padding: 15px 20px; margin-bottom: 20px;">
-            <button class="btn-primary" @click="navigateToPost" style="flex-shrink: 0;">
+            <button class="btn-primary" @click="navigateToEditor" style="flex-shrink: 0;">
                 <i class="fa-solid fa-plus"></i> 新建文章
             </button>
             <div class="input-wrapper" style="flex: 1; position: relative;">

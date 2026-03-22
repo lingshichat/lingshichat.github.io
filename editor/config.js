@@ -1,5 +1,7 @@
-// 🔐 安全配置
+// 安全配置
 // 仓库中仅保留非敏感默认值；敏感配置请写入同目录下被忽略的 config.local.js
+
+import { isPlainObject, mergeConfig } from '../js/utils.js';
 
 const DEFAULT_CONFIG = {
     // GitHub Token (加密)
@@ -20,7 +22,7 @@ const DEFAULT_CONFIG = {
     // 回收站路径
     TRASH_PATH: "source/_trash",
 
-    // 🖼️ 缤纷云 S3 图床配置
+    // 缤纷云 S3 图床配置
     S3_CONFIG: {
         endpoint: "https://s3.bitiful.net",
         bucket: "lingshichat",
@@ -30,29 +32,6 @@ const DEFAULT_CONFIG = {
         publicUrl: ""
     }
 };
-
-function isPlainObject(value) {
-    return Object.prototype.toString.call(value) === "[object Object]";
-}
-
-function mergeConfig(base, override) {
-    if (!isPlainObject(override)) {
-        return { ...base };
-    }
-
-    const result = { ...base };
-
-    Object.entries(override).forEach(([key, value]) => {
-        if (isPlainObject(value) && isPlainObject(base[key])) {
-            result[key] = mergeConfig(base[key], value);
-            return;
-        }
-
-        result[key] = value;
-    });
-
-    return result;
-}
 
 const localOverride = typeof window !== "undefined" && isPlainObject(window.__EDITOR_CONFIG_OVERRIDE__)
     ? window.__EDITOR_CONFIG_OVERRIDE__

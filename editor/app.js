@@ -3,6 +3,7 @@ import { Auth } from './auth.js';
 import { Octokit } from "https://esm.sh/@octokit/rest";
 import { Toast } from '../js/toast-module.js';
 import { s3Service } from './s3-service.js';
+import { formatFileSize } from '../js/utils.js';
 
 
 new Vue({
@@ -996,13 +997,7 @@ categories: ${catsStr}
             cm.focus();
         },
 
-        // 格式化文件大小
-        formatFileSize(bytes) {
-            if (bytes === 0) return '0 B';
-            const k = 1024;
-            const sizes = ['B', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
+        // 代理公共工具函数供模板调用
+        formatFileSize
     }
 });
