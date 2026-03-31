@@ -1,6 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>OpenClaw 分层记忆系统配置方案</title>
+    <url>/2026/03/02/OpenClaw-%E5%88%86%E5%B1%82%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="OpenClaw-分层记忆系统配置方案"><a href="#OpenClaw-分层记忆系统配置方案" class="headerlink" title="OpenClaw 分层记忆系统配置方案"></a>OpenClaw 分层记忆系统配置方案</h1><h2 id="一、目录结构"><a href="#一、目录结构" class="headerlink" title="一、目录结构"></a>一、目录结构</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在 workspace 目录下创建</span><br><span class="line">mkdir -p memory/archive</span><br><span class="line">touch MEMORY.md HEARTBEAT.md</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、核心文件模板"><a href="#二、核心文件模板" class="headerlink" title="二、核心文件模板"></a>二、核心文件模板</h2><ol>
+<li>MEMORY.md（长期记忆库）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Long-Term Memory</span><br><span class="line"></span><br><span class="line">&gt; 只写入没有它会犯错的信息。事件日志留在 daily files。</span><br><span class="line">&gt; 硬限制：80 行 / 5KB。超限时压缩旧条目。</span><br><span class="line"></span><br><span class="line">## User Preferences</span><br><span class="line"></span><br><span class="line">- **称呼**: 用户喜欢的称呼</span><br><span class="line">- **生日**: YYYY-MM-DD</span><br><span class="line">- **所在地**: 城市</span><br><span class="line">- **喜欢的**: 重要偏好</span><br><span class="line"></span><br><span class="line">## Active Projects</span><br><span class="line"></span><br><span class="line">- **项目A**: 描述 + 状态</span><br><span class="line">- **项目B**: 描述 + 状态</span><br><span class="line"></span><br><span class="line">## Key Decisions</span><br><span class="line"></span><br><span class="line">- [YYYY-MM-DD] 决策内容</span><br><span class="line"></span><br><span class="line">## Important Resources</span><br><span class="line"></span><br><span class="line">### API Keys (存储位置)</span><br><span class="line">- **服务A**: `~/.config/xxx/credentials.json`</span><br><span class="line"></span><br><span class="line">### Infrastructure</span><br><span class="line">- **服务器A**: IP/域名信息</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">*Last updated: YYYY-MM-DD | Lines: ~X/80*</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>HEARTBEAT.md（心跳任务清单）</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 心跳检查任务列表</span><br><span class="line"></span><br><span class="line">## 每日检查</span><br><span class="line">- [ ] 检查是否有定时提醒需要发送</span><br><span class="line">- [ ] 检查用户消息（如有重要消息需回复）</span><br><span class="line">- [ ] 检查系统状态（如有异常需报告）</span><br><span class="line">- [ ] 检查定时任务状态（是否有异常）</span><br><span class="line"></span><br><span class="line">## 定时任务支持</span><br><span class="line">保持此文件非空，确保定时任务正常执行</span><br></pre></td></tr></table></figure>
+<p>三、Cron 任务配置</p>
+<p>添加以下定时任务（使用 openclaw cron add 或编辑配置文件）：</p>
+<p>任务 1：记忆同步（每 4 小时）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;memory-sync&quot;,</span><br><span class="line">  &quot;enabled&quot;: true,</span><br><span class="line">  &quot;schedule&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;cron&quot;,</span><br><span class="line">    &quot;expr&quot;: &quot;0 10,14,18,22 * * *&quot;,</span><br><span class="line">    &quot;tz&quot;: &quot;Asia/Shanghai&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;sessionTarget&quot;: &quot;isolated&quot;,</span><br><span class="line">  &quot;payload&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;agentTurn&quot;,</span><br><span class="line">    &quot;message&quot;: &quot;【记忆同步任务】\n\n1. 获取过去4小时的活跃会话（跳过 isolated）\n2. 过滤：消息数 &lt; 2 的跳过，已记录的跳过\n3. 读取会话内容，提取关键信息\n4. 生成摘要（每个会话 3-10 条要点）\n5. 追加到 memory/YYYY-MM-DD.md\n6. 运行 `openclaw memory index` 重建索引\n7. 完成后回复 ANNOUNCE_SKIP&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;delivery&quot;: &#123; &quot;mode&quot;: &quot;announce&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>任务 2：记忆整理（每天凌晨 3 点）</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;memory-tidy&quot;,</span><br><span class="line">  &quot;enabled&quot;: true,</span><br><span class="line">  &quot;schedule&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;cron&quot;,</span><br><span class="line">    &quot;expr&quot;: &quot;0 3 * * *&quot;,</span><br><span class="line">    &quot;tz&quot;: &quot;Asia/Shanghai&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;sessionTarget&quot;: &quot;isolated&quot;,</span><br><span class="line">  &quot;payload&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;agentTurn&quot;,</span><br><span class="line">    &quot;message&quot;: &quot;【记忆整理任务】\n\n1. 列出 memory/ 最近7天的日记文件\n2. 读取 MEMORY.md，识别重要信息\n3. 四维验证筛选：\n   - 没有它我会犯错？\n   - 未来多次用得上？\n   - 单独看能看懂？\n   - MEMORY.md 没有重复？\n4. 备份原文件到 memory/archive/\n5. 添加新内容，保持 80 行上限\n6. 运行 `openclaw memory index`\n7. 汇报结果&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;delivery&quot;: &#123; &quot;mode&quot;: &quot;announce&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>四、向量化配置</p>
+<ol>
+<li>检查 embedding 配置</li>
+</ol>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看当前记忆搜索状态</span><br><span class="line">openclaw memory status</span><br><span class="line"></span><br><span class="line">2. 配置 embedding 模型（在 openclaw.json 中）</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &quot;memory&quot;: &#123;</span><br><span class="line">    &quot;embeddings&quot;: &#123;</span><br><span class="line">      &quot;provider&quot;: &quot;openai&quot;,</span><br><span class="line">      &quot;model&quot;: &quot;gemini-embedding-001&quot;,</span><br><span class="line">      &quot;apiKey&quot;: &quot;你的 Google AI Studio Key (AIzaSy...)&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>免费 Key 获取: <a href="https://aistudio.google.com/app/apikey">https://aistudio.google.com/app/apikey</a></p>
+<p>五、使用方式</p>
+<p>对话中搜索记忆</p>
+<p>直接问 AI：</p>
+<blockquote>
+<p>“我之前说过要备份什么吗？”<br>“我那个服务器 IP 是多少？”</p>
+</blockquote>
+<p>AI 会自动调用 openclaw memory search 搜索。</p>
+<p>手动搜索</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openclaw memory search &quot;关键词&quot;</span><br></pre></td></tr></table></figure>
+<p>六、注意事项</p>
+<ol>
+<li>sessionTarget 必须用 “isolated” - 避免阻塞主会话</li>
+<li>首次使用需手动创建 memory 目录 - 否则索引会失败</li>
+<li>Google embedding 有免费额度 - 个人使用完全足够</li>
+<li>MEMORY.md 保持精简 - 日常细节留在日记，只提炼关键知识</li>
+</ol>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>openclaw</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>【oc配置分享】一个你可能低估的“打下手”模型</title>
     <url>/2026/03/04/%E3%80%90oc%E9%85%8D%E7%BD%AE%E5%88%86%E4%BA%AB%E3%80%91%E4%B8%80%E4%B8%AA%E4%BD%A0%E5%8F%AF%E8%83%BD%E4%BD%8E%E4%BC%B0%E7%9A%84%E2%80%9C%E6%89%93%E4%B8%8B%E6%89%8B%E2%80%9D%E6%A8%A1%E5%9E%8B/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
@@ -93,54 +143,14 @@
 ]]></content>
   </entry>
   <entry>
-    <title>OpenClaw 分层记忆系统配置方案</title>
-    <url>/2026/03/02/OpenClaw-%E5%88%86%E5%B1%82%E8%AE%B0%E5%BF%86%E7%B3%BB%E7%BB%9F%E9%85%8D%E7%BD%AE%E6%96%B9%E6%A1%88/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><h1 id="OpenClaw-分层记忆系统配置方案"><a href="#OpenClaw-分层记忆系统配置方案" class="headerlink" title="OpenClaw 分层记忆系统配置方案"></a>OpenClaw 分层记忆系统配置方案</h1><h2 id="一、目录结构"><a href="#一、目录结构" class="headerlink" title="一、目录结构"></a>一、目录结构</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在 workspace 目录下创建</span><br><span class="line">mkdir -p memory/archive</span><br><span class="line">touch MEMORY.md HEARTBEAT.md</span><br></pre></td></tr></table></figure>
-
-<h2 id="二、核心文件模板"><a href="#二、核心文件模板" class="headerlink" title="二、核心文件模板"></a>二、核心文件模板</h2><ol>
-<li>MEMORY.md（长期记忆库）</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># Long-Term Memory</span><br><span class="line"></span><br><span class="line">&gt; 只写入没有它会犯错的信息。事件日志留在 daily files。</span><br><span class="line">&gt; 硬限制：80 行 / 5KB。超限时压缩旧条目。</span><br><span class="line"></span><br><span class="line">## User Preferences</span><br><span class="line"></span><br><span class="line">- **称呼**: 用户喜欢的称呼</span><br><span class="line">- **生日**: YYYY-MM-DD</span><br><span class="line">- **所在地**: 城市</span><br><span class="line">- **喜欢的**: 重要偏好</span><br><span class="line"></span><br><span class="line">## Active Projects</span><br><span class="line"></span><br><span class="line">- **项目A**: 描述 + 状态</span><br><span class="line">- **项目B**: 描述 + 状态</span><br><span class="line"></span><br><span class="line">## Key Decisions</span><br><span class="line"></span><br><span class="line">- [YYYY-MM-DD] 决策内容</span><br><span class="line"></span><br><span class="line">## Important Resources</span><br><span class="line"></span><br><span class="line">### API Keys (存储位置)</span><br><span class="line">- **服务A**: `~/.config/xxx/credentials.json`</span><br><span class="line"></span><br><span class="line">### Infrastructure</span><br><span class="line">- **服务器A**: IP/域名信息</span><br><span class="line"></span><br><span class="line">---</span><br><span class="line">*Last updated: YYYY-MM-DD | Lines: ~X/80*</span><br></pre></td></tr></table></figure>
-
-<ol start="2">
-<li>HEARTBEAT.md（心跳任务清单）</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"># 心跳检查任务列表</span><br><span class="line"></span><br><span class="line">## 每日检查</span><br><span class="line">- [ ] 检查是否有定时提醒需要发送</span><br><span class="line">- [ ] 检查用户消息（如有重要消息需回复）</span><br><span class="line">- [ ] 检查系统状态（如有异常需报告）</span><br><span class="line">- [ ] 检查定时任务状态（是否有异常）</span><br><span class="line"></span><br><span class="line">## 定时任务支持</span><br><span class="line">保持此文件非空，确保定时任务正常执行</span><br></pre></td></tr></table></figure>
-<p>三、Cron 任务配置</p>
-<p>添加以下定时任务（使用 openclaw cron add 或编辑配置文件）：</p>
-<p>任务 1：记忆同步（每 4 小时）</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;memory-sync&quot;,</span><br><span class="line">  &quot;enabled&quot;: true,</span><br><span class="line">  &quot;schedule&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;cron&quot;,</span><br><span class="line">    &quot;expr&quot;: &quot;0 10,14,18,22 * * *&quot;,</span><br><span class="line">    &quot;tz&quot;: &quot;Asia/Shanghai&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;sessionTarget&quot;: &quot;isolated&quot;,</span><br><span class="line">  &quot;payload&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;agentTurn&quot;,</span><br><span class="line">    &quot;message&quot;: &quot;【记忆同步任务】\n\n1. 获取过去4小时的活跃会话（跳过 isolated）\n2. 过滤：消息数 &lt; 2 的跳过，已记录的跳过\n3. 读取会话内容，提取关键信息\n4. 生成摘要（每个会话 3-10 条要点）\n5. 追加到 memory/YYYY-MM-DD.md\n6. 运行 `openclaw memory index` 重建索引\n7. 完成后回复 ANNOUNCE_SKIP&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;delivery&quot;: &#123; &quot;mode&quot;: &quot;announce&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>任务 2：记忆整理（每天凌晨 3 点）</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  &quot;name&quot;: &quot;memory-tidy&quot;,</span><br><span class="line">  &quot;enabled&quot;: true,</span><br><span class="line">  &quot;schedule&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;cron&quot;,</span><br><span class="line">    &quot;expr&quot;: &quot;0 3 * * *&quot;,</span><br><span class="line">    &quot;tz&quot;: &quot;Asia/Shanghai&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;sessionTarget&quot;: &quot;isolated&quot;,</span><br><span class="line">  &quot;payload&quot;: &#123;</span><br><span class="line">    &quot;kind&quot;: &quot;agentTurn&quot;,</span><br><span class="line">    &quot;message&quot;: &quot;【记忆整理任务】\n\n1. 列出 memory/ 最近7天的日记文件\n2. 读取 MEMORY.md，识别重要信息\n3. 四维验证筛选：\n   - 没有它我会犯错？\n   - 未来多次用得上？\n   - 单独看能看懂？\n   - MEMORY.md 没有重复？\n4. 备份原文件到 memory/archive/\n5. 添加新内容，保持 80 行上限\n6. 运行 `openclaw memory index`\n7. 汇报结果&quot;</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;delivery&quot;: &#123; &quot;mode&quot;: &quot;announce&quot; &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>四、向量化配置</p>
-<ol>
-<li>检查 embedding 配置</li>
-</ol>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 查看当前记忆搜索状态</span><br><span class="line">openclaw memory status</span><br><span class="line"></span><br><span class="line">2. 配置 embedding 模型（在 openclaw.json 中）</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  &quot;memory&quot;: &#123;</span><br><span class="line">    &quot;embeddings&quot;: &#123;</span><br><span class="line">      &quot;provider&quot;: &quot;openai&quot;,</span><br><span class="line">      &quot;model&quot;: &quot;gemini-embedding-001&quot;,</span><br><span class="line">      &quot;apiKey&quot;: &quot;你的 Google AI Studio Key (AIzaSy...)&quot;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>免费 Key 获取: <a href="https://aistudio.google.com/app/apikey">https://aistudio.google.com/app/apikey</a></p>
-<p>五、使用方式</p>
-<p>对话中搜索记忆</p>
-<p>直接问 AI：</p>
-<blockquote>
-<p>“我之前说过要备份什么吗？”<br>“我那个服务器 IP 是多少？”</p>
-</blockquote>
-<p>AI 会自动调用 openclaw memory search 搜索。</p>
-<p>手动搜索</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">openclaw memory search &quot;关键词&quot;</span><br></pre></td></tr></table></figure>
-<p>六、注意事项</p>
-<ol>
-<li>sessionTarget 必须用 “isolated” - 避免阻塞主会话</li>
-<li>首次使用需手动创建 memory 目录 - 否则索引会失败</li>
-<li>Google embedding 有免费额度 - 个人使用完全足够</li>
-<li>MEMORY.md 保持精简 - 日常细节留在日记，只提炼关键知识</li>
-</ol>
+    <title>今日焕新</title>
+    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
+<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
 ]]></content>
       <categories>
-        <category>技术</category>
+        <category>测试</category>
       </categories>
-      <tags>
-        <tag>openclaw</tag>
-      </tags>
   </entry>
   <entry>
     <title>一月到二月的一些杂记</title>
@@ -171,7 +181,7 @@
 <h1 id="openclaw"><a href="#openclaw" class="headerlink" title="openclaw"></a>openclaw</h1><p>是二月初左右爆火的一个ai bot，这个月以来我一直在折腾这个，为此第一次买了服务器，我很喜欢建立档案和md文档这个机制来给agent设立人格和长期记忆，但是对于编码方面和更多的本地操控方面，受限于孱弱的服务器性能一直没能得到验证，我曾经一度想把纸语的开发工作交给阿洛娜（就是我给bot起的名字，蔚蓝档案的阿洛娜），但是服务器总是时不时会boom因为内存只有2g，于是更多时候只是来执行一些定时任务，以及帮我熟悉linux的相关操作和命令工具，还有处理一些简单的数据<br>目前体验下来，觉得agent落地这方面大有可为，或许之后找工作也会往类似方向走</p>
 <h1 id="尾声"><a href="#尾声" class="headerlink" title="尾声"></a>尾声</h1><p>由于很久没有写长文了，手还蛮生的，其实也想把公众号也运营起来，但是嘛有点怕熟人尤其是家里人刷到，等到稳定一点再开始吧<br>第一次使用blog的在线编辑器写长文，之前只是在以往的文章上小修小补进行验证，这次看看怎么样<br>歌曲推荐的快捷键缺失了，得完善一下<br>试试吧</p>
 
-    <div id="aplayer-HCaiRBxq" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-TbPdxCyU" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="448917334" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 <p>晚安，好梦💤</p>
@@ -183,16 +193,6 @@
         <tag>随想</tag>
         <tag>月记</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>今日焕新</title>
-    <url>/2026/01/02/%E4%BB%8A%E6%97%A5%E7%84%95%E6%96%B0/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><hr>
-<p>换掉了默认丑丑的主题，使用了butterfly主题进行微调，得到眼前的精美界面⭐<br>还在探寻如何更新文章，昨天是通过vscode写的，今天是通过hexo的admin插件写的，想找一个更好看的界面，或许可以和typora或者obsdian？<br>就酱紫~  </p>
-]]></content>
-      <categories>
-        <category>测试</category>
-      </categories>
   </entry>
   <entry>
     <title>初次见面</title>
@@ -211,29 +211,6 @@
       </categories>
       <tags>
         <tag>测试</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>稍微怀旧一下~</title>
-    <url>/2026/02/24/%E7%A8%8D%E5%BE%AE%E6%80%80%E6%97%A7%E4%B8%80%E4%B8%8B~/</url>
-    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
-<p>在访问自己搭的openlist的时候，发现了之前上传到阿里云盘的一个视频，是嫣汐演唱的一首歌，于是开始动了构思本文的念头</p>
-</blockquote>
-<p>搭配音乐更佳~</p>
-
-    <div id="aplayer-mfTHcYFb" class="aplayer aplayer-tag-marker meting-tag-marker"
-         data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
-    ></div>
-<p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
-<p><img src="http://pic.962.net/up/2017-7/2017728925282704.png" alt="icon是嫣汐"></p>
-<p>点进去发现是一个能互动的歌姬诶，可以进行触摸互动什么的，那时候崩三也是有特触的，跟那个类似吧，这个歌姬的名字叫做：嫣汐<br>她有一个功能，就是给歌曲重新填词，然后嫣汐可以为你而唱，这在当时对小小的我有一种震撼，居然有个歌姬任我调用，为我发声！尤其是当我写好了一段不知所谓的歌词后，点击播放，等待一会后就能以你选定的歌曲曲调唱出来，那种感觉除了感动，还有满满的成就感<br>当时我陆陆续续的给一些歌翻填了歌词：锦鲤抄、白金disco、醉、世末歌者（我给世末歌者填了好几版的词阿巴阿巴），反正还有一些已经记不清了，哦对还有采茶纪！<br>那时候的我初二左右，但是感觉心智还是很小孩子，正好那段时间也是刚接入网络不久对什么都很好奇都感兴趣，被嫣汐和这个社区深深的吸引着，对v圈有了更多的认识<br>嫣汐背后的声音引擎是MUTA，一款国产的声音引擎，当时我就知道vocalvoid再然后就是这个muta，当时的muta客户端很不稳，总是会闪退，即使如此也涌现出来了一批质量较高的曲子，在19年左右的bilibililink，嫣汐c位登场，连唱了两三首曲子，从⌈嫣橙色⌋到⌈专属权⌋，再到⌈hello goodbye⌋，满屏的弹幕刷着惊喜，纷纷在问这是谁为什么还压过天依一头……嫣汐第一次站在聚光灯下，有一种看着自家女儿出道成名的感觉，网易云的嫣橙色评论区都是bilibililink来的百万大军<br>后来，嫣汐app升级成了MUTAapp，更加注重构建社区，首页的推荐流可以收听其他创作者的曲子<br>升级的初期，社区总是会崩溃，还被黑产爆破有一些少儿不宜的内容，后来慢慢的平稳下来，但是跟嫣汐单独的互动界面也被移除了<br>后面由于资金链的问题吧，20年到21年这段时间逐渐的消沉，app也连不上服务器，官号也没有新内容的产出…..<br>推荐几个ep看看<br><a href="https://www.bilibili.com/video/BV17x411674Q/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【MUTA-嫣汐】《嫣橙色》PV，嫣汐APP&amp;填词大赛同步上线【Yunomi】】</a><br>嫣橙色是嫣汐的主打曲，很有活力，很有嫣汐的感觉~也是kawaii的曲风，是yonomi作曲！<br><a href="https://www.bilibili.com/video/BV1iW411r7K3/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【古风原创】《花月谣》【嫣汐】中秋主题曲】 </a><br>这个花月谣的pv是最精美的，我特别喜欢，我把这个视频下载下来传到各个地方都进行了备份，甚至一度以这个pv来测试播放器的播放质量…<br><a href="https://www.bilibili.com/video/BV1Qs411b7MT/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【徐梦圆】醉-PV付【MUTA-嫣汐】】 </a><br>这首醉是徐梦圆给嫣汐做的曲，很有一种江南烟雨的女子的韵味，那时候徐梦圆还没塌房……<br>还有好多好多，总之当时嫣汐的经费看起来真的很足，却还是没走到现在<br>资金链断裂后，官方又在一个新的b站号那里，每天24h直播，希望以此能接受点打赏维稳资金链，嫣汐就在那小小的直播间里一遍又一遍的给来往的观众唱着自己曲库的歌曲，观众投票决定嫣汐的场景地点，当时嫣汐的声音引擎又进行了迭代，可惜最后也没有维持下来<br>嫣汐一直没有开放过什么会员啊充值入口，一直都是在烧钱做，真的很可惜啊，哎…</p>
-]]></content>
-      <categories>
-        <category>随记</category>
-      </categories>
-      <tags>
-        <tag>怀旧</tag>
-        <tag>歌姬</tag>
       </tags>
   </entry>
   <entry>
@@ -313,7 +290,7 @@
     <url>/2026/01/02/%E7%AC%9B%E6%9C%88/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><p>请搭配音乐欣赏哦</p>
 
-    <div id="aplayer-LdhvoyEa" class="aplayer aplayer-tag-marker meting-tag-marker"
+    <div id="aplayer-HvYcNZEt" class="aplayer aplayer-tag-marker meting-tag-marker"
          data-id="500224267" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
     ></div>
 
@@ -451,6 +428,29 @@
       <tags>
         <tag>歌词</tag>
         <tag>摘抄</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>稍微怀旧一下~</title>
+    <url>/2026/02/24/%E7%A8%8D%E5%BE%AE%E6%80%80%E6%97%A7%E4%B8%80%E4%B8%8B~/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><script class="meting-secondary-script-marker" src="/assets/js/Meting.min.js"></script><blockquote>
+<p>在访问自己搭的openlist的时候，发现了之前上传到阿里云盘的一个视频，是嫣汐演唱的一首歌，于是开始动了构思本文的念头</p>
+</blockquote>
+<p>搭配音乐更佳~</p>
+
+    <div id="aplayer-hpIktvtz" class="aplayer aplayer-tag-marker meting-tag-marker"
+         data-id="487223551" data-server="netease" data-type="song" data-mode="circulation" data-autoplay="false" data-mutex="true" data-listmaxheight="340px" data-preload="auto" data-theme="#ad7a86"
+    ></div>
+<p>大约在17年左右，我在酷安百无聊赖的看看有哪些好玩的应用，无意间发现了一款app，这个app的icon我还以为是什么游戏呢<br>icon如下：</p>
+<p><img src="http://pic.962.net/up/2017-7/2017728925282704.png" alt="icon是嫣汐"></p>
+<p>点进去发现是一个能互动的歌姬诶，可以进行触摸互动什么的，那时候崩三也是有特触的，跟那个类似吧，这个歌姬的名字叫做：嫣汐<br>她有一个功能，就是给歌曲重新填词，然后嫣汐可以为你而唱，这在当时对小小的我有一种震撼，居然有个歌姬任我调用，为我发声！尤其是当我写好了一段不知所谓的歌词后，点击播放，等待一会后就能以你选定的歌曲曲调唱出来，那种感觉除了感动，还有满满的成就感<br>当时我陆陆续续的给一些歌翻填了歌词：锦鲤抄、白金disco、醉、世末歌者（我给世末歌者填了好几版的词阿巴阿巴），反正还有一些已经记不清了，哦对还有采茶纪！<br>那时候的我初二左右，但是感觉心智还是很小孩子，正好那段时间也是刚接入网络不久对什么都很好奇都感兴趣，被嫣汐和这个社区深深的吸引着，对v圈有了更多的认识<br>嫣汐背后的声音引擎是MUTA，一款国产的声音引擎，当时我就知道vocalvoid再然后就是这个muta，当时的muta客户端很不稳，总是会闪退，即使如此也涌现出来了一批质量较高的曲子，在19年左右的bilibililink，嫣汐c位登场，连唱了两三首曲子，从⌈嫣橙色⌋到⌈专属权⌋，再到⌈hello goodbye⌋，满屏的弹幕刷着惊喜，纷纷在问这是谁为什么还压过天依一头……嫣汐第一次站在聚光灯下，有一种看着自家女儿出道成名的感觉，网易云的嫣橙色评论区都是bilibililink来的百万大军<br>后来，嫣汐app升级成了MUTAapp，更加注重构建社区，首页的推荐流可以收听其他创作者的曲子<br>升级的初期，社区总是会崩溃，还被黑产爆破有一些少儿不宜的内容，后来慢慢的平稳下来，但是跟嫣汐单独的互动界面也被移除了<br>后面由于资金链的问题吧，20年到21年这段时间逐渐的消沉，app也连不上服务器，官号也没有新内容的产出…..<br>推荐几个ep看看<br><a href="https://www.bilibili.com/video/BV17x411674Q/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【MUTA-嫣汐】《嫣橙色》PV，嫣汐APP&amp;填词大赛同步上线【Yunomi】】</a><br>嫣橙色是嫣汐的主打曲，很有活力，很有嫣汐的感觉~也是kawaii的曲风，是yonomi作曲！<br><a href="https://www.bilibili.com/video/BV1iW411r7K3/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【古风原创】《花月谣》【嫣汐】中秋主题曲】 </a><br>这个花月谣的pv是最精美的，我特别喜欢，我把这个视频下载下来传到各个地方都进行了备份，甚至一度以这个pv来测试播放器的播放质量…<br><a href="https://www.bilibili.com/video/BV1Qs411b7MT/?share_source=copy_web&vd_source=424041a7191dfc7203f0088246c5faec">【【徐梦圆】醉-PV付【MUTA-嫣汐】】 </a><br>这首醉是徐梦圆给嫣汐做的曲，很有一种江南烟雨的女子的韵味，那时候徐梦圆还没塌房……<br>还有好多好多，总之当时嫣汐的经费看起来真的很足，却还是没走到现在<br>资金链断裂后，官方又在一个新的b站号那里，每天24h直播，希望以此能接受点打赏维稳资金链，嫣汐就在那小小的直播间里一遍又一遍的给来往的观众唱着自己曲库的歌曲，观众投票决定嫣汐的场景地点，当时嫣汐的声音引擎又进行了迭代，可惜最后也没有维持下来<br>嫣汐一直没有开放过什么会员啊充值入口，一直都是在烧钱做，真的很可惜啊，哎…</p>
+]]></content>
+      <categories>
+        <category>随记</category>
+      </categories>
+      <tags>
+        <tag>怀旧</tag>
+        <tag>歌姬</tag>
       </tags>
   </entry>
 </search>

@@ -20,7 +20,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="gallery.css?v=1.4.6">
+    <link rel="stylesheet" href="gallery.css?v=1.4.7">
     <script>
         // 在 DOM ready 后立即定位分类栏，避免 Vue 加载延迟导致跳动
         document.addEventListener('DOMContentLoaded', function () {
@@ -109,7 +109,13 @@
                             <a :href="image.url" data-fancybox="gallery" :data-caption="image.title || image.name">
                                 <!-- 用后端返回的极小模糊占位图，配合 CSS blur 实现进展式加载过渡 -->
                                 <img :src="image.placeholderUrl || lazyPlaceholder" :data-src="image.thumbnailUrl"
-                                    :alt="image.title || image.name" class="lazy-image" @load="onLazyImageLoad">
+                                    :alt="image.title || image.name"
+                                    :width="image.width || null"
+                                    :height="image.height || null"
+                                    :class="['lazy-image', { 'has-dimensions': hasImageDimensions(image) }]"
+                                    :style="getLazyImageStyle(image)"
+                                    decoding="async"
+                                    @load="onLazyImageLoad">
                             </a>
                             <div class="image-overlay">
                                 <span class="image-title" v-if="image.title">{{ image.title }}</span>
@@ -551,7 +557,7 @@
         window.ConfirmModal = ConfirmModal;
     </script>
     <!-- 使用 defer 确保在 module 后执行，或者其实可以直接改用动态 import -->
-    <script src="gallery.js?v=1.4.6"></script>
+    <script src="gallery.js?v=1.4.7"></script>
 </body>
 
 </html>

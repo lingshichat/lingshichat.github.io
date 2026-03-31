@@ -578,6 +578,7 @@ body {
 
 .masonry-item img {
     width: 100%;
+    height: auto;
     display: block;
     cursor: pointer;
     transition: transform 0.3s;
@@ -599,6 +600,10 @@ body {
             rgba(255, 255, 255, 0.04) 80%);
     background-size: 200% 100%;
     animation: shimmer 1.6s ease-in-out infinite;
+}
+
+.masonry-item img.lazy-image.has-dimensions {
+    min-height: 0;
 }
 
 @keyframes shimmer {

@@ -932,6 +932,78 @@ new Vue({
             }
         },
 
+        hasImageDimensions(image) {
+            const width = Number(image?.width);
+            const height = Number(image?.height);
+            return Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0;
+        },
+
+        getLazyImageStyle(image) {
+            if (!this.hasImageDimensions(image)) {
+                return {};
+            }
+
+            return {
+                aspectRatio: `${Math.floor(Number(image.width))} / ${Math.floor(Number(image.height))}`
+            };
+        },
+
+        readFileAsDataUrl(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    if (typeof event.target?.result === 'string') {
+                        resolve(event.target.result);
+                        return;
+                    }
+                    reject(new Error('预览数据格式无效'));
+                };
+                reader.onerror = () => reject(new Error('读取文件失败'));
+                reader.readAsDataURL(file);
+            });
+        },
+
+        loadImageDimensions(previewUrl) {
+            return new Promise((resolve) => {
+                if (!previewUrl) {
+                    resolve({ width: null, height: null });
+                    return;
+                }
+
+                const image = new Image();
+                image.onload = () => {
+                    resolve({
+                        width: image.naturalWidth || null,
+                        height: image.naturalHeight || null
+                    });
+                };
+                image.onerror = () => resolve({ width: null, height: null });
+                image.src = previewUrl;
+            });
+        },
+
+        async buildUploadFileItem(file) {
+            const preview = await this.readFileAsDataUrl(file);
+            const dimensions = await this.loadImageDimensions(preview);
+
+            return {
+                id: createUploadQueueId(),
+                file: file,
+                name: file.name,
+                // 默认不预填标题，避免与文件名提示重复；上传时回退到建议标题
+                title: '',
+                suggestedTitle: file.name.replace(/\.[^.]+$/, ''),
+                preview,
+                width: dimensions.width,
+                height: dimensions.height,
+                settingsExpanded: false,
+                customCategoryEnabled: false,
+                customCategory: '',
+                customTagsEnabled: false,
+                customTagsText: ''
+            };
+        },
+
         addFiles(files) {
             // 管理员不限制单次多选数量，普通用户限制 30 张
             const isAdmin = this.sessionRole === 'admin';
@@ -967,25 +1039,14 @@ new Vue({
                 }
             }
 
-            filesToAdd.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    this.uploadFiles.push({
-                        id: createUploadQueueId(),
-                        file: file,
-                        name: file.name,
-                        // 默认不预填标题，避免与文件名提示重复；上传时回退到建议标题
-                        title: '',
-                        suggestedTitle: file.name.replace(/\.[^.]+$/, ''),
-                        preview: e.target.result,
-                        settingsExpanded: false,
-                        customCategoryEnabled: false,
-                        customCategory: '',
-                        customTagsEnabled: false,
-                        customTagsText: ''
-                    });
-                };
-                reader.readAsDataURL(file);
+            Promise.all(filesToAdd.map((file) => this.buildUploadFileItem(file).catch((error) => {
+                console.error('构建上传预览失败:', error);
+                this.showToast(`读取 ${file.name} 预览失败`, 'error');
+                return null;
+            }))).then((items) => {
+                items.filter(Boolean).forEach((item) => {
+                    this.uploadFiles.push(item);
+                });
             });
         },
 
@@ -1080,6 +1141,8 @@ new Vue({
                 title: typeof item.title === 'string' ? item.title : '',
                 suggestedTitle: typeof item.suggestedTitle === 'string' ? item.suggestedTitle : '',
                 preview: item.preview,
+                width: Number.isFinite(Number(item.width)) ? Number(item.width) : null,
+                height: Number.isFinite(Number(item.height)) ? Number(item.height) : null,
                 settingsExpanded: !!item.settingsExpanded,
                 customCategoryEnabled: !!item.customCategoryEnabled,
                 customCategory: typeof item.customCategory === 'string' ? item.customCategory : '',
@@ -1222,7 +1285,9 @@ new Vue({
                             key,
                             contentHash,
                             fileSize: file.size,
-                            storageKey: signData.storageKey
+                            storageKey: signData.storageKey,
+                            width: fileData.width,
+                            height: fileData.height
                         })
                     });
                     const refData = await refConfirm.json();
@@ -1266,7 +1331,9 @@ new Vue({
                 body: JSON.stringify({
                     key: effectiveKey,
                     contentHash,
-                    fileSize: file.size
+                    fileSize: file.size,
+                    width: fileData.width,
+                    height: fileData.height
                 })
             });
 
