@@ -31,6 +31,9 @@ const CATEGORIES = [
 ];
 
 const UPLOAD_CATEGORIES = CATEGORIES.filter(c => c.key !== 'all' && c.key !== 'mine');
+const MAX_UPLOAD_SIZE_BYTES = 10 * 1024 * 1024;
+const MAX_STANDARD_UPLOAD_COUNT = 30;
+const QUEUE_BUILD_YIELD_INTERVAL = 4;
 
 function createUploadQueueId() {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -44,6 +47,37 @@ function parseTagInput(value) {
         .split(/[,\n，]+/)
         .map((tag) => tag.trim())
         .filter((tag, index, list) => tag && list.indexOf(tag) === index);
+}
+
+function waitForNextFrame() {
+    return new Promise((resolve) => {
+        if (typeof requestAnimationFrame === 'function') {
+            requestAnimationFrame(() => resolve());
+            return;
+        }
+        setTimeout(resolve, 16);
+    });
+}
+
+function formatFileSize(bytes) {
+    const size = Number(bytes);
+    if (!Number.isFinite(size) || size < 0) {
+        return '--';
+    }
+    if (size >= 1024 * 1024) {
+        return `${(size / (1024 * 1024)).toFixed(size >= 10 * 1024 * 1024 ? 1 : 2)} MB`;
+    }
+    if (size >= 1024) {
+        return `${Math.round(size / 1024)} KB`;
+    }
+    return `${size} B`;
+}
+
+function encodePublicImagePath(path) {
+    return String(path || '')
+        .split('/')
+        .map((segment) => encodeURIComponent(segment))
+        .join('/');
 }
 
 // ============================================
@@ -323,6 +357,8 @@ new Vue({
         uploading: false,
         uploadProgress: 0,
         uploadFileName: '',
+        queueBuildInProgress: false,
+        queueBuildPendingCount: 0,
 
         // 每日上传额度（打开弹窗时从后端查询）
         dailyUploadUsed: 0,
@@ -401,6 +437,7 @@ new Vue({
         window.removeEventListener('storage', this.handleStorageChange);
         window.removeEventListener('resize', this.handleResize);
         window.removeEventListener('scroll', this.handleScroll);
+        this.cleanupUploadQueueItems(this.uploadFiles);
         if (this.imageObserver) {
             this.imageObserver.disconnect();
             this.imageObserver = null;
@@ -446,6 +483,37 @@ new Vue({
             return this.sessionRole === 'admin' ? 'is-admin' : 'is-user';
         },
 
+        isAdminSession() {
+            return this.sessionRole === 'admin';
+        },
+
+        uploadReadyCount() {
+            return this.uploadFiles.filter((item) => this.canUploadFile(item)).length;
+        },
+
+        uploadInvalidCount() {
+            return this.uploadFiles.filter((item) => item && item.status === 'invalid-size').length;
+        },
+
+        uploadErrorCount() {
+            return this.uploadFiles.filter((item) => item && item.status === 'error').length;
+        },
+
+        uploadQueuedCount() {
+            return this.uploadFiles.filter((item) => this.shouldReserveUploadQuota(item)).length;
+        },
+
+        hasUploadableFiles() {
+            return this.uploadReadyCount > 0;
+        },
+
+        uploadQueueHint() {
+            if (this.isAdminSession) {
+                return '管理员模式：前端不做 10MB 大小拦截，超大文件以服务端返回为准。';
+            }
+            return `普通用户单张限制 ${formatFileSize(MAX_UPLOAD_SIZE_BYTES)}，超限文件会保留在待上传区并自动跳过。`;
+        },
+
         // JS 列式瀑布流：round-robin 分配图片到固定列
         // 加载更多时，已有图片的列归属不变，新图片追加到列尾
         imageColumns() {
@@ -487,6 +555,9 @@ new Vue({
 
             try {
                 const profile = await GalleryService.me(token);
+                if (this.sessionToken !== token) {
+                    return;
+                }
                 this.sessionRole = profile.role || '';
                 this.sessionUserId = profile.userId || '';
                 this.sessionEmail = profile.email || '';
@@ -497,7 +568,7 @@ new Vue({
                 localStorage.setItem(CONFIG.SESSION_EMAIL_KEY, this.sessionEmail);
                 localStorage.setItem(CONFIG.SESSION_EXPIRES_KEY, this.sessionExpiresAt);
             } catch (error) {
-                if (error?.code === 401) {
+                if (error?.code === 401 && this.sessionToken === token) {
                     this.clearSession();
                 }
             }
@@ -572,6 +643,10 @@ new Vue({
             this.modalMouseDownOnOverlay = (e.target === e.currentTarget);
         },
         overlayMouseUp(e, modalFlag) {
+            if (modalFlag === 'showUploadModal' && this.uploading) {
+                this.modalMouseDownOnOverlay = false;
+                return;
+            }
             if (this.modalMouseDownOnOverlay && e.target === e.currentTarget) {
                 this[modalFlag] = false;
             }
@@ -900,6 +975,9 @@ new Vue({
             }
             const files = Array.from(event.dataTransfer.files);
             this.addFiles(files);
+            if (files.length > 0) {
+                this.openUploadModal();
+            }
         },
 
         handleModalDrop(event) {
@@ -911,7 +989,7 @@ new Vue({
             this.addFiles(files);
         },
 
-        handlePaste(event) {
+        async handlePaste(event) {
             if (!this.isUnlocked) return;
             if (!this.ensureSession()) return;
 
@@ -927,8 +1005,8 @@ new Vue({
             }
 
             if (files.length > 0) {
+                await this.openUploadModal();
                 this.addFiles(files);
-                this.openUploadModal();
             }
         },
 
@@ -948,19 +1026,65 @@ new Vue({
             };
         },
 
-        readFileAsDataUrl(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    if (typeof event.target?.result === 'string') {
-                        resolve(event.target.result);
-                        return;
-                    }
-                    reject(new Error('预览数据格式无效'));
-                };
-                reader.onerror = () => reject(new Error('读取文件失败'));
-                reader.readAsDataURL(file);
-            });
+        getImageLocationInfo(key) {
+            const normalizedKey = String(key || '').trim();
+            const relativeKey = normalizedKey.startsWith(CONFIG.IMAGE_BASE_PREFIX)
+                ? normalizedKey.slice(CONFIG.IMAGE_BASE_PREFIX.length)
+                : normalizedKey.replace(/^\/+/, '');
+            const parts = relativeKey.split('/').filter(Boolean);
+            const filename = parts.length > 0 ? parts[parts.length - 1] : '';
+            const folderParts = parts.slice(0, -1);
+
+            const ownerSegment = folderParts[0] && folderParts[0].startsWith('usr_')
+                ? folderParts[0]
+                : '';
+            const categorySegment = ownerSegment ? (folderParts[1] || '') : (folderParts[0] || '');
+            const category = UPLOAD_CATEGORIES.find(
+                (item) => item.prefix.replace(/\/$/, '') === categorySegment
+            );
+
+            return {
+                filename,
+                ownerPrefix: ownerSegment ? `${ownerSegment}/` : '',
+                categoryKey: category ? category.key : UPLOAD_CATEGORIES[0].key
+            };
+        },
+
+        buildImagePublicUrl(key) {
+            const normalizedKey = String(key || '').trim().replace(/^\/+/, '');
+            if (!normalizedKey) {
+                return '';
+            }
+            const publicBase = String(CONFIG.S3_PUBLIC_URL || '').replace(/\/+$/, '');
+            return `${publicBase}/${encodePublicImagePath(normalizedKey)}`;
+        },
+
+        applySavedImageState(image, metadata, nextKey) {
+            if (!image) {
+                return;
+            }
+
+            image.title = metadata?.title || '';
+            image.tags = Array.isArray(metadata?.tags) ? [...metadata.tags] : [];
+            image.updatedAt = metadata?.updatedAt || image.updatedAt;
+            if (Number.isFinite(Number(metadata?.version))) {
+                image.version = Number(metadata.version);
+            }
+
+            if (nextKey && nextKey !== image.key) {
+                const publicUrl = this.buildImagePublicUrl(nextKey);
+                image.key = nextKey;
+                image.name = nextKey.split('/').pop() || image.name;
+                image.url = publicUrl || image.url;
+                if (publicUrl) {
+                    image.thumbnailUrl = `${publicUrl}${CONFIG.THUMBNAIL_PARAMS}`;
+                    image.placeholderUrl = `${publicUrl}?w=24&q=20&f=webp`;
+                }
+            }
+        },
+
+        refreshGalleryAfterEdit() {
+            this.loadImages(true);
         },
 
         loadImageDimensions(previewUrl) {
@@ -978,24 +1102,43 @@ new Vue({
                     });
                 };
                 image.onerror = () => resolve({ width: null, height: null });
+                image.decoding = 'async';
                 image.src = previewUrl;
             });
         },
 
-        async buildUploadFileItem(file) {
-            const preview = await this.readFileAsDataUrl(file);
-            const dimensions = await this.loadImageDimensions(preview);
+        getUploadMaxFileSize() {
+            return this.isAdminSession ? null : MAX_UPLOAD_SIZE_BYTES;
+        },
+
+        formatFileSize(bytes) {
+            return formatFileSize(bytes);
+        },
+
+        createUploadFileItem(file) {
+            const sizeLimit = this.getUploadMaxFileSize();
+            const isSizeInvalid = Number.isFinite(sizeLimit) && file.size > sizeLimit;
+            let previewUrl = '';
+
+            if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+                previewUrl = URL.createObjectURL(file);
+            }
 
             return {
                 id: createUploadQueueId(),
-                file: file,
+                file,
                 name: file.name,
-                // 默认不预填标题，避免与文件名提示重复；上传时回退到建议标题
+                size: Number(file.size) || 0,
                 title: '',
                 suggestedTitle: file.name.replace(/\.[^.]+$/, ''),
-                preview,
-                width: dimensions.width,
-                height: dimensions.height,
+                preview: previewUrl,
+                previewObjectUrl: previewUrl,
+                width: null,
+                height: null,
+                status: isSizeInvalid ? 'invalid-size' : 'ready',
+                message: isSizeInvalid
+                    ? `超过 ${this.formatFileSize(sizeLimit)} 限制，当前 ${this.formatFileSize(file.size)}，本次不会上传`
+                    : '',
                 settingsExpanded: false,
                 customCategoryEnabled: false,
                 customCategory: '',
@@ -1004,26 +1147,108 @@ new Vue({
             };
         },
 
-        addFiles(files) {
-            // 管理员不限制单次多选数量，普通用户限制 30 张
-            const isAdmin = this.sessionRole === 'admin';
-            const MAX_UPLOAD_COUNT = isAdmin ? Infinity : 30;
-            // 只保留图片类型
-            const imageFiles = files.filter(f => f.type.startsWith('image/'));
+        canUploadFile(file) {
+            return !!file && (file.status === 'ready' || file.status === 'error');
+        },
 
-            // 计算当前已有的文件数量
-            const remaining = MAX_UPLOAD_COUNT - this.uploadFiles.length;
+        shouldReserveUploadQuota(file) {
+            return !!file && (file.status === 'ready' || file.status === 'error' || file.status === 'uploading');
+        },
+
+        getUploadFileStatusLabel(file) {
+            const status = file?.status || 'ready';
+            const labelMap = {
+                ready: '待上传',
+                'invalid-size': '超出限制',
+                uploading: '上传中',
+                error: '失败可重试',
+                uploaded: '已上传',
+                referenced: '已建引用',
+                skipped: '已跳过'
+            };
+            return labelMap[status] || '待上传';
+        },
+
+        getUploadFileMeta(file) {
+            const meta = [this.formatFileSize(file?.size || 0)];
+            if (Number.isFinite(Number(file?.width)) && Number(file.width) > 0
+                && Number.isFinite(Number(file?.height)) && Number(file.height) > 0) {
+                meta.push(`${file.width} × ${file.height}`);
+            }
+            return meta.join(' · ');
+        },
+
+        revokeUploadPreview(file) {
+            if (!file || !file.previewObjectUrl || typeof URL === 'undefined' || typeof URL.revokeObjectURL !== 'function') {
+                return;
+            }
+            URL.revokeObjectURL(file.previewObjectUrl);
+            file.previewObjectUrl = '';
+            file.preview = '';
+        },
+
+        cleanupUploadQueueItems(items) {
+            if (!Array.isArray(items)) {
+                return;
+            }
+            items.forEach((item) => {
+                this.revokeUploadPreview(item);
+            });
+        },
+
+        async ensureUploadFileDimensions(fileData) {
+            if (Number.isFinite(Number(fileData?.width)) && Number(fileData.width) > 0
+                && Number.isFinite(Number(fileData?.height)) && Number(fileData.height) > 0) {
+                return {
+                    width: Number(fileData.width),
+                    height: Number(fileData.height)
+                };
+            }
+
+            let temporaryPreviewUrl = '';
+            const previewUrl = fileData.preview || (() => {
+                if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+                    temporaryPreviewUrl = URL.createObjectURL(fileData.file);
+                    return temporaryPreviewUrl;
+                }
+                return '';
+            })();
+
+            try {
+                const dimensions = await this.loadImageDimensions(previewUrl);
+                fileData.width = dimensions.width;
+                fileData.height = dimensions.height;
+                return dimensions;
+            } finally {
+                if (temporaryPreviewUrl && typeof URL !== 'undefined' && typeof URL.revokeObjectURL === 'function') {
+                    URL.revokeObjectURL(temporaryPreviewUrl);
+                }
+            }
+        },
+
+        async addFiles(files) {
+            if (this.uploading) {
+                this.showToast('当前批次正在上传，请等待完成后再继续添加', 'info');
+                return;
+            }
+
+            const imageFiles = files.filter((file) => file.type.startsWith('image/'));
+            if (imageFiles.length === 0) {
+                return;
+            }
+
+            const maxUploadCount = this.isAdminSession ? Infinity : MAX_STANDARD_UPLOAD_COUNT;
+            const remaining = maxUploadCount - this.uploadFiles.length;
             if (remaining <= 0) {
-                if (!isAdmin) {
-                    this.showToast(`单次最多支持上传 ${MAX_UPLOAD_COUNT} 张图片，已无法继续添加`, 'error');
+                if (!this.isAdminSession) {
+                    this.showToast(`单次最多支持上传 ${MAX_STANDARD_UPLOAD_COUNT} 张图片，已无法继续添加`, 'error');
                 }
                 return;
             }
 
-            // 普通用户还需要考虑每日剩余额度
             let effectiveRemaining = remaining;
-            if (!isAdmin && !this.isUploadUnlimited) {
-                const dailyRemaining = Math.max(0, this.dailyUploadLimit - this.dailyUploadUsed - this.uploadFiles.length);
+            if (!this.isAdminSession && !this.isUploadUnlimited) {
+                const dailyRemaining = Math.max(0, this.dailyUploadLimit - this.dailyUploadUsed - this.uploadQueuedCount);
                 effectiveRemaining = Math.min(remaining, dailyRemaining);
                 if (effectiveRemaining <= 0) {
                     this.showToast('今日上传额度已用完，请明天再试', 'error');
@@ -1034,24 +1259,99 @@ new Vue({
             let filesToAdd = imageFiles;
             if (imageFiles.length > effectiveRemaining) {
                 filesToAdd = imageFiles.slice(0, effectiveRemaining);
-                if (!isAdmin) {
-                    this.showToast(`已截断为前 ${effectiveRemaining} 张（受每日限额约束）`, 'error');
+                if (!this.isAdminSession) {
+                    const limitMessage = !this.isUploadUnlimited && effectiveRemaining < remaining
+                        ? `已截断为前 ${effectiveRemaining} 张（受今日剩余额度影响）`
+                        : `单次最多保留 ${MAX_STANDARD_UPLOAD_COUNT} 张，已截断为前 ${effectiveRemaining} 张`;
+                    this.showToast(limitMessage, 'info');
                 }
             }
 
-            Promise.all(filesToAdd.map((file) => this.buildUploadFileItem(file).catch((error) => {
-                console.error('构建上传预览失败:', error);
-                this.showToast(`读取 ${file.name} 预览失败`, 'error');
-                return null;
-            }))).then((items) => {
-                items.filter(Boolean).forEach((item) => {
-                    this.uploadFiles.push(item);
-                });
-            });
+            this.queueBuildInProgress = true;
+            this.queueBuildPendingCount += filesToAdd.length;
+
+            let sizeBlockedCount = 0;
+            let buildFailedCount = 0;
+
+            try {
+                for (let index = 0; index < filesToAdd.length; index++) {
+                    const file = filesToAdd[index];
+
+                    try {
+                        const item = this.createUploadFileItem(file);
+                        if (item.status === 'invalid-size') {
+                            sizeBlockedCount++;
+                        }
+                        this.uploadFiles.push(item);
+                    } catch (error) {
+                        buildFailedCount++;
+                        console.error('构建上传队列失败:', error);
+                    } finally {
+                        this.queueBuildPendingCount = Math.max(0, this.queueBuildPendingCount - 1);
+                    }
+
+                    if ((index + 1) % QUEUE_BUILD_YIELD_INTERVAL === 0 || index === filesToAdd.length - 1) {
+                        await waitForNextFrame();
+                    }
+                }
+            } finally {
+                this.queueBuildInProgress = this.queueBuildPendingCount > 0;
+            }
+
+            if (sizeBlockedCount > 0 && !this.isAdminSession) {
+                this.showToast(`${sizeBlockedCount} 张图片超过 ${this.formatFileSize(MAX_UPLOAD_SIZE_BYTES)}，已在待上传区标记`, 'info');
+            }
+
+            if (buildFailedCount > 0) {
+                this.showToast(`${buildFailedCount} 个文件加入队列失败，请重试`, 'error');
+            }
         },
 
         removeFile(index) {
-            this.uploadFiles.splice(index, 1);
+            if (this.uploading || this.queueBuildInProgress) {
+                return;
+            }
+            const removed = this.uploadFiles.splice(index, 1);
+            if (removed.length > 0) {
+                this.revokeUploadPreview(removed[0]);
+            }
+        },
+
+        clearUploadQueue() {
+            if (this.uploading || this.queueBuildInProgress) {
+                return;
+            }
+            this.cleanupUploadQueueItems(this.uploadFiles);
+            this.uploadFiles = [];
+            this.uploadProgress = 0;
+            this.uploadFileName = '';
+        },
+
+        pruneFinishedUploadFiles(finishedIds) {
+            if (!Array.isArray(finishedIds) || finishedIds.length === 0) {
+                return;
+            }
+
+            const finishedSet = new Set(finishedIds);
+            const remainingQueue = [];
+
+            this.uploadFiles.forEach((item) => {
+                if (finishedSet.has(item.id)) {
+                    this.revokeUploadPreview(item);
+                    return;
+                }
+                remainingQueue.push(item);
+            });
+
+            this.uploadFiles = remainingQueue;
+        },
+
+        closeUploadModal() {
+            if (this.uploading) {
+                this.showToast('上传进行中，请等待当前批次完成', 'info');
+                return;
+            }
+            this.showUploadModal = false;
         },
 
         addTag() {
@@ -1126,7 +1426,7 @@ new Vue({
         },
 
         async startUpload() {
-            if (this.uploadFiles.length === 0) return;
+            if (!this.hasUploadableFiles || this.queueBuildInProgress) return;
             if (!this.ensureSession()) {
                 this.openAuthModal('login', '登录后可上传图片');
                 return;
@@ -1134,28 +1434,18 @@ new Vue({
 
             const globalCategoryKey = this.uploadCategory;
             const uploadTagsSnapshot = [...this.uploadTags];
-            const uploadQueue = this.uploadFiles.map((item) => ({
-                id: item.id || createUploadQueueId(),
-                file: item.file,
-                name: item.name,
-                title: typeof item.title === 'string' ? item.title : '',
-                suggestedTitle: typeof item.suggestedTitle === 'string' ? item.suggestedTitle : '',
-                preview: item.preview,
-                width: Number.isFinite(Number(item.width)) ? Number(item.width) : null,
-                height: Number.isFinite(Number(item.height)) ? Number(item.height) : null,
-                settingsExpanded: !!item.settingsExpanded,
-                customCategoryEnabled: !!item.customCategoryEnabled,
-                customCategory: typeof item.customCategory === 'string' ? item.customCategory : '',
-                customTagsEnabled: !!item.customTagsEnabled,
-                customTagsText: typeof item.customTagsText === 'string' ? item.customTagsText : ''
-            }));
+            const uploadQueue = this.uploadFiles.filter((item) => this.canUploadFile(item));
             const uploadFileCount = uploadQueue.length;
-            this.showUploadModal = false;
+            if (uploadFileCount === 0) {
+                return;
+            }
+
             this.uploading = true;
             this.uploadProgress = 0;
 
             let uploadedCount = 0;
             let createdCount = 0;
+            const finishedIds = [];
             // 每个文件占的进度比重（每个文件内部 XHR 进度再细分）
             const perFileWeight = 100 / uploadFileCount;
 
@@ -1171,6 +1461,8 @@ new Vue({
                     ? parseTagInput(fileData.customTagsText)
                     : uploadTagsSnapshot;
 
+                fileData.status = 'uploading';
+                fileData.message = '正在上传，请稍候...';
                 this.uploadFileName = displayTitle;
                 // 当前文件开始时进度置为已完成文件数的比重
                 this.uploadProgress = Math.round(i * perFileWeight);
@@ -1183,38 +1475,58 @@ new Vue({
                     if (uploadResult === 'uploaded') {
                         uploadedCount++;
                         createdCount++;
+                        fileData.status = 'uploaded';
+                        fileData.message = '已上传完成';
+                        finishedIds.push(fileData.id);
                     } else if (uploadResult === 'referenced') {
                         createdCount++;
+                        fileData.status = 'referenced';
+                        fileData.message = '已创建引用';
+                        finishedIds.push(fileData.id);
+                    } else if (uploadResult === 'skipped') {
+                        fileData.status = 'skipped';
+                        fileData.message = '已跳过重复文件';
+                        finishedIds.push(fileData.id);
                     }
                 } catch (error) {
                     console.error('上传失败:', error);
+                    fileData.status = 'error';
                     if (error?.code === 401) {
+                        fileData.message = '登录已失效，请重新登录后重试';
                         this.clearSession();
                         this.openAuthModal('login', '登录已失效，请重新登录后上传');
                         this.showToast('登录已失效，请重新登录后再上传', 'error');
                         break;
                     }
                     if (error?.code === 403) {
+                        fileData.message = '当前账号没有上传权限';
                         this.openAuthModal('login', '当前账号无上传权限');
                         this.showToast('当前身份无上传权限，请重新登录', 'error');
                         break;
                     }
                     // 普通失败（网络/格式/限速）：提示后继续上传剩余图片
                     if (error?.code === 429) {
+                        fileData.message = '上传失败：请求过于频繁，可稍后重试';
                         this.showToast(`上传 ${file.name} 失败: 请求过于频繁，请稍后重试`, 'error');
                     } else {
-                        this.showToast(`上传 ${file.name} 失败: ${error.message}`, 'error');
+                        const errorMessage = error?.message || '未知错误';
+                        fileData.message = `上传失败：${errorMessage}`;
+                        this.showToast(`上传 ${file.name} 失败: ${errorMessage}`, 'error');
                     }
                     // 继续下一张，不中断整个队列
                     continue;
+                } finally {
+                    this.uploadProgress = Math.min(Math.round(((i + 1) / uploadFileCount) * 100), 100);
                 }
             }
 
             this.uploading = false;
             this.uploadProgress = 0;
-            this.uploadFiles = [];
-            this.uploadTitle = '';
-            this.uploadTags = [];
+            this.uploadFileName = '';
+
+            if (finishedIds.length > 0) {
+                this.pruneFinishedUploadFiles(finishedIds);
+            }
 
             if (createdCount > 0) {
                 // 本地同步每日已用额度，避免重新打开弹窗时显示旧数据
@@ -1224,6 +1536,10 @@ new Vue({
 
             if (uploadedCount > 0) {
                 this.showToast(`成功上传 ${uploadedCount} 张图片！`, 'success');
+            }
+
+            if (this.uploadFiles.length === 0) {
+                this.showUploadModal = false;
             }
         },
 
@@ -1238,6 +1554,10 @@ new Vue({
             const ext = file.name.split('.').pop() || 'jpg';
             const filename = `${timestamp}_${randomStr}.${ext}`;
             const key = `${CONFIG.IMAGE_BASE_PREFIX}${categoryPrefix}${filename}`;
+
+            const dimensions = await this.ensureUploadFileDimensions(fileData);
+            fileData.width = dimensions.width;
+            fileData.height = dimensions.height;
 
             // Compute SHA-256 hash for deduplication
             const arrayBuffer = await file.arrayBuffer();
@@ -1410,15 +1730,8 @@ new Vue({
             this.editTags = image.tags ? [...image.tags] : [];
             this.newEditTag = '';
 
-            // 确定当前分类
-            const pathParts = image.key.split('/');
-            if (pathParts.length >= 2) {
-                const folderName = pathParts[pathParts.length - 2];
-                const cat = UPLOAD_CATEGORIES.find(c => c.prefix.replace('/', '') === folderName);
-                this.editCategory = cat ? cat.key : UPLOAD_CATEGORIES[0].key;
-            } else {
-                this.editCategory = UPLOAD_CATEGORIES[0].key;
-            }
+            const locationInfo = this.getImageLocationInfo(image.key);
+            this.editCategory = locationInfo.categoryKey;
 
             this.showEditModal = true;
         },
@@ -1446,7 +1759,7 @@ new Vue({
                     throw new Error('仅管理员可编辑图片');
                 }
 
-                await GalleryService.updateMetadata(
+                const savedMetadata = await GalleryService.updateMetadata(
                     this.editingImage.key,
                     this.editTitle,
                     this.editTags,
@@ -1457,10 +1770,11 @@ new Vue({
                 // 如果需要移动分类
                 const currentCat = UPLOAD_CATEGORIES.find(c => c.key === this.editCategory);
                 const currentPrefix = currentCat ? currentCat.prefix : '';
+                const locationInfo = this.getImageLocationInfo(this.editingImage.key);
 
                 const oldKey = this.editingImage.key;
-                const filename = oldKey.split('/').pop();
-                const newKey = `${CONFIG.IMAGE_BASE_PREFIX}${currentPrefix}${filename}`;
+                const filename = locationInfo.filename || oldKey.split('/').pop();
+                const newKey = `${CONFIG.IMAGE_BASE_PREFIX}${locationInfo.ownerPrefix}${currentPrefix}${filename}`;
 
                 if (oldKey !== newKey) {
                     await GalleryService.moveImage(oldKey, newKey, this.sessionToken);
@@ -1469,15 +1783,18 @@ new Vue({
                     this.showToast('保存成功！', 'success');
                 }
 
+                this.applySavedImageState(this.editingImage, savedMetadata, newKey);
                 this.showEditModal = false;
-                await this.loadImages(true);
+                this.editingImage = null;
+                this.refreshGalleryAfterEdit();
 
             } catch (error) {
                 console.error('保存失败:', error);
                 if (error?.code === 409) {
                     this.showToast('保存冲突：图片元数据已被其他会话修改，已为你刷新列表', 'error');
                     this.showEditModal = false;
-                    await this.loadImages(true);
+                    this.editingImage = null;
+                    this.refreshGalleryAfterEdit();
                 } else if (error?.code === 401) {
                     this.clearSession();
                     this.openAuthModal('login', '登录已失效，请重新登录');
@@ -1488,7 +1805,8 @@ new Vue({
                 } else if (error?.code === 404) {
                     this.showToast('图片不存在或已被删除，已为你刷新列表', 'error');
                     this.showEditModal = false;
-                    await this.loadImages(true);
+                    this.editingImage = null;
+                    this.refreshGalleryAfterEdit();
                 } else if (error?.code === 429) {
                     this.showToast('操作过于频繁，请稍后重试', 'error');
                 } else {
@@ -1835,7 +2153,7 @@ new Vue({
             if (window.Toast && typeof window.Toast.show === 'function') {
                 window.Toast.show(message, type);
             } else {
-                console.log(`[Toast ${type}] ${message}`);
+                console.warn(`[Toast ${type}] ${message}`);
             }
         }
     }

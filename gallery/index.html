@@ -20,7 +20,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
         rel="stylesheet">
-    <link rel="stylesheet" href="gallery.css?v=1.4.7">
+    <link rel="stylesheet" href="gallery.css?v=1.4.10">
     <script>
         // 在 DOM ready 后立即定位分类栏，避免 Vue 加载延迟导致跳动
         document.addEventListener('DOMContentLoaded', function () {
@@ -174,7 +174,7 @@
                     <div class="modal-content upload-modal-shell">
                         <div class="modal-header upload-modal-header-refined">
                             <h3><i class="fa-solid fa-cloud-arrow-up"></i> 上传图片</h3>
-                            <button class="close-btn" @click="showUploadModal = false"><i
+                            <button class="close-btn" @click="closeUploadModal" :disabled="uploading"><i
                                     class="fa-solid fa-xmark"></i></button>
                         </div>
                         <div class="modal-body upload-modal-body-refined">
@@ -191,97 +191,146 @@
                                     （剩余额度不多）
                                 </span>
                             </div>
-                            <div class="file-drop-area" :class="{ 'has-file': uploadFiles.length > 0 }"
-                                @click="$refs.fileInput.click()" @dragover.prevent @drop.prevent="handleModalDrop">
-                                <template v-if="uploadFiles.length === 0">
+                            <div class="file-drop-area"
+                                :class="{ 'has-file': uploadFiles.length > 0, 'is-disabled': uploading || queueBuildInProgress }"
+                                @click="!uploading && !queueBuildInProgress && triggerFileInput()" @dragover.prevent
+                                @drop.prevent="handleModalDrop">
+                                <div class="file-drop-copy">
                                     <i class="fa-solid fa-cloud-arrow-up"></i>
-                                    <p>点击或拖拽图片到此处</p>
-                                    <span class="file-hint">支持 JPG、PNG、GIF、WEBP</span>
-                                </template>
-                                <template v-else>
-                                    <div class="file-preview-list">
-                                        <p class="file-preview-tip"><i class="fa-solid fa-pen"></i> 标题可单独填写，分类和标签默认跟随批量，需要时再展开覆盖</p>
-                                        <div class="file-preview-item" v-for="(file, idx) in uploadFiles" :key="file.id || idx">
+                                    <div class="file-drop-text">
+                                        <p>{{ uploadFiles.length > 0 ? '继续添加图片到待上传区' : '点击或拖拽图片到此处' }}</p>
+                                        <span class="file-hint">{{ uploadQueueHint }}</span>
+                                    </div>
+                                </div>
+                                <div class="file-drop-meta" v-if="uploadFiles.length > 0 || queueBuildInProgress">
+                                    <span class="file-drop-meta-chip"><i class="fa-regular fa-images"></i> 待上传 {{ uploadFiles.length }} 张</span>
+                                    <span class="file-drop-meta-chip is-active" v-if="queueBuildInProgress"><i class="fa-solid fa-spinner fa-spin"></i> 正在整理 {{ queueBuildPendingCount }} 张</span>
+                                </div>
+                            </div>
+                            <div class="upload-queue-panel" v-if="uploadFiles.length > 0">
+                                <div class="upload-queue-toolbar">
+                                    <div class="upload-queue-summary">
+                                        <span class="upload-summary-chip"><i class="fa-regular fa-images"></i> {{ uploadFiles.length }} 项</span>
+                                        <span class="upload-summary-chip is-ready" v-if="uploadReadyCount > 0"><i class="fa-solid fa-circle-check"></i> {{ uploadReadyCount }} 可上传</span>
+                                        <span class="upload-summary-chip is-warning" v-if="uploadInvalidCount > 0"><i class="fa-solid fa-triangle-exclamation"></i> {{ uploadInvalidCount }} 超限</span>
+                                        <span class="upload-summary-chip is-danger" v-if="uploadErrorCount > 0"><i class="fa-solid fa-rotate-right"></i> {{ uploadErrorCount }} 待重试</span>
+                                    </div>
+                                    <div class="upload-queue-actions">
+                                        <button type="button" class="queue-mini-btn" @click.stop="triggerFileInput"
+                                            :disabled="uploading || queueBuildInProgress">
+                                            <i class="fa-solid fa-plus"></i> 添加更多
+                                        </button>
+                                        <button type="button" class="queue-mini-btn danger" @click.stop="clearUploadQueue"
+                                            :disabled="uploading || queueBuildInProgress">
+                                            <i class="fa-solid fa-trash-can"></i> 清空队列
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="upload-batch-progress" v-if="uploading">
+                                    <div class="upload-batch-head">
+                                        <div>
+                                            <span class="upload-batch-kicker">当前进度</span>
+                                            <strong>{{ uploadFileName || '正在准备上传...' }}</strong>
+                                        </div>
+                                        <span class="progress-text">{{ uploadProgress }}%</span>
+                                    </div>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
+                                    </div>
+                                </div>
+                                <p class="file-preview-tip"><i class="fa-solid fa-pen"></i> 标题可单独填写，分类和标签默认跟随批量，需要时再展开覆盖</p>
+                                <div class="file-preview-list">
+                                    <div class="file-preview-item" v-for="(file, idx) in uploadFiles" :key="file.id || idx"
+                                        :class="[`is-${file.status || 'ready'}`, { 'is-expanded': file.settingsExpanded }]">
+                                        <div class="file-preview-thumb">
                                             <img :src="file.preview" v-if="file.preview">
-                                            <div class="file-info">
-                                                <input type="text" v-model="file.title" class="file-title-input"
-                                                    :placeholder="file.suggestedTitle || '留空则使用推荐标题'" @click.stop>
-                                                <span class="file-name-hint">{{ file.name }}</span>
-                                                <div class="file-summary-row">
-                                                    <div class="file-settings-summary">
-                                                        <span class="file-summary-chip"><i class="fa-solid fa-folder-tree"></i> {{ getFileCategorySummary(file) }}</span>
-                                                        <span class="file-summary-chip"><i class="fa-solid fa-tags"></i> {{ getFileTagsSummary(file) }}</span>
-                                                    </div>
-                                                    <button type="button" class="file-settings-toggle" @click.stop="toggleFileSettings(file)">
-                                                        <span>{{ file.settingsExpanded ? '收起单图配置' : '展开单图配置' }}</span>
-                                                        <i class="fa-solid" :class="file.settingsExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
-                                                    </button>
+                                            <div class="file-preview-fallback" v-else><i class="fa-regular fa-image"></i></div>
+                                        </div>
+                                        <div class="file-info">
+                                            <div class="file-row-head">
+                                                <div class="file-row-title">
+                                                    <input type="text" v-model="file.title" class="file-title-input"
+                                                        :placeholder="file.suggestedTitle || '留空则使用推荐标题'" :disabled="uploading"
+                                                        @click.stop>
+                                                    <span class="file-name-hint">{{ file.name }}</span>
                                                 </div>
-                                                <div class="file-override-grid" v-if="file.settingsExpanded">
-                                                    <div class="file-override-card">
-                                                        <div class="file-override-header">
-                                                            <span class="file-override-label"><i class="fa-solid fa-folder-tree"></i> 分类</span>
-                                                            <div class="file-mode-switch">
-                                                                <button type="button" class="file-mode-btn"
-                                                                    :class="{ 'active': !file.customCategoryEnabled }"
-                                                                    @click.stop="disableFileCustomCategory(file)">
-                                                                    跟随批量
-                                                                </button>
-                                                                <button type="button" class="file-mode-btn"
-                                                                    :class="{ 'active': file.customCategoryEnabled }"
-                                                                    @click.stop="enableFileCustomCategory(file)">
-                                                                    单独设置
-                                                                </button>
-                                                            </div>
-                                                        </div>
-                                                        <div class="file-option-fallback file-option-fallback-rich" v-if="!file.customCategoryEnabled">
-                                                            当前默认：{{ getUploadCategoryName(uploadCategory) }}
-                                                        </div>
-                                                        <div class="file-category-chip-group" v-else>
-                                                            <button type="button" class="file-category-chip"
-                                                                v-for="cat in uploadCategories" :key="cat.key"
-                                                                :class="{ 'selected': file.customCategory === cat.key }"
-                                                                @click.stop="file.customCategory = cat.key">
-                                                                <i :class="cat.icon"></i>
-                                                                <span>{{ cat.name }}</span>
+                                                <span class="file-state-pill" :class="`is-${file.status || 'ready'}`">{{ getUploadFileStatusLabel(file) }}</span>
+                                            </div>
+                                            <div class="file-row-meta">
+                                                <span class="file-meta-chip"><i class="fa-regular fa-hard-drive"></i> {{ getUploadFileMeta(file) }}</span>
+                                                <span class="file-meta-chip"><i class="fa-solid fa-folder-tree"></i> {{ getFileCategorySummary(file) }}</span>
+                                                <span class="file-meta-chip"><i class="fa-solid fa-tags"></i> {{ getFileTagsSummary(file) }}</span>
+                                            </div>
+                                            <p class="file-status-message" v-if="file.message">{{ file.message }}</p>
+                                            <div class="file-summary-row">
+                                                <button type="button" class="file-settings-toggle" @click.stop="toggleFileSettings(file)"
+                                                    :disabled="uploading">
+                                                    <span>{{ file.settingsExpanded ? '收起单图配置' : '展开单图配置' }}</span>
+                                                    <i class="fa-solid" :class="file.settingsExpanded ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+                                                </button>
+                                            </div>
+                                            <div class="file-override-grid" v-if="file.settingsExpanded">
+                                                <div class="file-override-card">
+                                                    <div class="file-override-header">
+                                                        <span class="file-override-label"><i class="fa-solid fa-folder-tree"></i> 分类</span>
+                                                        <div class="file-mode-switch">
+                                                            <button type="button" class="file-mode-btn"
+                                                                :class="{ 'active': !file.customCategoryEnabled }"
+                                                                :disabled="uploading" @click.stop="disableFileCustomCategory(file)">
+                                                                跟随批量
+                                                            </button>
+                                                            <button type="button" class="file-mode-btn"
+                                                                :class="{ 'active': file.customCategoryEnabled }"
+                                                                :disabled="uploading" @click.stop="enableFileCustomCategory(file)">
+                                                                单独设置
                                                             </button>
                                                         </div>
                                                     </div>
-                                                    <div class="file-override-card">
-                                                        <div class="file-override-header">
-                                                            <span class="file-override-label"><i class="fa-solid fa-tags"></i> 标签</span>
-                                                            <div class="file-mode-switch">
-                                                                <button type="button" class="file-mode-btn"
-                                                                    :class="{ 'active': !file.customTagsEnabled }"
-                                                                    @click.stop="disableFileCustomTags(file)">
-                                                                    跟随批量
-                                                                </button>
-                                                                <button type="button" class="file-mode-btn"
-                                                                    :class="{ 'active': file.customTagsEnabled }"
-                                                                    @click.stop="enableFileCustomTags(file)">
-                                                                    单独设置
-                                                                </button>
-                                                            </div>
+                                                    <div class="file-option-fallback file-option-fallback-rich" v-if="!file.customCategoryEnabled">
+                                                        当前默认：{{ getUploadCategoryName(uploadCategory) }}
+                                                    </div>
+                                                    <div class="file-category-chip-group" v-else>
+                                                        <button type="button" class="file-category-chip"
+                                                            v-for="cat in uploadCategories" :key="cat.key"
+                                                            :class="{ 'selected': file.customCategory === cat.key }"
+                                                            :disabled="uploading" @click.stop="file.customCategory = cat.key">
+                                                            <i :class="cat.icon"></i>
+                                                            <span>{{ cat.name }}</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div class="file-override-card">
+                                                    <div class="file-override-header">
+                                                        <span class="file-override-label"><i class="fa-solid fa-tags"></i> 标签</span>
+                                                        <div class="file-mode-switch">
+                                                            <button type="button" class="file-mode-btn"
+                                                                :class="{ 'active': !file.customTagsEnabled }"
+                                                                :disabled="uploading" @click.stop="disableFileCustomTags(file)">
+                                                                跟随批量
+                                                            </button>
+                                                            <button type="button" class="file-mode-btn"
+                                                                :class="{ 'active': file.customTagsEnabled }"
+                                                                :disabled="uploading" @click.stop="enableFileCustomTags(file)">
+                                                                单独设置
+                                                            </button>
                                                         </div>
-                                                        <div class="file-option-fallback file-option-fallback-rich" v-if="!file.customTagsEnabled">
-                                                            当前默认：{{ getUploadTagsSummary(uploadTags) }}
-                                                        </div>
-                                                        <div class="file-tags-editor" v-else>
-                                                            <input type="text" v-model="file.customTagsText"
-                                                                class="file-tags-input" placeholder="逗号分隔多个标签"
-                                                                @click.stop>
-                                                            <span class="file-tags-helper">例如：miku, 初音未来, live</span>
-                                                        </div>
+                                                    </div>
+                                                    <div class="file-option-fallback file-option-fallback-rich" v-if="!file.customTagsEnabled">
+                                                        当前默认：{{ getUploadTagsSummary(uploadTags) }}
+                                                    </div>
+                                                    <div class="file-tags-editor" v-else>
+                                                        <input type="text" v-model="file.customTagsText"
+                                                            class="file-tags-input" placeholder="逗号分隔多个标签" :disabled="uploading"
+                                                            @click.stop>
+                                                        <span class="file-tags-helper">例如：miku, 初音未来, live</span>
                                                     </div>
                                                 </div>
                                             </div>
-                                            <button class="remove-file" @click.stop="removeFile(idx)"><i
-                                                    class="fa-solid fa-xmark"></i></button>
                                         </div>
+                                        <button class="remove-file" @click.stop="removeFile(idx)"
+                                            :disabled="uploading || queueBuildInProgress"><i class="fa-solid fa-xmark"></i></button>
                                     </div>
-                                    <p class="add-more" @click.stop="$refs.fileInput.click()"><i
-                                            class="fa-solid fa-plus"></i> 添加更多</p>
-                                </template>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label><i class="fa-solid fa-tags"></i> 标签（可选）</label>
@@ -304,13 +353,21 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="modal-footer">
-                            <button class="btn-secondary" @click="showUploadModal = false">取消</button>
-                            <button class="btn-primary" @click="startUpload"
-                                :disabled="uploadFiles.length === 0 || uploading">
-                                <i class="fa-solid" :class="uploading ? 'fa-circle-notch fa-spin' : 'fa-upload'"></i> {{
-                                uploading ? '上传中...' : '开始上传' }}
-                            </button>
+                        <div class="modal-footer upload-modal-footer-refined">
+                            <div class="upload-footer-copy">
+                                <span v-if="queueBuildInProgress">正在整理 {{ queueBuildPendingCount }} 张图片，请稍候再开始上传</span>
+                                <span v-else-if="hasUploadableFiles">本次将上传 {{ uploadReadyCount }} 张图片</span>
+                                <span v-else-if="uploadFiles.length > 0">当前没有可上传项，请处理超限或失败文件</span>
+                                <span v-else>选择图片后即可开始上传</span>
+                            </div>
+                            <div class="upload-footer-actions">
+                                <button class="btn-secondary" @click="closeUploadModal" :disabled="uploading">关闭</button>
+                                <button class="btn-primary" @click="startUpload"
+                                    :disabled="!hasUploadableFiles || uploading || queueBuildInProgress">
+                                    <i class="fa-solid" :class="uploading ? 'fa-circle-notch fa-spin' : 'fa-upload'"></i> {{
+                                    queueBuildInProgress ? '整理中...' : (uploading ? '上传中...' : '开始上传') }}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -532,22 +589,6 @@
                 </div>
             </transition>
 
-            <!-- 上传进度 -->
-            <transition name="fade">
-                <div class="upload-overlay" v-if="uploading">
-                    <div class="upload-modal">
-                        <div class="upload-icon"><i class="fa-solid fa-cloud-arrow-up"></i></div>
-                        <h3>正在上传</h3>
-                        <p class="upload-filename">{{ uploadFileName }}</p>
-                        <div class="progress-bar">
-                            <div class="progress-fill" :style="{ width: uploadProgress + '%' }"></div>
-                        </div>
-                        <span class="progress-text">{{ uploadProgress }}%</span>
-                    </div>
-                </div>
-            </transition>
-
-
         </template>
     </div>
     <script type="module">
@@ -557,7 +598,7 @@
         window.ConfirmModal = ConfirmModal;
     </script>
     <!-- 使用 defer 确保在 module 后执行，或者其实可以直接改用动态 import -->
-    <script src="gallery.js?v=1.4.7"></script>
+    <script src="gallery.js?v=1.4.10"></script>
 </body>
 
 </html>
